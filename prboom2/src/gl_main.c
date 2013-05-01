@@ -2326,9 +2326,17 @@ static void gld_DrawSprite(GLSprite *sprite)
   }
 }
 
+static int gld_EvaluateShowBar(mobj_t* thing)
+{
+  if (health_bar_shootables)
+    return thing->flags & MF_SHOOTABLE;
+  return (thing->flags & (MF_COUNTKILL | MF_CORPSE)) == MF_COUNTKILL;
+}
+
 static void gld_AddHealthBar(mobj_t* thing, GLSprite *sprite)
 {
-  if (((thing->flags & (MF_COUNTKILL | MF_CORPSE)) == MF_COUNTKILL) && (thing->health > 0))
+  if (thing->info->spawnhealth > 0 && thing->health > 0 &&
+      gld_EvaluateShowBar(thing))
   {
     GLHealthBar hbar;
     int health_percent = thing->health * 100 / thing->info->spawnhealth;
