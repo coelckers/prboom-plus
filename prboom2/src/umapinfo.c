@@ -22,14 +22,14 @@
 #include <errno.h>
 #include <math.h>
 
-#include "ini.h"
-
 #include "doomstat.h"
 #include "m_misc.h"
 #include "g_game.h"
 #include "doomdef.h"
 #include "lprintf.h"
 #include "umapinfo.h"
+
+#include "ini.h"
 
 static UMIMapEntry *current_map_entry = NULL;
 
@@ -197,8 +197,6 @@ static const char* ActorNames[] = {
     NULL
 };
 
-/* 307 lines for ini.c and ini.h */
-
 static UMIMapEntry* add_map_entry(const char *map_name) {
     UMIMapEntry *map_entry = NULL;
 
@@ -235,27 +233,40 @@ static UMIMapEntry* find_map_entry(const char *map_name) {
 
 static void assert_property_value_max_length(const char *property_value,
                                              const char *s,
-                                             size_t maxlen) {
+                                             size_t maxlen,
+                                             int line_number) {
     if (strlen(s) > maxlen) {
         I_Error(
-            "Value for \"%s\" is too long; maximum size is %zu\n",
+            "Value for \"%s\" in UMAPINFO on line %d is too long; maximum "
+            "size is %zu\n",
             property_value,
+            line_number,
             maxlen
         );
     }
 }
 
 static void assert_valid_lump_name(const char *property_value,
-                                   const char *lump_name) {
-    assert_property_value_max_length(property_value, lump_name, 8);
+                                   const char *lump_name,
+                                   int line_number) {
+    assert_property_value_max_length(
+        property_value,
+        lump_name,
+        8,
+        line_number
+    );
 }
 
 static void assert_valid_map_name(const char *property_value,
-                                  const char *map_name) {
-    assert_property_value_max_length(property_value, map_name, 8);
+                                  const char *map_name,
+                                  int line_number) {
+    assert_property_value_max_length(property_value, map_name, 8, line_number);
 
     if (!G_ValidateMapName(map_name, NULL, NULL)) {
-        I_Error("Invalid map name %s", map_name);
+        I_Error(
+            "Invalid map name %s in UMAPINFO on line %d",
+            map_name,
+            line_number);
     }
 }
 
@@ -273,7 +284,8 @@ static void assign_string(char **slot, const char *s) {
 
 static double parse_num(const char *property_name,
                         const char *property_value,
-                        char **endptr) {
+                        char **endptr,
+                        int line_number) {
     char *temp_endptr = NULL;
     double out = 0.0;
     
@@ -287,8 +299,9 @@ static double parse_num(const char *property_name,
 
     if ((out == 0.0) && (*endptr == property_value)) {
         I_Error(
-            "Invalid number value for %s: \"%s\"",
+            "Invalid number value for %s in UMAPINFO on line %d: \"%s\"",
             property_name,
+            line_number,
             property_value
         );
     }
@@ -296,14 +309,18 @@ static double parse_num(const char *property_name,
     if (errno == ERANGE) {
         if (out == HUGE_VAL) {
             I_Error(
-                "Number value for %s would cause overflow",
-                property_name
+                "Number value for %s in UMAPINFO on line %d would cause "
+                "overflow",
+                property_name,
+                line_number
             );
         }
         else {
             I_Error(
-                "Number value for %s would cause underflow",
-                property_name
+                "Number value for %s in UMAPINFO on line %d would cause "
+                "underflow",
+                property_name,
+                line_number
             );
         }
     }
@@ -311,20 +328,32 @@ static double parse_num(const char *property_name,
     return out;
 }
 
-static int parse_int(const char *property_name, const char *property_value) {
-    double doubleval1 = parse_num(property_name, property_value, NULL);
+static int parse_int(const char *property_name,
+                     const char *property_value,
+                     int line_number) {
+    double doubleval1 = parse_num(
+        property_name,
+        property_value,
+        NULL,
+        line_number
+    );
     int intval = (int)doubleval1;
     double doubleval2 = (double)intval;
 
     if (doubleval1 != doubleval2) {
-        I_Error("Expected integer value for %s, got float", property_name);
+        I_Error(
+            "Expected integer value for %s in UMAPINFO on line %d, got float",
+            property_name,
+            line_number
+        );
     }
 
     return intval;
 }
 
 static int parse_bool(const char *property_name,
-                      const char *property_value) {
+                      const char *property_value,
+                      int line_number) {
     if (!stricmp(property_value, "true")) {
         return 1;
     }
@@ -333,13 +362,18 @@ static int parse_bool(const char *property_name,
         return 0;
     }
 
-    I_Error("Expected true/false for %s", property_name);
+    I_Error(
+        "Expected true/false for %s in UMAPINFO on line %d",
+        property_name,
+        line_number
+    );
 
     return -1; /* Make compiler happy here */
 }
 
 static int convert_bossaction_int(const char *property_name, char *startptr,
-                                                             char **endptr) {
+                                                             char **endptr,
+                                                             int line_number) {
     long longval = 0L;
     
     errno = 0;
@@ -348,35 +382,44 @@ static int convert_bossaction_int(const char *property_name, char *startptr,
     if (errno == ERANGE) {
         if (longval == LONG_MIN) {
             I_Error(
-                "%s for bossaction property in UMAPINFO causes underflow",
-                property_name
+                "%s for bossaction property in UMAPINFO on line %d causes "
+                "underflow",
+                property_name,
+                line_number
             );
         }
         else {
             I_Error(
-                "%s for bossaction property in UMAPINFO causes overflow",
-                property_name
+                "%s for bossaction property in UMAPINFO on line %d causes "
+                "overflow",
+                property_name,
+                line_number
             );
         }
     }
 
     if (longval > INT_MAX) {
         I_Error(
-            "Line special for bossaction property in UMAPINFO is too large"
+            "Line special for bossaction property in UMAPINFO on line %d is "
+            "too large",
+            line_number
         );
     }
 
     if (longval < INT_MIN) {
-        /* [CG] Not the most accurate error, but fuck it */
+        /* [CG] Not the most accurate error characterization, but fuck it */
         I_Error(
-            "Line special for bossaction property in UMAPINFO is too small"
+            "Line special for bossaction property in UMAPINFO on line %d is "
+            "too small",
+            line_number
         );
     }
 
     return (int)longval;
 }
 
-static void parse_boss_action(const char *boss_action, int *type,
+static void parse_boss_action(const char *boss_action, int line_number,
+                                                       int *type,
                                                        int *line_special,
                                                        int *tag) {
     size_t i;
@@ -400,30 +443,44 @@ static void parse_boss_action(const char *boss_action, int *type,
 
     if (!ActorNames[i]) {
         I_Error(
-            "Unknown thing type for bossaction property in UMAPINFO (%s)",
+            "Unknown thing type for bossaction property in UMAPINFO on line "
+            "%d (%s)",
+            line_number,
             boss_action
         );
     }
 
     if ((startptr - boss_action) >= max) {
-        I_Error("Invalid bossaction property in UMAPINFO (%s)", boss_action);
+        I_Error(
+            "Invalid bossaction property in UMAPINFO on line %d (%s)",
+            line_number,
+            boss_action
+        );
     }
 
     startptr++;
 
     if ((startptr - boss_action) >= max) {
         I_Error(
-            "No line special or tag for bossaction property in UMAPINFO (%s)",
+            "No line special or tag for bossaction property in UMAPINFO on "
+            "line %d (%s)",
+            line_number,
             boss_action
         );
     }
 
-    *line_special = convert_bossaction_int("Line special", startptr, &endptr);
+    *line_special = convert_bossaction_int(
+        "Line special",
+        startptr,
+        &endptr,
+        line_number
+    );
 
     if (*endptr != ' ') {
         I_Error(
             "Line special and tag must be separated by a space in UMAPINFO "
-            "bossaction properties (%s)",
+            "bossaction properties (line %d: %s)",
+            line_number,
             boss_action
         );
     }
@@ -432,17 +489,19 @@ static void parse_boss_action(const char *boss_action, int *type,
 
     if ((startptr - boss_action) >= max) {
         I_Error(
-            "No tag for bossaction property in UMAPINFO (%s)",
+            "No tag for bossaction property in UMAPINFO on line %d (%s)",
+            line_number,
             boss_action
         );
     }
 
-    *tag = convert_bossaction_int("Tag", startptr, NULL);
+    *tag = convert_bossaction_int("Tag", startptr, NULL, line_number);
 }
 
 static int ini_value_handler(void *user, const char *map_name,
                                          const char *property_name,
-                                         const char *property_value) {
+                                         const char *property_value,
+                                         int line_number) {
     if (!current_map_entry) {
         current_map_entry = add_map_entry(map_name);
     }
@@ -458,11 +517,11 @@ static int ini_value_handler(void *user, const char *map_name,
         assign_string((char **)&current_map_entry->levelname, property_value);
     }
     else if (!stricmp(property_name, "next")) {
-        assert_valid_map_name(property_name, property_value);
+        assert_valid_map_name(property_name, property_value, line_number);
         assign_string((char **)&current_map_entry->nextmap, property_value);
     }
     else if (!stricmp(property_name, "nextsecret")) {
-        assert_valid_map_name(property_name, property_value);
+        assert_valid_map_name(property_name, property_value, line_number);
         assign_string((char **)&current_map_entry->nextsecret, property_value);
     }
     else if (!stricmp(property_name, "levelpic")) {
@@ -478,7 +537,7 @@ static int ini_value_handler(void *user, const char *map_name,
         assign_string((char **)&current_map_entry->endpic, property_value);
     }
     else if (!stricmp(property_name, "endcast")) {
-        if (parse_bool(property_name, property_value)) {
+        if (parse_bool(property_name, property_value, line_number)) {
             strcpy(current_map_entry->endpic, "$CAST");
         }
         else {
@@ -486,7 +545,7 @@ static int ini_value_handler(void *user, const char *map_name,
         }
     }
     else if (!stricmp(property_name, "endbunny")) {
-        if (parse_bool(property_name, property_value)) {
+        if (parse_bool(property_name, property_value, line_number)) {
             strcpy(current_map_entry->endpic, "$BUNNY");
         }
         else {
@@ -494,7 +553,7 @@ static int ini_value_handler(void *user, const char *map_name,
         }
     }
     else if (!stricmp(property_name, "endgame")) {
-        if (parse_bool(property_name, property_value)) {
+        if (parse_bool(property_name, property_value, line_number)) {
             strcpy(current_map_entry->endpic, "!");
         }
         else {
@@ -502,23 +561,25 @@ static int ini_value_handler(void *user, const char *map_name,
         }
     }
     else if (!stricmp(property_name, "exitpic")) {
-        assert_valid_lump_name(property_name, property_value);
+        assert_valid_lump_name(property_name, property_value, line_number);
         strcpy(current_map_entry->exitpic, property_value);
     }
     else if (!stricmp(property_name, "enterpic")) {
-        assert_valid_lump_name(property_name, property_value);
+        assert_valid_lump_name(property_name, property_value, line_number);
         strcpy(current_map_entry->enterpic, property_value);
     }
     else if (!stricmp(property_name, "nointermission")) {
         current_map_entry->nointermission = parse_bool(
             property_name,
-            property_value
+            property_value,
+            line_number
         );
     }
     else if (!stricmp(property_name, "partime")) {
         current_map_entry->partime = TICRATE * parse_int(
             property_name,
-            property_value
+            property_value,
+            line_number
         );
     }
     else if (!stricmp(property_name, "intertext")) {
@@ -531,11 +592,11 @@ static int ini_value_handler(void *user, const char *map_name,
         );
     }
     else if (!stricmp(property_name, "interbackdrop")) {
-        assert_valid_lump_name(property_name, property_value);
+        assert_valid_lump_name(property_name, property_value, line_number);
         strcpy(current_map_entry->interbackdrop, property_value);
     }
     else if (!stricmp(property_name, "intermusic")) {
-        assert_valid_lump_name(property_name, property_value);
+        assert_valid_lump_name(property_name, property_value, line_number);
         strcpy(current_map_entry->intermusic, property_value);
     }
     else if (!stricmp(property_name, "episode")) {
@@ -555,7 +616,13 @@ static int ini_value_handler(void *user, const char *map_name,
             int special;
             int tag;
 
-            parse_boss_action(property_value, &type, &special, &tag);
+            parse_boss_action(
+                property_value,
+                line_number,
+                &type,
+                &special,
+                &tag
+            );
 
             // allow no 0-tag specials here, unless a level exit.
             if (tag != 0 || special == 11 || special == 51 || special == 52
@@ -595,6 +662,7 @@ static int ini_value_handler(void *user, const char *map_name,
 // -----------------------------------------------
 
 void UMI_Parse(const char *buffer, size_t length) {
+    int parse_result;
     size_t i;
 
     // must reallocate to append a 0 for strtod to work
@@ -607,10 +675,19 @@ void UMI_Parse(const char *buffer, size_t length) {
     memcpy(newbuffer, buffer, length);
     newbuffer[length] = 0;
 
-    if (ini_parse_stream((ini_reader)ini_reader_func, newbuffer,
-                                                      ini_value_handler,
-                                                      NULL) < 0) {
-        I_Error("Parse error in UMAPINFO");
+    parse_result = ini_parse_stream(
+        (ini_reader)ini_reader_func,
+        newbuffer,
+        ini_value_handler,
+        NULL
+    );
+
+    if (parse_result < 0) {
+        I_Error("Internal error reading UMAPINFO");
+    }
+
+    if (parse_result > 0) {
+        I_Error("Parse error in UMAPINFO on line %d", parse_result);
     }
 
     for (i = 0; i < umi_maps.len; i++) {

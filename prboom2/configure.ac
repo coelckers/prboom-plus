@@ -221,6 +221,12 @@ AS_IF([test "x$with_image" != xno],
 
 AC_EGREP_HEADER(sockaddr_in6,netinet/in.h,AC_DEFINE(HAVE_IPv6,1,[Define if you have struct sockaddr_in6]))
 
+dnl --- [CG] INI configuration
+AC_DEFINE(INI_USE_STACK,0,[Define to allocate INI lines on the stack])
+AC_DEFINE(INI_STOP_ON_FIRST_ERROR,1,[Define to stop INI parsing on the 1st error])
+AC_DEFINE(INI_MAX_LINE,1048576,[Maximum line length (1 MB, give or take)])
+AC_DEFINE(INI_HANDLER_LINENO,1,[Pass line number to INI key/value handler (required)])
+
 dnl --- Options
 dnl - Always use highres mode and basic checks - anyone that wants these off can edit the config.h
 AC_DEFINE(HIGHRES,1,[Define for high resolution support])
