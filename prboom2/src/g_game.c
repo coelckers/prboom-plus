@@ -87,6 +87,9 @@
 #include "e6y.h"//e6y
 #include "statdump.h"
 
+// ano - used for version 255+ demos, like EE or MBF
+static char     prdemosig[] = "PRB+";
+
 #define SAVEGAMESIZE  0x20000
 #define SAVESTRINGSIZE  24
 
@@ -3179,13 +3182,71 @@ void G_BeginRecording (void)
 {
   int i;
   byte *demostart, *demo_p;
+  int num_requirements = 0;
   demostart = demo_p = malloc(1000);
   longtics = 0;
 
-  if (umapinfo_loaded)
+  // ano - jun2019 - add the extension format if needed
+  if (gamemapinfo)
   {
-	  *demo_p++ = 255;
+    num_requirements++;
   }
+
+  if (num_requirements > 0)
+  {
+    // demover
+    *demo_p++ = 0xFF;
+    // signature
+    *demo_p++ = 'P';
+    *demo_p++ = 'R';
+    *demo_p++ = 'B';
+    *demo_p++ = '+';
+    // extension version
+    *demo_p++ = 1;
+    //
+    *demo_p++ = num_requirements;
+
+    if (gamemapinfo)
+    {
+      int mapname_len = strnlen(gamemapinfo->mapname, 9);
+
+      // ano - note that the format has each length by each string
+      // as opposed to a table of lengths
+      *demo_p++ = 0x08;
+      *demo_p++ = 'U';
+      *demo_p++ = 'M';
+      *demo_p++ = 'A';
+      *demo_p++ = 'P';
+      *demo_p++ = 'I';
+      *demo_p++ = 'N';
+      *demo_p++ = 'F';
+      *demo_p++ = 'O';
+
+      // ano - to properly extend this to support other requirement strings
+      // we wouldn't just plop this here, but right now we only support the 1
+      // in the future, we should assume that chunks in the header should
+      // follow the order of their appearance in the requirements table.
+      if (mapname_len > 8)
+      {
+        I_Error("Unable to save map lump name %s, too large.", gamemapinfo->mapname);
+      }
+
+      for (i = 0; i < mapname_len; i++)
+      {
+        // FIXME - the toupper is a hacky workaround for the case insensitivity
+        // in the current UMAPINFO reader. lump names should probably not be
+        // lowercase ever (?)
+        *demo_p++ = toupper(gamemapinfo->mapname[i]);
+      }
+
+      // lets pad out any spare chars if the length was too short
+      for (; i < 8; i++)
+      {
+        *demo_p++ = 0;
+      }
+    }
+  }
+  // ano - done with the extension format!
 
   /* cph - 3 demo record formats supported: MBF+, BOOM, and Doom v1.9 */
   if (mbf_features) {
@@ -3490,7 +3551,9 @@ const byte* G_ReadDemoHeader(const byte *demo_p, size_t size)
 const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int params)
 {
   skill_t skill;
-  int i, episode, map;
+  int i, episode, map, extension_version;
+
+  int using_umapinfo = 0;
 
   // e6y
   // The local variable should be used instead of demobuffer,
@@ -3512,21 +3575,175 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
   demover = *demo_p++;
   longtics = 0;
 
+  // ano - jun2019 - special extensions. originally for UMAPINFO but
+  // designed to be extensible otherwise using the list of strings.
+  // note: i consulted the eternity engine implementation of this function
+  extension_version = -1;
   if (demover == 255)
   {
-	  // Uses UMAPINFO. The real version will be in the second byte.
-	  // This prepended 255 is here to prevent non-UMAPINFO ports from recognizing the demo.
-	  demover = *demo_p++;
-	  if (!umapinfo_loaded)
-	  {
-		  lprintf(LO_ERROR, "UMAPINFO not loaded but trying to play a demo recorded with it\n");
-	  }
+    int num_requirements;
+    // ano - jun2019
+    // so the format is
+    // demover byte == 255
+    // "PRB+" signature
+    // extension_version byte. for now this should always be "1"
+    // 1 byte for num_requirements
+
+    // num_requirements *
+    //    1 byte string length
+    //    and length chars (up to 255 obviously)
+    // note that the format has each length by each string
+    // as opposed to a table of lengths
+
+    // an example requirements string is "UMAPINFO".
+    // if num_requirements needs extending past 255 one day,
+    // consider reserving requirement string "MORE", which
+    // would could be implemented to load another list of 255.
+
+    // so that's a total of 1+4+1+1 + (n * m) bytes + ?? for extensions
+    // or 7 + some ?? bytes + some more ??
+
+    // then finally the "real" demover byte is present here
+
+    if (CheckForOverrun(header_p, demo_p, size, 7, failonerror))
+      return NULL;
+
+    // we check for the PRB+ signature as mentioned.
+    // MBF and Eternity Engine also use 255 demover, with other signatures.
+    if (strncmp((const char *)demo_p, prdemosig, 4) != 0)
+    {
+      I_Error("G_ReadDemoHeader: Extended demo format 255 found, but \"PRB+\" string not found.");
+    }
+
+    demo_p += 4;
+    extension_version = *demo_p++;
+
+    if (extension_version != 1)
+    {
+      I_Error("G_ReadDemoHeader: Extended demo format version %d unrecognized.", extension_version);
+    }
+
+    num_requirements = *demo_p++;
+
+    if (CheckForOverrun(header_p, demo_p, size, num_requirements, failonerror))
+      return NULL;
+
+    for (i = 0; i < num_requirements; i++)
+    {
+      int r_len = *demo_p++;
+
+      if (CheckForOverrun(header_p, demo_p, size, r_len, failonerror))
+        return NULL;
+
+      // ano - jun2019 - when more potential requirement strings get added,
+      // this section can become more complex
+      if (r_len == 8 && strncmp((const char *)demo_p, "UMAPINFO", 8) == 0)
+      {
+        using_umapinfo = 1;
+      }
+      else
+      {
+        // ano - TODO better error handling here?
+        I_Error("G_ReadDemoHeader: Extended demo format requirement unrecognized.");
+      }
+
+      demo_p += r_len;
+    }
+
+    // ano - jun2019 - load lump name if we're using umapinfo
+    // this is a bit hacky to just read in episode / map number from string
+    // currently PR+ doesn't support arbitrary mapnames, but one day it may,
+    // so this is for forward compat
+    if(using_umapinfo)
+    {
+      const byte *string_end = demo_p + 8;
+
+      if (CheckForOverrun(header_p, demo_p, size, 8, failonerror))
+        return NULL;
+
+      if (strncmp((const char *)demo_p, "MAP", 3) == 0)
+      {
+        // MAPx form
+        episode = 1;
+        demo_p += 3;
+        map = 0;
+
+        // we're doing hellworld number parsing and i'm sorry
+        // CAPTAIN, WE'RE PICKING UP SOME CODE DUPLICATION IN SECTOR 47
+        for (i = 0; demo_p < string_end; i++)
+        {
+          char cur = *demo_p++;
+          
+          if (cur < '0' || cur > '9')
+          {
+            if (cur != 0)
+            {
+              I_Error("G_ReadDemoHeader: Unable to determine map for UMAPINFO demo.");
+            }
+            break;
+          }
+
+          map = (map * 10) + (cur - '0');
+        }
+      }
+      else if(*demo_p++ == 'E')
+      {
+        // EyMx form
+        episode = 0;
+        map = 0;
+
+        // read in episode #
+        for (i = 0; demo_p < string_end; i++)
+        {
+          char cur = *demo_p++;
+
+          if (cur < '0' || cur > '9')
+          {
+            if (cur == 0 || cur == 'M')
+            {
+              break;
+            }
+
+            I_Error("G_ReadDemoHeader: Unable to determine map for UMAPINFO demo.");
+          }
+
+          episode = (episode * 10) + (cur - '0');
+        }
+
+        // read in map #
+        for (i = 0; demo_p < string_end; i++)
+        {
+          char cur = *demo_p++;
+
+          if (cur < '0' || cur > '9')
+          {
+            if (cur == 0)
+            {
+              break;
+            }
+
+            I_Error("G_ReadDemoHeader: Unable to determine map for UMAPINFO demo.");
+          }
+
+          episode = (episode * 10) + (cur - '0');
+        }
+      }
+      else
+      {
+        I_Error("G_ReadDemoHeader: Unable to determine map for UMAPINFO demo.");
+      }
+    
+      demo_p = string_end;
+    }
+
+    // ano - jun2019 - this is to support other demovers effectively?
+    // while still having the extended features
+    demover = *demo_p++;
+
   }
-  else if (umapinfo_loaded)
-  {
-	  // Q: Should this abort?
-	  lprintf(LO_ERROR, "UMAPINFO loaded but trying to play a demo recorded without it\n");
-  }
+  // ano - okay we are done with most of the 255 extension code past this point
+  // demover has hopefully been set to the new value
+  // the only stuff related to it will be behind extension_version checks past this point
 
   // e6y
   // Handling of unrecognized demo formats
@@ -3691,8 +3908,18 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
         return NULL;
 
       skill = *demo_p++;
-      episode = *demo_p++;
-      map = *demo_p++;
+
+      if (!using_umapinfo)
+      {
+        // ano - jun2019 - umapinfo loads mapname earlier
+        episode = *demo_p++;
+        map = *demo_p++;
+      }
+      else
+      {
+        *demo_p++;
+        *demo_p++;
+      }
       deathmatch = *demo_p++;
       consoleplayer = *demo_p++;
 
