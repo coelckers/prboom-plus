@@ -52,6 +52,10 @@ then
 fi
 AM_WITH_DMALLOC
 
+dnl --- Enable bindir support
+AC_ARG_ENABLE([bindir],AC_HELP_STRING([--enable-bindir],[Use bindir to configure game executable installation path]))
+AM_CONDITIONAL(DISABLE_BINDIR,test "x$enable_bindir" = "xno")
+
 dnl --- Try for processor optimisations
 AC_CPU_OPTIMISATIONS
 
