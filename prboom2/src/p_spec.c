@@ -197,7 +197,9 @@ void P_InitPicAnims (void)
     lastanim->istexture = animdefs[i].istexture;
     lastanim->numpics = lastanim->picnum - lastanim->basepic + 1;
 
-    if (lastanim->numpics < 2)
+    // sf: include support for swirly water hack
+    if (lastanim->speed < 65536 && lastanim->numpics != 1)
+      if (lastanim->numpics < 2)
         I_Error ("P_InitPicAnims: bad cycle from %s to %s",
                   animdefs[i].startname,
                   animdefs[i].endname);
@@ -2493,7 +2495,8 @@ void P_UpdateSpecials (void)
       if (anim->istexture)
         texturetranslation[i] = pic;
       else
-        flattranslation[i] = pic;
+        // sf: > 65535 : swirly hack
+        flattranslation[i] = (anim->speed > 65535 || anim->numpics == 1) ? -1 : pic;
     }
   }
 

@@ -57,6 +57,7 @@
 #include "r_things.h"
 #include "r_sky.h"
 #include "r_plane.h"
+#include "r_ripple.h"
 #include "r_main.h"
 #include "v_video.h"
 #include "lprintf.h"
@@ -487,9 +488,12 @@ static void R_DoDrawPlane(visplane_t *pl)
     } else {     // regular flat
 
       int stop, light;
+      const int swirling = flattranslation[pl->picnum] == -1;
       draw_span_vars_t dsvars;
 
-      dsvars.source = W_CacheLumpNum(firstflat + flattranslation[pl->picnum]);
+      dsvars.source = swirling ?
+        R_DistortedFlat(pl->picnum) :
+        W_CacheLumpNum(firstflat + flattranslation[pl->picnum]);
 
       xoffs = pl->xoffs;  // killough 2/28/98: Add offsets
       yoffs = pl->yoffs;
@@ -515,7 +519,8 @@ static void R_DoDrawPlane(visplane_t *pl)
          R_MakeSpans(x,pl->top[x-1],pl->bottom[x-1],
                      pl->top[x],pl->bottom[x], &dsvars);
 
-      W_UnlockLumpNum(firstflat + flattranslation[pl->picnum]);
+      if (!swirling)
+        W_UnlockLumpNum(firstflat + flattranslation[pl->picnum]);
     }
   }
 }
