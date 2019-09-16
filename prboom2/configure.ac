@@ -100,6 +100,9 @@ case "$target" in
             CFLAGS="$CFLAGS -mthreads"
         fi
         ;;
+    *-*-darwin*)
+        SYS_GL_LIBS="-framework OpenGL"
+        ;;
     *)
 	SYS_GL_LIBS="-lGL -lGLU"
 	;;
