@@ -445,7 +445,7 @@ WAD_CMDLINE += -graphics $(GRAPHICS)
 WAD_CMDLINE += -marker FF_START -flats $(FLATS) -marker FF_END
 WAD_CMDLINE += -marker SS_START -sprites $(SPRITEP) -marker SS_END
 
-prboom-plus.wad : rdatawad $(WAD_SRC)
+prboom-plus.wad : $(noinst_PROGRAMS) $(WAD_SRC)
 	${AM_V_GEN}./rdatawad -I $(srcdir) $(WAD_CMDLINE) -o $@
 
 EXTRA_DIST=$(WAD_SRC)

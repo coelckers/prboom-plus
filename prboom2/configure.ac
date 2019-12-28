@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT([PrBoom-Plus],[2.5.1.5],[],[prboom-plus])
+AC_INIT([PrBoom-Plus],[2.5.1.7],[],[prboom-plus])
 
 AC_CONFIG_HEADER(config.h)
 AC_CONFIG_AUX_DIR(autotools)
@@ -110,6 +110,35 @@ case "$target" in
 	;;
 esac
 
+dnl - win32
+case "$host" in
+  *-*-mingw* | *-*-cygwin* | *-*-msvc* )
+    AC_CHECK_TOOL(WINDRES, windres, )
+    ;;
+  *)
+    WINDRES=
+    ;;
+esac
+AM_CONDITIONAL(HAVE_WINDRES, test "$WINDRES" != "")
+AC_ARG_ENABLE(gl,AC_HELP_STRING([--disable-windows-launcher],[disable windows launcher]),,enable_windows_launcher="yes")
+AC_ARG_ENABLE(gl,AC_HELP_STRING([--disable-windows-pc-speaker],[disable windows pc speaker support]),,enable_windows_pc_speaker="yes")
+case "$target" in
+    *-*-cygwin* | *-*-mingw32*)
+        AC_DEFINE(USE_WINDOWS_LAUNCHER,1,[Define if you want to use the Windows launcher])
+        AC_DEFINE(USE_WIN32_PCSOUND_DRIVER,1,[Define if you want to use PC Speaker])
+        ;;
+    *)
+        enable_windows_launcher = no
+        enable_windows_pc_speaker = no
+        ;;
+esac
+if test "$enable_windows_launcher" = "yes"
+then
+  LIBS="$LIBS -lcomctl32"
+fi
+AM_CONDITIONAL(BUILD_WINDOWS_LAUNCHER,test "$enable_windows_launcher" = "yes")
+AM_CONDITIONAL(BUILD_WINDOWS_PC_SPEAKER,test "$enable_windows_pc_speaker" = "yes")
+
 dnl - GL
 AC_ARG_ENABLE(gl,AC_HELP_STRING([--disable-gl],[disable OpenGL rendering code]),,enable_gl="yes")
 if test "$enable_gl" = "yes"
@@ -125,6 +154,8 @@ then
     AC_MSG_RESULT($have_opengl)
     if test x$have_opengl = xyes; then
         AC_DEFINE(GL_DOOM,1,[Define if you are building with OpenGL support])
+        AC_DEFINE(USE_FBO_TECHNIQUE,1,[Define if you want to use FBO for some tricks in OpenGL])
+        AC_DEFINE(USE_SHADERS,1,[Define if you want to use hardware shaders in OpenGL])
         AC_DEFINE(USE_GLU_IMAGESCALE,1,[Define if you want to use gluImageScale])
         AC_DEFINE(USE_GLU_MIPMAP,1,[Define if you want to use gluBuild2DMipmaps])
         AC_DEFINE(USE_GLU_TESS,1,[Define if you want to use the gluTesselator])

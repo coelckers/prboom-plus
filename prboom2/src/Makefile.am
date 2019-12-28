@@ -81,7 +81,23 @@ endif
 
 MUS2MID_SRC = memio.c memio.h mus2mid.c mus2mid.h
 
-prboom_plus_SOURCES = $(COMMON_SRC) $(NET_CLIENT_SRC) $(USE_GL_SRC) $(WAD_SRC) $(MUS2MID_SRC)
+if BUILD_WINDOWS_LAUNCHER
+LAUNCHER_SRC = e6y_launcher.c e6y_launcher.h
+else
+LAUNCHER_SRC =
+endif
+
+if HAVE_WINDRES
+ICONS_SRC = ../icons/icons.rc
+.rc.o:
+	$(WINDRES) $< -o $@ -I..
+%.o : %.rc
+	$(WINDRES) $< -o $@ -I..
+else
+ICONS_SRC = 
+endif
+
+prboom_plus_SOURCES = $(COMMON_SRC) $(NET_CLIENT_SRC) $(USE_GL_SRC) $(WAD_SRC) $(MUS2MID_SRC) $(LAUNCHER_SRC) $(ICONS_SRC)
 prboom_plus_LDADD = SDL/libsdldoom.a PCSOUND/libpcsound.a TEXTSCREEN/libtextscreen.a MUSIC/libdoommusic.a @MIXER_LIBS@ @NET_LIBS@ @SDL_LIBS@ @GL_LIBS@ @MATH_LIB@ @LIBZ_LIBS@
 
 EXTRA_DIST = \

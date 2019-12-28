@@ -1,3 +1,17 @@
+Makefile
+Makefile.in
+aclocal.m4
+autom4te.cache
+autotools
+config.h
+config.h.in
+config.log
+config.status
+configure
+.deps
+stamp-h1
+*.exe
+prboom.spec
 prboom2/ICONS/icons.aps
 prboom2/ICONS/prboom-plus.wad
 prboom2/VisualC6/Debug
@@ -27,7 +41,7 @@ prboom2/VisualC8/ReleaseGL
 prboom2/VisualC8/ReleaseNOASM
 prboom2/VisualC8/ReleaseNOASMGL
 prboom2/VisualC8/ReleaseServer
-prboom2/data/prboom.wad
+prboom2/data/prboom-plus.wad
 prboom2/release
 /prboom2/VisualC2015/DebugGL
 /prboom2/VisualC2015/.vs/Doom/v16
@@ -37,3 +51,20 @@ prboom2/release
 /prboom2/VisualC2015/ReleaseGL
 /prboom2/VisualC2015/ReleaseServer/prboom_server.tlog
 /prboom2/VisualC2015/ReleaseServer
+
+# These are the default patterns globally ignored by Subversion:
+*.o
+*.lo
+*.la
+*.al
+.libs
+*.so
+*.so.[0-9]*
+*.a
+*.pyc
+*.pyo
+*.rej
+*~
+.#*
+.*.swp
+.DS_store
