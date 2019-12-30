@@ -248,8 +248,6 @@ set(TEXTSCREEN_SOURCES
 )
 
 set(DOOMMUSIC_SOURCES
-    MUSIC/dbopl.c
-    MUSIC/dbopl.h
     MUSIC/dumbplayer.c
     MUSIC/dumbplayer.h
     MUSIC/flplayer.c
@@ -261,6 +259,8 @@ set(DOOMMUSIC_SOURCES
     MUSIC/musicplayer.h
     MUSIC/opl.c
     MUSIC/opl.h
+    MUSIC/opl3.c
+    MUSIC/opl3.h
     MUSIC/oplplayer.c
     MUSIC/oplplayer.h
     MUSIC/opl_queue.c

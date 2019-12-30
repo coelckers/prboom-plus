@@ -32,7 +32,7 @@
 
 #include "opl.h"
 #include "opl_queue.h"
-#include "dbopl.h"
+#include "opl3.h"
 
 #include "i_sound.h" // mus_opl_gain
 
@@ -72,11 +72,11 @@ static unsigned int pause_offset;
 
 // OPL software emulator structure.
 
-static Chip opl_chip;
+static opl3_chip opl_chip;
 
 // Temporary mixing buffer used by the mixing callback.
 
-static int *mix_buffer = NULL;
+static int16_t *mix_buffer = NULL;
 
 // Register number that was written.
 
@@ -107,13 +107,11 @@ int OPL_Init (unsigned int rate)
     current_time = 0;
 
 
-    mix_buffer = (int*)malloc(opl_sample_rate * sizeof(int));
+    mix_buffer = (int16_t*)malloc(opl_sample_rate * sizeof(int16_t));
 
     // Create the emulator structure:
 
-    DBOPL_InitTables();
-    Chip__Chip(&opl_chip);
-    Chip__Setup(&opl_chip, opl_sample_rate);
+    OPL3_Reset(&opl_chip, opl_sample_rate);
 
 
     OPL_InitRegisters();
@@ -204,7 +202,7 @@ static void WriteRegister(unsigned int reg_num, unsigned int value)
             break;
 
         default:
-            Chip__WriteReg(&opl_chip, reg_num, (unsigned char) value);
+            OPL3_WriteRegBuffered(&opl_chip, reg_num, (uint8_t)value);
             break;
     }
 }
@@ -252,11 +250,11 @@ static void FillBuffer(int16_t *buffer, unsigned int nsamples)
     // FIXME???
     //assert(nsamples < opl_sample_rate);
 
-    Chip__GenerateBlock2(&opl_chip, nsamples, mix_buffer);
+    OPL3_GenerateStream(&opl_chip, mix_buffer, nsamples);
 
-    // Mix into the destination buffer, doubling up into stereo.
+    // Mix into the destination buffer.
 
-    for (i=0; i<nsamples; ++i)
+    for (i=0; i<nsamples * 2; ++i)
     {
         sampval = mix_buffer[i] * mus_opl_gain / 50;
         // clip
@@ -264,8 +262,7 @@ static void FillBuffer(int16_t *buffer, unsigned int nsamples)
             sampval = 32767;
         else if (sampval < -32768)
             sampval = -32768;
-        buffer[i * 2] = (int16_t) sampval;
-        buffer[i * 2 + 1] = (int16_t) sampval;
+        buffer[i] = (int16_t) sampval;
     }
 }
 
