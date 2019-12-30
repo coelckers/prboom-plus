@@ -312,9 +312,13 @@ target_include_directories(prboom-plus PRIVATE
 target_link_libraries(prboom-plus PRIVATE
     ${OPENGL_LIBRARIES}
     ${SDL2_LIBRARIES}
-    winmm
-    comctl32
 )
+if(WIN32)
+    target_link_libraries(prboom-plus PRIVATE
+        winmm
+        comctl32
+    )
+endif()
 set_target_properties(prboom-plus PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${PRBOOM_OUTPUT_PATH}
 )

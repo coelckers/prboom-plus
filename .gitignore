@@ -38,10 +38,3 @@ prboom2/release
 /prboom2/VisualC2015/ReleaseServer/prboom_server.tlog
 /prboom2/VisualC2015/ReleaseServer
 /build*
-CMakeFiles
-CMakeCache.txt
-Makefile
-*.cmake
-config.h
-prboom-plus.wad
-*.exe
