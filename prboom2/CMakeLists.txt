@@ -33,7 +33,13 @@ endif()
 
 check_symbol_exists(getopt "unistd.h" HAVE_GETOPT)
 check_symbol_exists(mmap "sys/mman.h" HAVE_MMAP)
+set(CMAKE_REQUIRED_DEFINITIONS_PREV ${CMAKE_REQUIRED_DEFINITIONS})
+set(CMAKE_REQUIRED_DEFINITIONS ${CMAKE_REQUIRED_DEFINITIONS} -D_GNU_SOURCE)
 check_symbol_exists(sched_setaffinity "sched.h" HAVE_SCHED_SETAFFINITY)
+if(HAVE_SCHED_SETAFFINITY)
+    add_definitions(-D_GNU_SOURCE)
+endif()
+set(CMAKE_REQUIRED_DEFINITIONS ${CMAKE_REQUIRED_DEFINITIONS_PREV})
 check_symbol_exists(usleep "unistd.h" HAVE_USLEEP)
 
 include(CheckIncludeFile)
