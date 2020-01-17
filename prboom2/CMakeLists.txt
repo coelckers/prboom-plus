@@ -164,6 +164,29 @@ add_definitions(-DHAVE_CONFIG_H)
 
 if (MSVC)
     add_definitions("/D_CRT_SECURE_NO_WARNINGS")
+
+    # Create list of _FLAGS variables
+    foreach(FLAGS_SUFFIX "" _DEBUG _RELEASE _MINSIZEREL _RELWITHDEBINFO)
+        set(FLAGS_VARIABLES ${FLAGS_VARIABLES} CMAKE_C_FLAGS${FLAGS_SUFFIX} CMAKE_CXX_FLAGS${FLAGS_SUFFIX})
+    endforeach()
+
+    # Determine command line options affected by static/dynamic runtime selection
+    option(USE_STATIC_RUNTIME "Use static C/C++ runtime" ON)
+
+    if(USE_STATIC_RUNTIME)
+        set(OPTION_TO_REPLACE "/MD")
+        set(OPTION_TO_USE "/MT")
+    else()
+        set(OPTION_TO_REPLACE "/MT")
+        set(OPTION_TO_USE "/MD")
+    endif()
+
+    # Apply selected runtime options
+    foreach(FLAGS_VARIABLE ${FLAGS_VARIABLES})
+        if(${FLAGS_VARIABLE} MATCHES "/MD")
+            string(REGEX REPLACE ${OPTION_TO_REPLACE} ${OPTION_TO_USE} ${FLAGS_VARIABLE} "${${FLAGS_VARIABLE}}")
+        endif()
+    endforeach()
 else()
     set(CMAKE_C_FLAGS
         ${CMAKE_C_FLAGS} "\
