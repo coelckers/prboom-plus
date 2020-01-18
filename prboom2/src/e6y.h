@@ -123,6 +123,7 @@ extern int movement_shorttics;
 extern int movement_mouselook;
 extern int movement_mouseinvert;
 extern int movement_maxviewpitch;
+extern int movement_mousestrafedivisor;
 extern int mouse_handler;
 extern int mouse_doubleclick_as_use;
 extern int render_multisampling;
@@ -209,6 +210,7 @@ void I_Init2(void);
 
 dboolean GetMouseLook(void);
 dboolean HaveMouseLook(void);
+int GetMouseStrafeDivisor(void);
 
 extern float viewPitch;
 extern dboolean transparentpresent;
