@@ -517,11 +517,6 @@ dboolean HaveMouseLook(void)
   return (viewpitch != 0);
 }
 
-int GetMouseStrafeDivisor(void)
-{
-  return movement_mousestrafedivisor;
-}
-
 void CheckPitch(signed int *pitch)
 {
   if(*pitch > maxViewPitch)

@@ -210,7 +210,6 @@ void I_Init2(void);
 
 dboolean GetMouseLook(void);
 dboolean HaveMouseLook(void);
-int GetMouseStrafeDivisor(void);
 
 extern float viewPitch;
 extern dboolean transparentpresent;
