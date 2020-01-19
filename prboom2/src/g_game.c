@@ -356,6 +356,18 @@ static inline signed short fudgea(signed short b)
     // (e.g. glides, where this makes a significant difference)
     // with the same mouse behaviour as when recording,
     // but without having to be recording every time.
+
+	// Chocolate Doom Mouse Behaviour
+	// Don't discard mouse delta even if value is too small to
+	// turn the player this tic
+	if (mouse_chocolate) {
+	  static signed short carry = 0;
+	  signed short desired_angleturn = b + carry;
+	  b = (desired_angleturn + 128) & 0xff00;
+	  carry = desired_angleturn - b;
+	  return b;
+	}
+
     return (((b + 128) >> 8) << 8);
   }
   else
@@ -2876,7 +2888,16 @@ void G_WriteDemoTiccmd (ticcmd_t* cmd)
   *p++ = cmd->forwardmove;
   *p++ = cmd->sidemove;
   if (!longtics) {
-    *p++ = (cmd->angleturn+128)>>8;
+	// Chocolate Doom Mouse Behaviour
+	if (mouse_chocolate) {
+	  static signed short carry = 0;
+	  signed short desired_angleturn = cmd->angleturn + carry;
+	  cmd->angleturn = (desired_angleturn + 128) & 0xff00;
+	  carry = desired_angleturn - cmd->angleturn;
+	  *p++ = cmd->angleturn >> 8;
+	}
+	else
+      *p++ = (cmd->angleturn+128)>>8;
   } else {
     signed short a = cmd->angleturn;
     *p++ = a & 0xff;
