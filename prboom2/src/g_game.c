@@ -360,7 +360,7 @@ static inline signed short fudgea(signed short b)
 	// Chocolate Doom Mouse Behaviour
 	// Don't discard mouse delta even if value is too small to
 	// turn the player this tic
-	if (mouse_chocolate) {
+	if (mouse_carrytics) {
 	  static signed short carry = 0;
 	  signed short desired_angleturn = b + carry;
 	  b = (desired_angleturn + 128) & 0xff00;
@@ -2889,7 +2889,7 @@ void G_WriteDemoTiccmd (ticcmd_t* cmd)
   *p++ = cmd->sidemove;
   if (!longtics) {
 	// Chocolate Doom Mouse Behaviour
-	if (mouse_chocolate) {
+	if (mouse_carrytics) {
 	  static signed short carry = 0;
 	  signed short desired_angleturn = cmd->angleturn + carry;
 	  cmd->angleturn = (desired_angleturn + 128) & 0xff00;
