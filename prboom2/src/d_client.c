@@ -336,6 +336,9 @@ void NetUpdate(void)
     lastmadetic += newtics;
     if (ffmap) newtics++;
     while (newtics--) {
+      if (quickstart_window_ms > 0 && gametic == 0 && demorecording)
+        I_uSleep(quickstart_window_ms * 1000);
+
       I_StartTic();
       if (maketic - gametic > BACKUPTICS/2) break;
       
