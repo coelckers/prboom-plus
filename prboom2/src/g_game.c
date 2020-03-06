@@ -508,7 +508,8 @@ void G_BuildTiccmd(ticcmd_t* cmd)
                                                                   //    |
   if (gamekeydown[key_reverse])                                   //    V
     {
-      cmd->angleturn += QUICKREVERSE;                             //    ^
+      if (!strafe)
+        cmd->angleturn += QUICKREVERSE;                           //    ^
       gamekeydown[key_reverse] = false;                           //    |
     }                                                             // phares
 
@@ -737,6 +738,8 @@ void G_BuildTiccmd(ticcmd_t* cmd)
         side = -sidemove_normal[speed];
     }
   }
+
+  if (stroller) side = 0;
 
   cmd->forwardmove += fudgef((signed char)forward);
   cmd->sidemove += side;
