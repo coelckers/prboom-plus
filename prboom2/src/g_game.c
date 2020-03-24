@@ -343,39 +343,6 @@ static inline signed char fudgef(signed char b)
   return b;
 }
 
-static inline signed short fudgea(signed short b)
-{
-/*e6y
-  if (!b || !demo_compatibility || !longtics) return b;
-  b |= 1; if (b>2) b-=2;*/
-  if (shorttics && !demorecording && !demoplayback)
-  {
-    // e6y
-    // There is a new command-line switch "-shorttics".
-    // This makes it possible to practice routes and tricks
-    // (e.g. glides, where this makes a significant difference)
-    // with the same mouse behaviour as when recording,
-    // but without having to be recording every time.
-
-	// Chocolate Doom Mouse Behaviour
-	// Don't discard mouse delta even if value is too small to
-	// turn the player this tic
-	if (mouse_carrytics) {
-	  static signed short carry = 0;
-	  signed short desired_angleturn = b + carry;
-	  b = (desired_angleturn + 128) & 0xff00;
-	  carry = desired_angleturn - b;
-	  return b;
-	}
-
-    return (((b + 128) >> 8) << 8);
-  }
-  else
-  {
-    return b;
-  }
-}
-
 void G_SetSpeed(void)
 {
   int p;
@@ -508,7 +475,8 @@ void G_BuildTiccmd(ticcmd_t* cmd)
                                                                   //    |
   if (gamekeydown[key_reverse])                                   //    V
     {
-      cmd->angleturn += QUICKREVERSE;                             //    ^
+      if (!strafe)
+        cmd->angleturn += QUICKREVERSE;                           //    ^
       gamekeydown[key_reverse] = false;                           //    |
     }                                                             // phares
 
@@ -738,9 +706,25 @@ void G_BuildTiccmd(ticcmd_t* cmd)
     }
   }
 
+  if (stroller) side = 0;
+
   cmd->forwardmove += fudgef((signed char)forward);
   cmd->sidemove += side;
-  cmd->angleturn = fudgea(cmd->angleturn);
+
+  if (!longtics)
+  {
+	// Chocolate Doom Mouse Behaviour
+	// Don't discard mouse delta even if value is too small to
+	// turn the player this tic
+	if (mouse_carrytics) {
+	  static signed short carry = 0;
+	  signed short desired_angleturn = cmd->angleturn + carry;
+	  cmd->angleturn = (desired_angleturn + 128) & 0xff00;
+	  carry = desired_angleturn - cmd->angleturn;
+	}
+
+    cmd->angleturn = (((cmd->angleturn + 128) >> 8) << 8);
+  }
 
   upmove = 0;
   if (gamekeydown[key_flyup])
@@ -2888,16 +2872,7 @@ void G_WriteDemoTiccmd (ticcmd_t* cmd)
   *p++ = cmd->forwardmove;
   *p++ = cmd->sidemove;
   if (!longtics) {
-	// Chocolate Doom Mouse Behaviour
-	if (mouse_carrytics) {
-	  static signed short carry = 0;
-	  signed short desired_angleturn = cmd->angleturn + carry;
-	  cmd->angleturn = (desired_angleturn + 128) & 0xff00;
-	  carry = desired_angleturn - cmd->angleturn;
-	  *p++ = cmd->angleturn >> 8;
-	}
-	else
-      *p++ = (cmd->angleturn+128)>>8;
+    *p++ = (cmd->angleturn+128)>>8;
   } else {
     signed short a = cmd->angleturn;
     *p++ = a & 0xff;

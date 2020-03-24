@@ -145,6 +145,7 @@ int render_paperitems;
 int render_wipescreen;
 int mouse_acceleration;
 int demo_overwriteexisting;
+int quickstart_window_ms;
 
 int showendoom;
 
@@ -285,6 +286,12 @@ void e6y_InitCommandLine(void)
   if ((p = M_CheckParm("-avidemo")) && (p < myargc-1))
     avi_shot_fname = myargv[p + 1];
   stats_level = M_CheckParm("-levelstat");
+
+  if ((stroller = M_CheckParm("-stroller")))
+  {
+    M_AddParam("-turbo");
+    M_AddParam("50");
+  }
 
   // TAS-tracers
   InitTracers();
@@ -826,6 +833,7 @@ int I_MessageBox(const char* text, unsigned int type)
 }
 
 int stats_level;
+int stroller;
 int numlevels = 0;
 int levels_max = 0;
 timetable_t *stats = NULL;
@@ -852,6 +860,13 @@ void e6y_G_DoCompleted(void)
     sprintf(stats[numlevels].map,"MAP%02i",gamemap);
   else
     sprintf(stats[numlevels].map,"E%iM%i",gameepisode,gamemap);
+
+  if (secretexit)
+  {
+    size_t end_of_string = strlen(stats[numlevels].map);
+    if (end_of_string < 15)
+      stats[numlevels].map[end_of_string] = 's';
+  }
 
   stats[numlevels].stat[TT_TIME]        = leveltime;
   stats[numlevels].stat[TT_TOTALTIME]   = totalleveltimes;
