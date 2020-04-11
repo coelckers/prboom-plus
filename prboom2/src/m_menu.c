@@ -4054,13 +4054,15 @@ void M_InitExtendedHelp(void)
     i = W_CheckNumForName(namebfr);
     if (i == -1) {
       if (extended_help_count) {
+        /* Update consolidated help menu */
+          HelpMenu[0].routine = M_ExtHelp;
         if (gamemode == commercial) {
           ExtHelpDef.prevMenu  = &ReadDef1; /* previous menu */
           ReadMenu1[0].routine = M_ExtHelp;
-  } else {
+        } else {
           ExtHelpDef.prevMenu  = &ReadDef2; /* previous menu */
           ReadMenu2[0].routine = M_ExtHelp;
-  }
+        }
       }
       return;
     }
