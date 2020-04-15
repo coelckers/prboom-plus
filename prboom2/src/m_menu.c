@@ -4054,7 +4054,15 @@ void M_InitExtendedHelp(void)
     i = W_CheckNumForName(namebfr);
     if (i == -1) {
       if (extended_help_count) {
-        /* Update consolidated help menu */
+        /* The Extended Help menu is accessed using the
+         * Help hotkey (F1) or the "Read This!" menu item.
+         *
+         * If Extended Help screens are present, use the
+         * Extended Help routine when either the F1 Help Menu
+         * or the "Read This!" menu items are accessed.
+         *
+         * See also: https://www.doomworld.com/forum/topic/111465-boom-extended-help-screens-an-undocumented-feature/
+         */
           HelpMenu[0].routine = M_ExtHelp;
         if (gamemode == commercial) {
           ExtHelpDef.prevMenu  = &ReadDef1; /* previous menu */
