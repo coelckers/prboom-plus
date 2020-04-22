@@ -1586,6 +1586,12 @@ void G_DoCompleted (void)
 		  goto frommapinfo;	// skip past the default setup.
 	  }
   }
+  else
+  {
+	  wminfo.nextep = gameepisode - 1;
+	  wminfo.next = gamemap - 1; 
+  }
+          
 
   if (gamemode != commercial) // kilough 2/7/98
   {
