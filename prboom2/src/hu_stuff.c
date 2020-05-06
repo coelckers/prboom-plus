@@ -1249,29 +1249,29 @@ int HU_GetHealthColor(int health, int def)
 
 int HU_GetArmorColor(int armor, int def)
 {
-// [pull req] suggested change: armor color dictated by type (Advanced HUD)
-  if (plr->armortype >= 2)
-      return CR_BLUE;
-  else if (plr->armortype == 1)
-      return CR_GREEN;
-  else if (plr->armortype == 0)
-      return CR_RED;
 
-// [old behavior] armor color dictated by percent only, not type (Advanced HUD)
-/*
-  int result;
-
-  if (armor < armor_red)
-    result = CR_RED;
-  else if (armor < armor_yellow)
-    result = CR_GOLD;
-  else if (armor <= armor_green)
-    result = CR_GREEN;
+  if (sts_armorcolor_type)
+  {
+    // armor color dictated by type (Advanced HUD)
+    if (plr->armortype >= 2)
+        return CR_BLUE;
+    else if (plr->armortype == 1)
+        return CR_GREEN;
+    else if (plr->armortype == 0)
+        return CR_RED;
+  }
   else
-    result = def;
-
-  return result;
-*/
+  {
+    // armor color dictated by percent only, not type (Advanced HUD)
+    if (armor < armor_red)
+        return CR_RED;
+    else if (armor < armor_yellow)
+        return CR_GOLD;
+    else if (armor <= armor_green)
+        return CR_GREEN;
+    else
+        return def;
+  }
 }
 
 int HU_GetAmmoColor(int ammo, int fullammo, int def, int tofire, dboolean backpack)

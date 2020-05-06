@@ -849,26 +849,28 @@ static void ST_drawWidgets(dboolean refresh)
   else
     STlib_updatePercent(&w_health, CR_BLUE2, refresh); //killough 2/28/98
 
-  // [pull req] suggested change: armor color dictated by type (Status Bar)
-  if (plyr->armortype >= 2)
-      STlib_updatePercent(&w_armor, CR_BLUE2, refresh);
-  else if (plyr->armortype == 1)
-      STlib_updatePercent(&w_armor, CR_GREEN, refresh);
-  else if (plyr->armortype == 0)
-      STlib_updatePercent(&w_armor, CR_RED, refresh);
-
-  // [old behavior] armor color dictated by amount% only, not type (Status Bar)
-  //jff 2/16/98 make color of armor depend on amount
-  /*
-  if (*w_armor.n.num<armor_red)
-    STlib_updatePercent(&w_armor, CR_RED, refresh);
-  else if (*w_armor.n.num<armor_yellow)
-    STlib_updatePercent(&w_armor, CR_GOLD, refresh);
-  else if (*w_armor.n.num<=armor_green)
-    STlib_updatePercent(&w_armor, CR_GREEN, refresh);
+  if (sts_armorcolor_type)
+  {
+    // armor color dictated by type (Status Bar)
+    if (plyr->armortype >= 2)
+        STlib_updatePercent(&w_armor, CR_BLUE2, refresh);
+    else if (plyr->armortype == 1)
+        STlib_updatePercent(&w_armor, CR_GREEN, refresh);
+    else if (plyr->armortype == 0)
+        STlib_updatePercent(&w_armor, CR_RED, refresh);
+  }
   else
-    STlib_updatePercent(&w_armor, CR_BLUE2, refresh); //killough 2/28/98
-  */
+  {
+    //jff 2/16/98 make color of armor depend on amount
+    if (*w_armor.n.num<armor_red)
+        STlib_updatePercent(&w_armor, CR_RED, refresh);
+    else if (*w_armor.n.num<armor_yellow)
+        STlib_updatePercent(&w_armor, CR_GOLD, refresh);
+    else if (*w_armor.n.num<=armor_green)
+        STlib_updatePercent(&w_armor, CR_GREEN, refresh);
+    else
+        STlib_updatePercent(&w_armor, CR_BLUE2, refresh); //killough 2/28/98
+  }
 
   //e6y: moved to ST_refreshBackground() for correct single-pass stretching
   //STlib_updateBinIcon(&w_armsbg, refresh);
