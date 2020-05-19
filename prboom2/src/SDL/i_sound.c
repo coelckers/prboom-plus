@@ -1288,11 +1288,9 @@ static void Exp_InitMusic(void)
 {
   int i;
   musmutex = SDL_CreateMutex ();
-
   // todo not so greedy
   for (i = 0; music_players[i]; i++)
     music_player_was_init[i] = music_players[i]->init (snd_samplerate);
-
   atexit(Exp_ShutdownMusic);
 }
 
@@ -1555,7 +1553,7 @@ static void Exp_UpdateMusic (void *buff, unsigned nsamp)
   }
 
 
-  music_players[current_player]->render(buff, nsamp);
+  music_players[current_player]->render (buff, nsamp);
 }
 
 void M_ChangeMIDIPlayer(void)
