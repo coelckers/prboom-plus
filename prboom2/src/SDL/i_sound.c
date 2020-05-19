@@ -448,6 +448,9 @@ static void I_UpdateSound(void *unused, Uint8 *stream, int len)
   // Mixing channel index.
   int       chan;
 
+  if (!strcasecmp(snd_midiplayer, midiplayers[midi_player_sdl])) // This is but a temporary fix. Please do remove after a more definitive one!
+    memset(stream, 0, len);
+
   // NSM: when dumping sound, ignore the callback calls and only
   // service dumping calls
   if (dumping_sound && unused != (void *) 0xdeadbeef)
@@ -1286,10 +1289,10 @@ static void Exp_InitMusic(void)
   int i;
   musmutex = SDL_CreateMutex ();
 
-
   // todo not so greedy
   for (i = 0; music_players[i]; i++)
     music_player_was_init[i] = music_players[i]->init (snd_samplerate);
+
   atexit(Exp_ShutdownMusic);
 }
 
@@ -1302,7 +1305,6 @@ static void Exp_PlaySong(int handle, int looping)
     music_players[current_player]->setvolume (snd_MusicVolume);
     SDL_UnlockMutex (musmutex);
   }
-
 }
 
 extern int mus_pause_opt; // From m_misc.c
@@ -1553,7 +1555,7 @@ static void Exp_UpdateMusic (void *buff, unsigned nsamp)
   }
 
 
-  music_players[current_player]->render (buff, nsamp);
+  music_players[current_player]->render(buff, nsamp);
 }
 
 void M_ChangeMIDIPlayer(void)
