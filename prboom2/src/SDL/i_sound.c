@@ -448,7 +448,7 @@ static void I_UpdateSound(void *unused, Uint8 *stream, int len)
   // Mixing channel index.
   int       chan;
 
-  if (!strcasecmp(snd_midiplayer, midiplayers[midi_player_sdl])) // This is but a temporary fix. Please do remove after a more definitive one!
+  if (snd_midiplayer == NULL) // This is but a temporary fix. Please do remove after a more definitive one!
     memset(stream, 0, len);
 
   // NSM: when dumping sound, ignore the callback calls and only
@@ -1423,7 +1423,7 @@ static int Exp_RegisterSongEx (const void *data, size_t len, int try_mus2mid)
       found = 0;
       for (i = 0; music_players[i]; i++)
       {
-        if (strcmp (music_players[i]->name (), music_player_order[j]) == 0)
+        if (strcmp(music_players[i]->name (), music_player_order[j]) == 0)
         {
           found = 1;
           if (music_player_was_init[i])
