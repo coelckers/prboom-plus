@@ -351,7 +351,7 @@ void NetUpdate(void)
       int sendtics;
       remotesend -= xtratics;
       if (remotesend < 0) remotesend = 0;
-      sendtics = maketic - remotesend;
+      sendtics = MAX(maketic - remotesend, 35); // never send more than one second worth of tics (CVE-2019-20797)
       {
   size_t pkt_size = sizeof(packet_header_t) + 2 + sendtics * sizeof(ticcmd_t);
   packet_header_t *packet = Z_Malloc(pkt_size, PU_STATIC, NULL);
