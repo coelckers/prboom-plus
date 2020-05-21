@@ -1288,6 +1288,8 @@ static void Exp_InitMusic(void)
 {
   int i;
   musmutex = SDL_CreateMutex ();
+
+
   // todo not so greedy
   for (i = 0; music_players[i]; i++)
     music_player_was_init[i] = music_players[i]->init (snd_samplerate);
@@ -1303,6 +1305,7 @@ static void Exp_PlaySong(int handle, int looping)
     music_players[current_player]->setvolume (snd_MusicVolume);
     SDL_UnlockMutex (musmutex);
   }
+
 }
 
 extern int mus_pause_opt; // From m_misc.c
@@ -1421,7 +1424,7 @@ static int Exp_RegisterSongEx (const void *data, size_t len, int try_mus2mid)
       found = 0;
       for (i = 0; music_players[i]; i++)
       {
-        if (strcmp(music_players[i]->name (), music_player_order[j]) == 0)
+        if (strcmp (music_players[i]->name (), music_player_order[j]) == 0)
         {
           found = 1;
           if (music_player_was_init[i])
