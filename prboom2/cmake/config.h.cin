@@ -5,10 +5,13 @@
 
 #cmakedefine DOOMWADDIR "@DOOMWADDIR@"
 
+#cmakedefine WORDS_BIGENDIAN
+
 #cmakedefine HAVE_GETOPT
 #cmakedefine HAVE_MMAP
 #cmakedefine HAVE_SCHED_SETAFFINITY
 #cmakedefine HAVE_USLEEP
+#cmakedefine HAVE_DECL_SYS_SIGLIST
 
 #cmakedefine HAVE_SYS_WAIT_H
 #cmakedefine HAVE_UNISTD_H

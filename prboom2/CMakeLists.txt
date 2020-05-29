@@ -6,6 +6,9 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 include(TargetArch)
 
+include(TestBigEndian)
+TEST_BIG_ENDIAN(WORDS_BIGENDIAN)
+
 # Automated dependencies discovery, mostly needed for MSVC
 target_architecture(TARGET_ARCH)
 if(${TARGET_ARCH} MATCHES "i386")
@@ -43,6 +46,7 @@ if(NOT WIN32)
     endif()
 endif()
 check_symbol_exists(usleep "unistd.h" HAVE_USLEEP)
+check_symbol_exists(sys_siglist "signal.h" HAVE_DECL_SYS_SIGLIST)
 
 include(CheckIncludeFile)
 
