@@ -88,7 +88,7 @@
 #include "statdump.h"
 
 // ano - used for version 255+ demos, like EE or MBF
-static char     prdemosig[] = "PRB+";
+static char     prdemosig[] = "PR+UM";
 
 #define SAVEGAMESIZE  0x20000
 #define SAVESTRINGSIZE  24
@@ -3182,29 +3182,32 @@ void G_BeginRecording (void)
 {
   int i;
   byte *demostart, *demo_p;
-  int num_requirements = 0;
+  int num_extensions = 0;
   demostart = demo_p = malloc(1000);
   longtics = 0;
 
   // ano - jun2019 - add the extension format if needed
   if (gamemapinfo)
   {
-    num_requirements++;
+    num_extensions++;
   }
 
-  if (num_requirements > 0)
+  if (num_extensions > 0)
   {
     // demover
     *demo_p++ = 0xFF;
     // signature
-    *demo_p++ = 'P';
-    *demo_p++ = 'R';
-    *demo_p++ = 'B';
-    *demo_p++ = '+';
+    *demo_p++ = prdemosig[0]; // 'P'
+    *demo_p++ = prdemosig[1]; // 'R'
+    *demo_p++ = prdemosig[2]; // '+'
+    *demo_p++ = prdemosig[3]; // 'U'
+    *demo_p++ = prdemosig[4]; // 'M'
+    *demo_p++ = '\0';
     // extension version
     *demo_p++ = 1;
     //
-    *demo_p++ = num_requirements;
+    *demo_p++ =  num_extensions & 0xff;
+    *demo_p++ = (num_extensions >> 8) & 0xff;
 
     if (gamemapinfo)
     {
@@ -3222,10 +3225,10 @@ void G_BeginRecording (void)
       *demo_p++ = 'F';
       *demo_p++ = 'O';
 
-      // ano - to properly extend this to support other requirement strings
+      // ano - to properly extend this to support other extension strings
       // we wouldn't just plop this here, but right now we only support the 1
       // in the future, we should assume that chunks in the header should
-      // follow the order of their appearance in the requirements table.
+      // follow the order of their appearance in the extensions table.
       if (mapname_len > 8)
       {
         I_Error("Unable to save map lump name %s, too large.", gamemapinfo->mapname);
@@ -3581,41 +3584,40 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
   extension_version = -1;
   if (demover == 255)
   {
-    int num_requirements;
+    int num_extensions;
     // ano - jun2019
     // so the format is
     // demover byte == 255
-    // "PRB+" signature
+    // "PR+UM" signature (w/ ending null terminator)
     // extension_version byte. for now this should always be "1"
-    // 1 byte for num_requirements
+    // 2 bytes for num_extensions (little-endian)
 
-    // num_requirements *
+    // num_extensions *
     //    1 byte string length
-    //    and length chars (up to 255 obviously)
+    //    and length chars (up to 65535 obviously)
     // note that the format has each length by each string
     // as opposed to a table of lengths
 
-    // an example requirements string is "UMAPINFO".
-    // if num_requirements needs extending past 255 one day,
-    // consider reserving requirement string "MORE", which
-    // would could be implemented to load another list of 255.
+    // an example extensions string is "UMAPINFO".
+    // In no realistic scenario should num_extensions
+    // ever reach past 65535.
 
-    // so that's a total of 1+4+1+1 + (n * m) bytes + ?? for extensions
-    // or 7 + some ?? bytes + some more ??
+    // so that's a total of 1+6+1+2 + (n * m) bytes + ?? for extensions
+    // or 10 + some ?? bytes + some more ??
 
     // then finally the "real" demover byte is present here
 
-    if (CheckForOverrun(header_p, demo_p, size, 7, failonerror))
+    if (CheckForOverrun(header_p, demo_p, size, 10, failonerror))
       return NULL;
 
-    // we check for the PRB+ signature as mentioned.
+    // we check for the PR+UM signature as mentioned.
     // MBF and Eternity Engine also use 255 demover, with other signatures.
-    if (strncmp((const char *)demo_p, prdemosig, 4) != 0)
+    if (strncmp((const char *)demo_p, prdemosig, 5) != 0)
     {
-      I_Error("G_ReadDemoHeader: Extended demo format 255 found, but \"PRB+\" string not found.");
+      I_Error("G_ReadDemoHeader: Extended demo format 255 found, but \"PR+UM\" string not found.");
     }
 
-    demo_p += 4;
+    demo_p += 6;
     extension_version = *demo_p++;
 
     if (extension_version != 1)
@@ -3623,19 +3625,20 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
       I_Error("G_ReadDemoHeader: Extended demo format version %d unrecognized.", extension_version);
     }
 
-    num_requirements = *demo_p++;
+    num_extensions  =                 *demo_p++;
+    num_extensions |= ((unsigned int)(*demo_p++)) <<  8;
 
-    if (CheckForOverrun(header_p, demo_p, size, num_requirements, failonerror))
+    if (CheckForOverrun(header_p, demo_p, size, num_extensions, failonerror))
       return NULL;
 
-    for (i = 0; i < num_requirements; i++)
+    for (i = 0; i < num_extensions; i++)
     {
       int r_len = *demo_p++;
 
       if (CheckForOverrun(header_p, demo_p, size, r_len, failonerror))
         return NULL;
 
-      // ano - jun2019 - when more potential requirement strings get added,
+      // ano - jun2019 - when more potential extension strings get added,
       // this section can become more complex
       if (r_len == 8 && strncmp((const char *)demo_p, "UMAPINFO", 8) == 0)
       {
@@ -3644,7 +3647,7 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
       else
       {
         // ano - TODO better error handling here?
-        I_Error("G_ReadDemoHeader: Extended demo format requirement unrecognized.");
+        I_Error("G_ReadDemoHeader: Extended demo format extension unrecognized.");
       }
 
       demo_p += r_len;
