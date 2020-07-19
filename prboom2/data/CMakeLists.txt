@@ -362,3 +362,4 @@ add_custom_command(
     DEPENDS rdatawad ${WAD_SRC}
 )
 add_custom_target(prboomwad DEPENDS ${WAD_DATA_PATH})
+install(FILES ${WAD_DATA_PATH} DESTINATION ${DOOMWADDIR} COMPONENT "PrBoom-Plus internal WAD")

@@ -142,7 +142,6 @@ dboolean         demorecording;
 dboolean         demoplayback;
 dboolean         democontinue = false;
 char             democontinuename[PATH_MAX];
-int             demover;
 dboolean         singledemo;           // quit after playing a demo from cmdline
 wbstartstruct_t wminfo;               // parms for world map / intermission
 dboolean         haswolflevels = false;// jff 4/18/98 wolf levels present
@@ -151,6 +150,9 @@ int             autorun = false;      // always running?          // phares
 int             totalleveltimes;      // CPhipps - total time for all completed levels
 int             longtics;
 int             bytes_per_tic;
+
+dboolean boom_autoswitch;
+dboolean done_autoswitch;
 
 // e6y
 // There is a new command-line switch "-shorttics".
@@ -341,27 +343,6 @@ static inline signed char fudgef(signed char b)
   if (++c & 0x1f) return b;
   b |= 1; if (b>2) b-=2;*/
   return b;
-}
-
-static inline signed short fudgea(signed short b)
-{
-/*e6y
-  if (!b || !demo_compatibility || !longtics) return b;
-  b |= 1; if (b>2) b-=2;*/
-  if (shorttics && !demorecording && !demoplayback)
-  {
-    // e6y
-    // There is a new command-line switch "-shorttics".
-    // This makes it possible to practice routes and tricks
-    // (e.g. glides, where this makes a significant difference)
-    // with the same mouse behaviour as when recording,
-    // but without having to be recording every time.
-    return (((b + 128) >> 8) << 8);
-  }
-  else
-  {
-    return b;
-  }
 }
 
 void G_SetSpeed(void)
@@ -565,9 +546,14 @@ void G_BuildTiccmd(ticcmd_t* cmd)
   //
   // killough 3/26/98, 4/2/98: fix autoswitch when no weapons are left
 
+  // Make Boom insert only a single weapon change command on autoswitch.
   if ((!demo_compatibility && players[consoleplayer].attackdown && // killough
-       !P_CheckAmmo(&players[consoleplayer])) || gamekeydown[key_weapontoggle])
+       !P_CheckAmmo(&players[consoleplayer])) && !done_autoswitch && boom_autoswitch ||
+       gamekeydown[key_weapontoggle])
+  {
     newweapon = P_SwitchWeapon(&players[consoleplayer]);           // phares
+    done_autoswitch = true;
+  }
   else
     {                                 // phares 02/26/98: Added gamemode checks
       if (next_weapon)
@@ -731,7 +717,21 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 
   cmd->forwardmove += fudgef((signed char)forward);
   cmd->sidemove += side;
-  cmd->angleturn = fudgea(cmd->angleturn);
+
+  if ((demorecording && !longtics) || shorttics)
+  {
+	// Chocolate Doom Mouse Behaviour
+	// Don't discard mouse delta even if value is too small to
+	// turn the player this tic
+	if (mouse_carrytics) {
+	  static signed short carry = 0;
+	  signed short desired_angleturn = cmd->angleturn + carry;
+	  cmd->angleturn = (desired_angleturn + 128) & 0xff00;
+	  carry = desired_angleturn - cmd->angleturn;
+	}
+
+    cmd->angleturn = (((cmd->angleturn + 128) >> 8) << 8);
+  }
 
   upmove = 0;
   if (gamekeydown[key_flyup])
@@ -1564,6 +1564,9 @@ void G_DoCompleted (void)
   if (automapmode & am_active)
     AM_Stop();
 
+  wminfo.nextep = wminfo.epsd = gameepisode -1;
+  wminfo.last = gamemap -1;
+
   wminfo.lastmapinfo = gamemapinfo;
   wminfo.nextmapinfo = NULL;
   if (gamemapinfo)
@@ -1581,6 +1584,12 @@ void G_DoCompleted (void)
 		  G_ValidateMapName(next, &wminfo.nextep, &wminfo.next);
 		  wminfo.nextep--;
 		  wminfo.next--;
+		  // episode change
+		  if (wminfo.nextep != wminfo.epsd)
+		  {
+		    for (i = 0; i < MAXPLAYERS; i++)
+		      players[i].didsecret = false;
+		  }
 		  wminfo.didsecret = players[consoleplayer].didsecret;
 		  wminfo.partime = gamemapinfo->partime;
 		  goto frommapinfo;	// skip past the default setup.
@@ -1612,8 +1621,6 @@ void G_DoCompleted (void)
   }
 
   wminfo.didsecret = players[consoleplayer].didsecret;
-  wminfo.nextep = wminfo.epsd = gameepisode -1;
-  wminfo.last = gamemap -1;
 
   // wminfo.next is 0 biased, unlike gamemap
   if (gamemode == commercial)
@@ -4065,6 +4072,10 @@ void G_ReadDemoContinueTiccmd (ticcmd_t* cmd)
   {
     demo_continue_p = NULL;
     democontinue = false;
+    // Sometimes this bit is not available
+    if ((demo_compatibility && !prboom_comp[PC_ALLOW_SSG_DIRECT].state) ||
+      (cmd->buttons & BT_CHANGE) == 0)
+      cmd->buttons |= BT_JOIN;
   }
 }
 

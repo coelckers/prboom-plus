@@ -138,6 +138,7 @@ int movement_maxviewpitch;
 int movement_mousestrafedivisor;
 int mouse_handler;
 int mouse_doubleclick_as_use;
+int mouse_carrytics;
 int render_fov = 90;
 int render_multisampling;
 int render_paperitems;
@@ -740,7 +741,7 @@ void I_vWarning(const char *message, va_list argList)
   char msg[1024];
   doom_vsnprintf(msg,sizeof(msg),message,argList);
   lprintf(LO_ERROR, "%s\n", msg);
-#ifdef _MSC_VER
+#ifdef _WIN32
   I_MessageBox(msg, PRB_MB_OK);
 #endif
 }

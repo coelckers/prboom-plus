@@ -6,6 +6,9 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 include(TargetArch)
 
+include(TestBigEndian)
+TEST_BIG_ENDIAN(WORDS_BIGENDIAN)
+
 # Automated dependencies discovery, mostly needed for MSVC
 target_architecture(TARGET_ARCH)
 if(${TARGET_ARCH} MATCHES "i386")
@@ -43,6 +46,7 @@ if(NOT WIN32)
     endif()
 endif()
 check_symbol_exists(usleep "unistd.h" HAVE_USLEEP)
+check_symbol_exists(sys_siglist "signal.h" HAVE_DECL_SYS_SIGLIST)
 
 include(CheckIncludeFile)
 
@@ -146,7 +150,7 @@ check_symbol_exists(SDL_JoystickGetAxis "SDL.h" HAVE_SDL_JOYSTICKGETAXIS)
 set(CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES_PREV})
 set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES_PREV})
 
-set(DOOMWADDIR "${CMAKE_INSTALL_PREFIX}/share/games/doom" CACHE PATH "Path to install prboom.wad and look for other WAD files")
+set(DOOMWADDIR "${CMAKE_INSTALL_PREFIX}/share/games/doom" CACHE PATH "Path to look for WAD files")
 
 option(SIMPLECHECKS "Enable checks which only impose significant overhead if a posible error is detected" ON)
 option(ZONEIDCHECK "Enable id checks on zone blocks, to detect corrupted and illegally freed blocks" ON)
@@ -167,7 +171,7 @@ if (MSVC)
 else()
     set(CMAKE_C_FLAGS
         "${CMAKE_C_FLAGS} \
-        -Wall -Wextra -Wno-missing-field-initializers -Wwrite-strings -Wundef \
+        -Wall -Wno-missing-field-initializers -Wwrite-strings -Wundef \
         -Wbad-function-cast -Wcast-align -Wcast-qual -Wdeclaration-after-statement \
         -Wpointer-arith -Wno-unused -Wno-switch -Wno-sign-compare -Wno-pointer-sign \
         -ffast-math"

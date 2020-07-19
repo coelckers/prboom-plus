@@ -261,6 +261,7 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"demo_smoothturnsfactor", {&demo_smoothturnsfactor},  {6},1,SMOOTH_PLAYING_MAXFACTOR,
    def_int,ss_stat},
+  {"boom_autoswitch", {(int*)&boom_autoswitch}, {1}, 0, 1, def_bool, ss_none},
    
   {"Files",{NULL},{0},UL,UL,def_none,ss_none},
   /* cph - MBF-like wad/deh/bex autoload code */
@@ -314,6 +315,8 @@ default_t defaults[] =
    def_bool,ss_stat}, // makes percent signs on status bar always gray
   {"sts_traditional_keys",{&sts_traditional_keys},{0},0,1,  // killough 2/28/98
    def_bool,ss_stat}, // disables doubled card and skull key display on status bar
+  {"sts_armorcolor_type",{&sts_armorcolor_type},{1},0,1, //  armor color depends on type
+   def_bool,ss_stat},
   {"show_messages",{&showMessages},{1},0,1,
    def_bool,ss_none}, // enables message display
   {"autorun",{&autorun},{1},0,1,  // killough 3/6/98: preserve autorun across games
@@ -371,10 +374,11 @@ default_t defaults[] =
    def_int,ss_none}, // number of audio events simultaneously // killough
 #ifdef _WIN32
   {"snd_midiplayer",{NULL, &snd_midiplayer},{0,"fluidsynth"},UL,UL,def_str,ss_none},
+  {"snd_soundfont",{NULL, &snd_soundfont},{0,"TimGM6mb.sf2"},UL,UL,def_str,ss_none}, // soundfont name for synths that support it
 #else
   {"snd_midiplayer",{NULL, &snd_midiplayer},{0,"sdl"},UL,UL,def_str,ss_none},
+  {"snd_soundfont",{NULL, &snd_soundfont},{0,"/usr/share/sounds/sf3/default-GM.sf3"},UL,UL,def_str,ss_none}, // soundfont name for synths that support it
 #endif
-  {"snd_soundfont",{NULL, &snd_soundfont},{0,"TimGM6mb.sf2"},UL,UL,def_str,ss_none}, // soundfont name for synths that support it
   {"snd_mididev",{NULL, &snd_mididev},{0,""},UL,UL,def_str,ss_none}, // midi device to use for portmidiplayer
 
 #ifdef _WIN32
@@ -872,11 +876,11 @@ default_t defaults[] =
 
 //e6y
   {"Prboom-plus key bindings",{NULL},{0},UL,UL,def_none,ss_none},
-  {"key_speedup", {&key_speed_up}, {KEYD_KEYPADPLUS},
+  {"key_speedup", {&key_speed_up}, {0},
    0,MAX_KEY,def_key,ss_keys},
-  {"key_speeddown", {&key_speed_down}, {KEYD_KEYPADMINUS},
+  {"key_speeddown", {&key_speed_down}, {0},
    0,MAX_KEY,def_key,ss_keys},
-  {"key_speeddefault", {&key_speed_default}, {KEYD_KEYPADMULTIPLY},
+  {"key_speeddefault", {&key_speed_default}, {0},
    0,MAX_KEY,def_key,ss_keys},
   {"speed_step",{&speed_step},{0},0,1000,
    def_int,ss_none},
@@ -931,6 +935,8 @@ default_t defaults[] =
    def_int,ss_none},
   {"mouse_doubleclick_as_use", {&mouse_doubleclick_as_use},  {1},0,1,
    def_bool,ss_stat},
+  {"mouse_carrytics", {&mouse_carrytics}, {0},0,1,
+   def_bool,ss_stat},
 
   {"Prboom-plus demos settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"demo_extendedformat", {&demo_extendedformat_default},  {1},0,1,
@@ -972,11 +978,11 @@ default_t defaults[] =
 
   // NSM
   {"Video capture encoding settings",{NULL},{0},UL,UL,def_none,ss_none},
-  {"cap_soundcommand",{NULL, &cap_soundcommand},{0,"oggenc2 -r -R %s -q 5 - -o output.ogg"},UL,UL,def_str,ss_none},
-  {"cap_videocommand",{NULL, &cap_videocommand},{0,"x264 -o output.mp4 --crf 18 --muxer mp4 --demuxer raw --input-csp rgb --input-depth 8 --input-res %wx%h --fps %r -"},UL,UL,def_str,ss_none},
-  {"cap_muxcommand",{NULL, &cap_muxcommand},{0,"mkvmerge -o %f output.mp4 output.ogg"},UL,UL,def_str,ss_none},
-  {"cap_tempfile1",{NULL, &cap_tempfile1},{0,"output.ogg"},UL,UL,def_str,ss_none},
-  {"cap_tempfile2",{NULL, &cap_tempfile2},{0,"output.mp4"},UL,UL,def_str,ss_none},
+  {"cap_soundcommand",{NULL, &cap_soundcommand},{0,"ffmpeg -f s16le -ar %s -ac 2 -i - -c:a libopus -y temp_a.nut"},UL,UL,def_str,ss_none},
+  {"cap_videocommand",{NULL, &cap_videocommand},{0,"ffmpeg -f rawvideo -pix_fmt rgb24 -r %r -s %wx%h -i - -c:v libx264 -y temp_v.nut"},UL,UL,def_str,ss_none},
+  {"cap_muxcommand",{NULL, &cap_muxcommand},{0,"ffmpeg -i temp_v.nut -i temp_a.nut -c copy -y %f"},UL,UL,def_str,ss_none},
+  {"cap_tempfile1",{NULL, &cap_tempfile1},{0,"temp_a.nut"},UL,UL,def_str,ss_none},
+  {"cap_tempfile2",{NULL, &cap_tempfile2},{0,"temp_v.nut"},UL,UL,def_str,ss_none},
   {"cap_remove_tempfiles", {&cap_remove_tempfiles},{1},0,1,def_bool,ss_none},
   {"cap_fps", {&cap_fps},{60},16,300,def_int,ss_none},
 
