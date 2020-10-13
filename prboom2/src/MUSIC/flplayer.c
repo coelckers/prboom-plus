@@ -108,17 +108,6 @@ static const char *fl_name (void)
 static int fl_init (int samplerate)
 {
   const char *filename;
-#ifdef _WIN32
-  #ifndef _MSC_VER
-  DWORD WINAPI GetVersion (void);
-  #endif // _MSC_VER
-
-  if ((int)GetVersion() < 0) // win9x
-  {
-    lprintf (LO_INFO, "Fluidplayer: Win9x is not supported\n");
-    return 0;
-  }
-#endif // _WIN32
 
   TESTDLLLOAD ("libfluidsynth.dll", TRUE)
 
@@ -154,6 +143,20 @@ static int fl_init (int samplerate)
 
   FSET (int, "synth.chorus.active", mus_fluidsynth_chorus);
   FSET (int, "synth.reverb.active", mus_fluidsynth_reverb);
+
+  if (mus_fluidsynth_chorus)
+  {
+    FSET (num, "synth.chorus.depth", (double) 5);
+    FSET (num, "synth.chorus.level", (double) 0.35);
+  }
+
+  if (mus_fluidsynth_reverb)
+  {
+    FSET (num, "synth.reverb.damp", (double) 0.4);
+    FSET (num, "synth.reverb.level", (double) 0.15);
+    FSET (num, "synth.reverb.width", (double) 4);
+    FSET (num, "synth.reverb.room-size", (double) 0.6);
+  }
 
   // gain control
   FSET (num, "synth.gain", mus_fluidsynth_gain / 100.0); // 0.0 - 0.2 - 10.0
@@ -221,7 +224,7 @@ static const void *fl_registersong (const void *data, unsigned len)
 
   mf.len = len;
   mf.pos = 0;
-  mf.data = data;
+  mf.data = (const byte*)data;
 
   midifile = MIDI_LoadFile (&mf);
 
@@ -312,7 +315,9 @@ static void fl_writesamples_ex (short *dest, int nsamp)
 
   if (nsamp * 2 > fbuff_siz)
   {
-    fbuff = realloc (fbuff, nsamp * 2 * sizeof (float));
+    float *newfbuff = (float*)realloc (fbuff, nsamp * 2 * sizeof (float));
+	if (!newfbuff) return;
+	fbuff = newfbuff;
     fbuff_siz = nsamp * 2;
   }
 
@@ -321,11 +326,12 @@ static void fl_writesamples_ex (short *dest, int nsamp)
   for (i = 0; i < nsamp * 2; i++)
   {
     // data is NOT already clipped
-    if (fbuff[i] > 1.0f)
-      fbuff[i] = 1.0f;
-    if (fbuff[i] < -1.0f)
-      fbuff[i] = -1.0f;
-    dest[i] = (short) (fbuff[i] * multiplier);
+	  float f = fbuff[i];
+    if (f > 1.0f)
+      f = 1.0f;
+    if (f < -1.0f)
+      f = -1.0f;
+    dest[i] = (short) (f * multiplier);
   }
 }
 
@@ -335,7 +341,7 @@ static void writesysex (unsigned char *data, int len)
   // it's possible to use an auto-resizing buffer here, but a malformed
   // midi file could make it grow arbitrarily large (since it must grow
   // until it hits an 0xf7 terminator)
-  int didrespond;
+  int didrespond = 0;
   
   if (len + sysexbufflen > SYSEX_BUFF_SIZE)
   {
@@ -347,7 +353,7 @@ static void writesysex (unsigned char *data, int len)
   sysexbufflen += len;
   if (sysexbuff[sysexbufflen - 1] == 0xf7) // terminator
   { // pass len-1 because fluidsynth does NOT want the final F7
-    fluid_synth_sysex (f_syn, sysexbuff, sysexbufflen - 1, NULL, NULL, &didrespond, 0);
+    fluid_synth_sysex (f_syn, (const char *)sysexbuff, sysexbufflen - 1, NULL, NULL, &didrespond, 0);
     sysexbufflen = 0;
   }
   if (!didrespond)
@@ -358,7 +364,7 @@ static void writesysex (unsigned char *data, int len)
 
 static void fl_render (void *vdest, unsigned length)
 {
-  short *dest = vdest;
+  short *dest = (short*)vdest;
   
   unsigned sampleswritten = 0;
   unsigned samples;

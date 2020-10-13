@@ -58,6 +58,11 @@
 #include "am_map.h"
 #include "e6y.h"//e6y
 
+#include "config.h"
+#ifdef HAVE_LIBZ
+#include <zlib.h>
+#endif
+
 //
 // MAP related Lookup tables.
 // Store VERTEXES, LINEDEFS, SIDEDEFS, etc.
@@ -221,7 +226,7 @@ static dboolean CheckForIdentifier(int lumpnum, const byte *id, size_t length)
 {
   dboolean result = false;
 
-  if (W_LumpLength(lumpnum) >= (int)length)
+  if (W_LumpLength(lumpnum) >= length)
   {
     const char *data = W_CacheLumpNum(lumpnum);
 
@@ -240,8 +245,10 @@ static dboolean CheckForIdentifier(int lumpnum, const byte *id, size_t length)
 
 static dboolean P_CheckForZDoomNodes(int lumpnum, int gl_lumpnum)
 {
+#ifndef HAVE_LIBZ
   if (CheckForIdentifier(lumpnum + ML_NODES, "ZNOD", 4))
     I_Error("P_CheckForZDoomNodes: compressed ZDoom nodes not supported yet");
+#endif
 
   if (CheckForIdentifier(lumpnum + ML_SSECTORS, "ZGLN", 4))
     I_Error("P_CheckForZDoomNodes: ZDoom GL nodes not supported yet");
@@ -269,14 +276,36 @@ static dboolean P_CheckForDeePBSPv4Nodes(int lumpnum, int gl_lumpnum)
 // http://zdoom.org/wiki/ZDBSP#Compressed_Nodes
 //
 
+enum {
+  NO_ZDOOM_NODES,
+  ZDOOM_XNOD_NODES,
+  ZDOOM_ZNOD_NODES
+};
+
 static int P_CheckForZDoomUncompressedNodes(int lumpnum, int gl_lumpnum)
 {
+  int ret = NO_ZDOOM_NODES;
   int result = CheckForIdentifier(lumpnum + ML_NODES, "XNOD", 4);
 
   if (result)
+  {
     lprintf(LO_INFO, "P_CheckForZDoomUncompressedNodes: ZDoom uncompressed normal nodes are detected\n");
+    ret = ZDOOM_XNOD_NODES;
+  }
+#ifdef HAVE_LIBZ
+  else
+  {
+    result = CheckForIdentifier(lumpnum + ML_NODES, "ZNOD", 4);
 
-  return result;
+    if (result)
+    {
+      lprintf(LO_INFO, "P_CheckForZDoomUncompressedNodes: compressed ZDoom nodes are detected\n");
+      ret = ZDOOM_ZNOD_NODES;
+    }
+  }
+#endif
+
+  return ret;
 }
 
 //
@@ -626,8 +655,9 @@ static void P_LoadSegs_V4(int lump)
     int side, linedef;
     line_t *ldef;
 
-    v1 = ml->v1;
-    v2 = ml->v2;
+    // MB 2020-04-22: Fix endianess for DeePBSP V4 extended nodes
+    v1 = LittleLong(ml->v1);
+    v2 = LittleLong(ml->v2);
 
     li->miniseg = false; // figgi -- there are no minisegs in classic BSP nodes
 
@@ -830,8 +860,9 @@ static void P_LoadSubsectors_V4(int lump)
 
   for (i = 0; i < numsubsectors; i++)
   {
-    subsectors[i].numlines = (int)data[i].numsegs;
-    subsectors[i].firstline = (int)data[i].firstseg;
+    // MB 2020-04-22: Fix endianess for DeePBSP V4 extended nodes
+    subsectors[i].numlines = (unsigned short)LittleShort(data[i].numsegs);
+    subsectors[i].firstline = LittleLong(data[i].firstseg);
   }
 
   W_UnlockLumpNum(lump); // cph - release the data
@@ -1002,7 +1033,8 @@ static void P_LoadNodes_V4(int lump)
       for (j=0 ; j<2 ; j++)
         {
           int k;
-          no->children[j] = (unsigned int)(mn->children[j]);
+          // MB 2020-04-22: Fix endianess for DeePBSP V4 extended nodes
+          no->children[j] = LittleLong(mn->children[j]);
 
           for (k=0 ; k<4 ; k++)
             no->bbox[j][k] = LittleShort(mn->bbox[j][k])<<FRACBITS;
@@ -1022,6 +1054,7 @@ static void CheckZNodesOverflow(int *size, int count)
   }
 }
 
+// MB 2020-03-01: Fix endianess for 32-bit ZDoom nodes
 static void P_LoadZSegs (const byte *data)
 {
   int i;
@@ -1035,8 +1068,8 @@ static void P_LoadZSegs (const byte *data)
     seg_t *li = segs+i;
     const mapseg_znod_t *ml = (const mapseg_znod_t *) data + i;
 
-    v1 = ml->v1;
-    v2 = ml->v2;
+    v1 = LittleLong(ml->v1);
+    v2 = LittleLong(ml->v2);
 
     li->miniseg = false;
 
@@ -1096,9 +1129,11 @@ static void P_LoadZSegs (const byte *data)
   }
 }
 
-static void P_LoadZNodes(int lump, int glnodes)
+// MB 2020-03-01: Fix endianess for 32-bit ZDoom nodes
+// https://zdoom.org/wiki/Node#ZDoom_extended_nodes
+static void P_LoadZNodes(int lump, int glnodes, int compressed)
 {
-  const byte *data;
+  byte *data;
   unsigned int i;
   int len;
 
@@ -1107,21 +1142,78 @@ static void P_LoadZNodes(int lump, int glnodes)
   unsigned int numSegs;
   unsigned int numNodes;
   vertex_t *newvertarray = NULL;
+#ifdef HAVE_LIBZ
+  byte *output;
+#endif
 
   data = W_CacheLumpNum(lump);
   len =  W_LumpLength(lump);
-  
+
+  if (compressed == ZDOOM_ZNOD_NODES)
+  {
+#ifdef HAVE_LIBZ
+	int outlen, err;
+	z_stream *zstream;
+
+	// first estimate for compression rate:
+	// output buffer size == 2.5 * input size
+	outlen = 2.5 * len;
+	output = Z_Malloc(outlen, PU_STATIC, 0);
+
+	// initialize stream state for decompression
+	zstream = malloc(sizeof(*zstream));
+	memset(zstream, 0, sizeof(*zstream));
+	zstream->next_in = data + 4;
+	zstream->avail_in = len - 4;
+	zstream->next_out = output;
+	zstream->avail_out = outlen;
+
+	if (inflateInit(zstream) != Z_OK)
+	    I_Error("P_LoadZNodes: Error during ZDoom nodes decompression initialization!");
+
+	// resize if output buffer runs full
+	while ((err = inflate(zstream, Z_SYNC_FLUSH)) == Z_OK)
+	{
+	    int outlen_old = outlen;
+	    outlen = 2 * outlen_old;
+	    output = realloc(output, outlen);
+	    zstream->next_out = output + outlen_old;
+	    zstream->avail_out = outlen - outlen_old;
+	}
+
+	if (err != Z_STREAM_END)
+	    I_Error("P_LoadZNodes: Error during ZDoom nodes decompression!");
+
+	lprintf(LO_INFO, "P_LoadZNodes: ZDoom nodes compression ratio %.3f\n",
+	        (float)zstream->total_out/zstream->total_in);
+
+	data = output;
+	len = zstream->total_out;
+
+	if (inflateEnd(zstream) != Z_OK)
+	    I_Error("P_LoadZNodes: Error during ZDoom nodes decompression shut-down!");
+
+	// release the original data lump
+	W_UnlockLumpNum(lump);
+	free(zstream);
+#else
+	I_Error("P_LoadZNodes: Compressed ZDoom nodes are not supported!");
+#endif
+  }
+  else
+  {
   // skip header
   CheckZNodesOverflow(&len, 4);
   data += 4;
+  }
 
   // Read extra vertices added during node building
   CheckZNodesOverflow(&len, sizeof(orgVerts));
-  orgVerts = *((const unsigned int*)data);
+  orgVerts = LittleLong(*((const unsigned int*)data));
   data += sizeof(orgVerts);
 
   CheckZNodesOverflow(&len, sizeof(newVerts));
-  newVerts = *((const unsigned int*)data);
+  newVerts = LittleLong(*((const unsigned int*)data));
   data += sizeof(newVerts);
 
   if (!samelevel)
@@ -1139,10 +1231,10 @@ static void P_LoadZNodes(int lump, int glnodes)
     CheckZNodesOverflow(&len, newVerts * (sizeof(newvertarray[0].x) + sizeof(newvertarray[0].y)));
     for (i = 0; i < newVerts; i++)
     {
-      newvertarray[i + orgVerts].x = *((const unsigned int*)data);
+      newvertarray[i + orgVerts].x = LittleLong(*((const unsigned int*)data));
       data += sizeof(newvertarray[0].x);
 
-      newvertarray[i + orgVerts].y = *((const unsigned int*)data);
+      newvertarray[i + orgVerts].y = LittleLong(*((const unsigned int*)data));
       data += sizeof(newvertarray[0].y);
     }
 
@@ -1170,7 +1262,7 @@ static void P_LoadZNodes(int lump, int glnodes)
 
   // Read the subsectors
   CheckZNodesOverflow(&len, sizeof(numSubs));
-  numSubs = *((const unsigned int*)data);
+  numSubs = LittleLong(*((const unsigned int*)data));
   data += sizeof(numSubs);
 
   numsubsectors = numSubs;
@@ -1179,19 +1271,23 @@ static void P_LoadZNodes(int lump, int glnodes)
   subsectors = calloc_IfSameLevel(subsectors, numsubsectors, sizeof(subsector_t));
 
   CheckZNodesOverflow(&len, numSubs * sizeof(mapsubsector_znod_t));
+  // MB 2020-03-01
+  // First segment number of each subsector is not stored
+  // First subsector starts at segment 0
+  // Subsequent subsectors starts with the next unused segment number (currSeg)
   for (i = currSeg = 0; i < numSubs; i++)
   {
     const mapsubsector_znod_t *mseg = (const mapsubsector_znod_t *) data + i;
 
     subsectors[i].firstline = currSeg;
-    subsectors[i].numlines = mseg->numsegs;
-    currSeg += mseg->numsegs;
+    subsectors[i].numlines = LittleLong(mseg->numsegs);
+    currSeg += LittleLong(mseg->numsegs);
   }
   data += numSubs * sizeof(mapsubsector_znod_t);
 
   // Read the segs
   CheckZNodesOverflow(&len, sizeof(numSegs));
-  numSegs = *((const unsigned int*)data);
+  numSegs = LittleLong(*((const unsigned int*)data));
   data += sizeof(numSegs);
 
   // The number of segs stored should match the number of
@@ -1218,7 +1314,7 @@ static void P_LoadZNodes(int lump, int glnodes)
 
   // Read nodes
   CheckZNodesOverflow(&len, sizeof(numNodes));
-  numNodes = *((const unsigned int*)data);
+  numNodes = LittleLong(*((const unsigned int*)data));
   data += sizeof(numNodes);
 
   numnodes = numNodes;
@@ -1238,13 +1334,18 @@ static void P_LoadZNodes(int lump, int glnodes)
 
     for (j = 0; j < 2; j++)
     {
-      no->children[j] = (unsigned int)(mn->children[j]);
+      no->children[j] = LittleLong(mn->children[j]);
 
       for (k = 0; k < 4; k++)
         no->bbox[j][k] = LittleShort(mn->bbox[j][k])<<FRACBITS;
     }
   }
 
+#ifdef HAVE_LIBZ
+  if (compressed == ZDOOM_ZNOD_NODES)
+    Z_Free(output);
+  else
+#endif
   W_UnlockLumpNum(lump); // cph - release the data
 }
 
@@ -1573,6 +1674,7 @@ static void P_LoadSideDefs2(int lump)
           {
             sd->skybox_index = R_BoxSkyboxNumForName(msd->toptexture);
           }
+          // fallthrough
 #endif
 
         default:                        // normal cases
@@ -2293,10 +2395,12 @@ static void R_CalcSegsLength(void)
   int i;
   for (i=0; i<numsegs; i++)
   {
+    double length;
     seg_t *li = segs+i;
     int_64_t dx = (int_64_t)li->v2->px - li->v1->px;
     int_64_t dy = (int_64_t)li->v2->py - li->v1->py;
-    li->length = (int_64_t)sqrt((double)dx*dx + (double)dy*dy);
+    length = sqrt((double)dx*dx + (double)dy*dy);
+    li->length = (int_64_t)length;
     // [crispy] re-calculate angle used for rendering
     li->pangle = R_PointToAngleEx2(li->v1->px, li->v1->py, li->v2->px, li->v2->py);
   }
@@ -2631,10 +2735,9 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   }
   else
   {
-    if (P_CheckForZDoomUncompressedNodes(lumpnum, gl_lumpnum))
-    {
-      P_LoadZNodes(lumpnum + ML_NODES, 0);
-    }
+    int zdoom_nodes;
+    if ((zdoom_nodes = P_CheckForZDoomUncompressedNodes(lumpnum, gl_lumpnum)))
+      P_LoadZNodes(lumpnum + ML_NODES, 0, zdoom_nodes);
     else if (P_CheckForDeePBSPv4Nodes(lumpnum, gl_lumpnum))
     {
       P_LoadSubsectors_V4(lumpnum + ML_SSECTORS);

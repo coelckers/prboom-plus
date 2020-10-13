@@ -65,6 +65,14 @@ const music_player_t db_player =
 
 #else // HAVE_DUMB
 
+#if !defined(_FILE_OFFSET_BITS) || (_FILE_OFFSET_BITS < 64)
+#ifdef _MSC_VER
+#define DUMB_OFF_T_CUSTOM __int64
+#else /* !_MSC_VER */
+#define DUMB_OFF_T_CUSTOM off64_t
+#endif /* _MSC_VER */
+#endif
+
 #include <dumb.h>
 #include <string.h>
 #include "lprintf.h"
@@ -110,32 +118,36 @@ static const void* db_registersong (const void *data, unsigned len)
 
   if (1)
   {
-    dfil = dumbfile_open_memory (data, len);
+    dfil = dumbfile_open_memory ((const char *)data, len);
     duh = read_duh (dfil);
   }
   if (!duh)
   {
     dumbfile_close (dfil);
-    dfil = dumbfile_open_memory (data, len);
+    dfil = dumbfile_open_memory ((const char*)data, len);
     duh = dumb_read_it_quick (dfil);  
   }
   if (!duh)
   {
     dumbfile_close (dfil);
-    dfil = dumbfile_open_memory (data, len);
+    dfil = dumbfile_open_memory ((const char*)data, len);
     duh = dumb_read_xm_quick (dfil);  
   }
   if (!duh)
   {
     dumbfile_close (dfil);
-    dfil = dumbfile_open_memory (data, len);
+    dfil = dumbfile_open_memory ((const char*)data, len);
     duh = dumb_read_s3m_quick (dfil);  
   }
   if (!duh)
   {
     dumbfile_close (dfil);
-    dfil = dumbfile_open_memory (data, len);
+    dfil = dumbfile_open_memory ((const char*)data, len);
+#if (DUMB_MAJOR_VERSION >= 1)
+    duh = dumb_read_mod_quick (dfil, DUMB_MOD_RESTRICT_OLD_PATTERN_COUNT);
+#else
     duh = dumb_read_mod_quick (dfil);
+#endif
     // No way to get the filename, so we can't check for a .mod extension, and
     // therefore, trying to load an old 15-instrument SoundTracker module is not
     // safe. We'll restrict MOD loading to 31-instrument modules with known
@@ -213,7 +225,7 @@ static void db_resume (void)
 
 static void db_render (void *dest, unsigned nsamp)
 {
-  unsigned char *cdest = dest;
+  unsigned char *cdest = (unsigned char *)dest;
   unsigned nsampwrit = 0;
 
   if (db_playing && !db_paused)

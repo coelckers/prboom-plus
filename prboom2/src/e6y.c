@@ -135,14 +135,17 @@ int movement_shorttics;
 int movement_mouselook;
 int movement_mouseinvert;
 int movement_maxviewpitch;
+int movement_mousestrafedivisor;
 int mouse_handler;
 int mouse_doubleclick_as_use;
+int mouse_carrytics;
 int render_fov = 90;
 int render_multisampling;
 int render_paperitems;
 int render_wipescreen;
 int mouse_acceleration;
 int demo_overwriteexisting;
+int quickstart_window_ms;
 
 int showendoom;
 
@@ -283,6 +286,12 @@ void e6y_InitCommandLine(void)
   if ((p = M_CheckParm("-avidemo")) && (p < myargc-1))
     avi_shot_fname = myargv[p + 1];
   stats_level = M_CheckParm("-levelstat");
+
+  if ((stroller = M_CheckParm("-stroller")))
+  {
+    M_AddParam("-turbo");
+    M_AddParam("50");
+  }
 
   // TAS-tracers
   InitTracers();
@@ -732,7 +741,7 @@ void I_vWarning(const char *message, va_list argList)
   char msg[1024];
   doom_vsnprintf(msg,sizeof(msg),message,argList);
   lprintf(LO_ERROR, "%s\n", msg);
-#ifdef _MSC_VER
+#ifdef _WIN32
   I_MessageBox(msg, PRB_MB_OK);
 #endif
 }
@@ -824,6 +833,7 @@ int I_MessageBox(const char* text, unsigned int type)
 }
 
 int stats_level;
+int stroller;
 int numlevels = 0;
 int levels_max = 0;
 timetable_t *stats = NULL;
@@ -850,6 +860,13 @@ void e6y_G_DoCompleted(void)
     sprintf(stats[numlevels].map,"MAP%02i",gamemap);
   else
     sprintf(stats[numlevels].map,"E%iM%i",gameepisode,gamemap);
+
+  if (secretexit)
+  {
+    size_t end_of_string = strlen(stats[numlevels].map);
+    if (end_of_string < 15)
+      stats[numlevels].map[end_of_string] = 's';
+  }
 
   stats[numlevels].stat[TT_TIME]        = leveltime;
   stats[numlevels].stat[TT_TOTALTIME]   = totalleveltimes;
@@ -953,7 +970,7 @@ void e6y_WriteStats(void)
   for (level=0;level<numlevels;level++)
   {
     sprintf(str,
-      "%%s - %%%dd:%%05.2f (%%%dd:%%02d)  K: %%%dd/%%-%dd%%%ds  I: %%%dd/%%-%dd%%%ds  S: %%%dd/%%-%dd %%%ds\r\n",
+      "%%s - %%%dd:%%05.2f (%%%dd:%%02d)  K: %%%dd/%%-%dd%%%lds  I: %%%dd/%%-%dd%%%lds  S: %%%dd/%%-%dd %%%lds\r\n",
       max.stat[TT_TIME],      max.stat[TT_TOTALTIME],
       max.stat[TT_ALLKILL],   max.stat[TT_TOTALKILL],   allkills_len,
       max.stat[TT_ALLITEM],   max.stat[TT_TOTALITEM],   allitems_len,
@@ -1241,7 +1258,7 @@ int HU_DrawDemoProgress(int force)
   return true;
 }
 
-#ifdef _MSC_VER
+#ifdef _WIN32
 int GetFullPath(const char* FileName, const char* ext, char *Buffer, size_t BufferLength)
 {
   int i, Result;
@@ -1276,7 +1293,9 @@ int GetFullPath(const char* FileName, const char* ext, char *Buffer, size_t Buff
 
 #ifdef _WIN32
 #include <Mmsystem.h>
+#ifndef __GNUC__
 #pragma comment( lib, "winmm.lib" )
+#endif
 int mus_extend_volume;
 void I_midiOutSetVolumes(int volume)
 {

@@ -347,7 +347,7 @@ int I_StartSound(int id, int channel, int vol, int sep, int pitch, int priority)
   // do the lump caching outside the SDL_LockAudio/SDL_UnlockAudio pair
   // use locking which makes sure the sound data is in a malloced area and
   // not in a memory mapped one
-  data = W_LockLumpNum(lump);
+  data = (const unsigned char *)W_LockLumpNum(lump);
 
   SDL_LockMutex (sfxmutex);
 
@@ -447,6 +447,9 @@ static void I_UpdateSound(void *unused, Uint8 *stream, int len)
 
   // Mixing channel index.
   int       chan;
+
+  if (snd_midiplayer == NULL) // This is but a temporary fix. Please do remove after a more definitive one!
+    memset(stream, 0, len);
 
   // NSM: when dumping sound, ignore the callback calls and only
   // service dumping calls
@@ -700,7 +703,7 @@ unsigned char *I_GrabSound (int len)
   if (!buffer || size > buffer_size)
   {
     buffer_size = size * 4;
-    buffer = realloc (buffer, buffer_size);
+    buffer = (unsigned char *)realloc (buffer, buffer_size);
   }
 
   if (buffer)
@@ -721,7 +724,7 @@ void I_ResampleStream (void *dest, unsigned nsamp, void (*proc) (void *dest, uns
   unsigned i;
   int j = 0;
   
-  short *sout = dest;
+  short *sout = (short*)dest;
   
   static short *sin = NULL;
   static unsigned sinsamp = 0;
@@ -733,7 +736,7 @@ void I_ResampleStream (void *dest, unsigned nsamp, void (*proc) (void *dest, uns
 
   if (nreq > sinsamp)
   {
-    sin = realloc (sin, (nreq + 1) * 4);
+    sin = (short*)realloc (sin, (nreq + 1) * 4);
     if (!sinsamp) // avoid pop when first starting stream
       sin[0] = sin[1] = 0;
     sinsamp = nreq;
@@ -815,7 +818,7 @@ void I_ShutdownMusic(void)
     S_StopMusic();
     for (i = 0; i < MUSIC_TMP_EXT; i++)
     {
-      name = malloc(strlen(music_tmp) + strlen(music_tmp_ext[i]) + 1);
+      name = (char*)malloc(strlen(music_tmp) + strlen(music_tmp_ext[i]) + 1);
       sprintf(name, "%s%s", music_tmp, music_tmp_ext[i]);
       if (!unlink(name))
         lprintf(LO_DEBUG, "I_ShutdownMusic: removed %s\n", name);
@@ -1004,7 +1007,7 @@ int I_RegisterSong(const void *data, size_t len)
     {
       // Current SDL_mixer (up to 1.2.8) cannot load some MP3 and OGG
       // without proper extension
-      name = malloc(strlen(music_tmp) + strlen(music_tmp_ext[i]) + 1);
+      name = (char*)malloc(strlen(music_tmp) + strlen(music_tmp_ext[i]) + 1);
       sprintf(name, "%s%s", music_tmp, music_tmp_ext[i]);
 
       if (strlen(music_tmp_ext[i]) == 0)
@@ -1053,7 +1056,7 @@ int I_RegisterSong(const void *data, size_t len)
     if (result != 0)
     {
       size_t muslen = len;
-      const unsigned char *musptr = data;
+      const unsigned char *musptr = (const unsigned char* )data;
 
       // haleyjd 04/04/10: scan forward for a MUS header. Evidently DMX was 
       // capable of doing this, and would skip over any intervening data. That, 
@@ -1464,7 +1467,7 @@ static int Exp_RegisterSongEx (const void *data, size_t len, int try_mus2mid)
     if (result != 0)
     {
       size_t muslen = len;
-      const unsigned char *musptr = data;
+      const unsigned char *musptr = (const unsigned char*)data;
 
       // haleyjd 04/04/10: scan forward for a MUS header. Evidently DMX was
       // capable of doing this, and would skip over any intervening data. That,

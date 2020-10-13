@@ -126,7 +126,7 @@ static int pm_init (int samplerate)
   int i;
   char devname[64];
 
-  TESTDLLLOAD ("portmidi.dll", TRUE)
+  TESTDLLLOAD("portmidi.dll", TRUE)
 
   if (Pm_Initialize () != pmNoError)
   {
@@ -223,7 +223,7 @@ static const void *pm_registersong (const void *data, unsigned len)
 
   mf.len = len;
   mf.pos = 0;
-  mf.data = data;
+  mf.data = (byte*)data;
 
   midifile = MIDI_LoadFile (&mf);
 

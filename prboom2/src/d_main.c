@@ -85,6 +85,7 @@
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
 #include "am_map.h"
 #include "umapinfo.h"
+#include "statdump.h"
 
 //e6y
 #include "r_demo.h"
@@ -119,6 +120,7 @@ dboolean singletics = false; // debug flag to cancel adaptiveness
 //jff 1/22/98 parms for disabling music and sound
 dboolean nosfxparm;
 dboolean nomusicparm;
+dboolean umapinfo_loaded;
 
 //jff 4/18/98
 extern dboolean inhelpscreens;
@@ -445,6 +447,9 @@ static const char *auto_shot_fname;
 
 static void D_DoomLoop(void)
 {
+  if (quickstart_window_ms > 0)
+    I_uSleep(quickstart_window_ms * 1000);
+
   for (;;)
     {
       WasRenderedInTryRunTics = false;
@@ -1593,7 +1598,7 @@ static void D_DoomMainSetup(void)
 
   //proff 11/22/98: Added setting of viewangleoffset
   p = M_CheckParm("-viewangle");
-  if (p)
+  if (p && p < myargc-1)
   {
     viewangleoffset = atoi(myargv[p+1]);
     viewangleoffset = viewangleoffset<0 ? 0 : (viewangleoffset>7 ? 7 : viewangleoffset);
@@ -1842,6 +1847,7 @@ static void D_DoomMainSetup(void)
 	  {
 		  const unsigned char * lump = (const unsigned char *)W_CacheLumpNum(p);
 		  ParseUMapInfo(lump, W_LumpLength(p), I_Error);
+		  umapinfo_loaded = true;
 	  }
   }
 
@@ -1906,6 +1912,12 @@ static void D_DoomMainSetup(void)
   if ((p = M_CheckParm("-autoshot")) && (p < myargc-2))
     if ((auto_shot_count = auto_shot_time = atoi(myargv[p+1])))
       auto_shot_fname = myargv[p+2];
+
+  if ((p = M_CheckParm("-statdump")) && (p < myargc-1))
+  {
+      atexit(StatDump);
+      lprintf(LO_INFO,"External statistics registered.\n");
+  }
 
   // start the apropriate game based on parms
 
@@ -2019,7 +2031,7 @@ void GetFirstMap(int *ep, int *map)
     {
       for (i=1;!done && i<33;i++)  // Ty 09/13/98 - add use of !done
       {
-        sprintf(test,"MAP%02d",i);
+        snprintf(test,sizeof(test),"MAP%02d",i);
         ix = W_CheckNumForName(test);
         if (ix != -1)  // Ty 10/04/98 avoid -1 subscript
         {
@@ -2045,7 +2057,7 @@ void GetFirstMap(int *ep, int *map)
       {
         for (j=1;!done && j<10;j++)  // Ty 09/13/98 - add use of !done
         {
-          sprintf(test,"E%dM%d",i,j);
+          snprintf(test,sizeof(test),"E%dM%d",i,j);
           ix = W_CheckNumForName(test);
           if (ix != -1)  // Ty 10/04/98 avoid -1 subscript
           {

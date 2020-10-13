@@ -454,7 +454,7 @@ static void I_UploadNewPalette(int pal, int force)
   if ((colours == NULL) || (cachedgamma != usegamma) || force) {
     int pplump = W_GetNumForName("PLAYPAL");
     int gtlump = (W_CheckNumForName)("GAMMATBL",ns_prboom);
-    register const byte * palette = W_CacheLumpNum(pplump);
+    register const byte * palette = (const byte*)W_CacheLumpNum(pplump);
     register const byte * const gtable = (const byte *)W_CacheLumpNum(gtlump) + 256*(cachedgamma = usegamma);
     register int i;
 
@@ -463,7 +463,7 @@ static void I_UploadNewPalette(int pal, int force)
 
     if (!colours) {
       // First call - allocate and prepare colour array
-      colours = malloc(sizeof(*colours)*num_pals);
+      colours = (SDL_Color*)malloc(sizeof(*colours)*num_pals);
     }
 
     // set the colormap entries
@@ -543,7 +543,7 @@ void I_FinishUpdate (void)
         return;
       }
 
-      dest=screen->pixels;
+      dest=(byte*)screen->pixels;
       src=screens[0].data;
       h=screen->h;
       for (; h>0; h--)
@@ -833,8 +833,8 @@ unsigned int I_TestCPUCacheMisses(int width, int height, unsigned int mintime)
   char *s, *d, *ps, *pd;
   unsigned int tickStart;
   
-  s = malloc(width * height);
-  d = malloc(width * height);
+  s = (char*)malloc(width * height);
+  d = (char*)malloc(width * height);
 
   tickStart = SDL_GetTicks();
   k = 0;
@@ -1004,10 +1004,10 @@ void I_InitScreenResolution(void)
     h = desired_screenheight;
   }
 
-  mode = I_GetModeFromString(default_videomode);
+  mode = (video_mode_t)I_GetModeFromString(default_videomode);
   if ((i=M_CheckParm("-vidmode")) && i<myargc-1)
   {
-    mode = I_GetModeFromString(myargv[i+1]);
+    mode = (video_mode_t)I_GetModeFromString(myargv[i+1]);
   }
   
   V_InitMode(mode);
@@ -1043,7 +1043,7 @@ void I_InitScreenResolution(void)
 
 void I_SetWindowCaption(void)
 {
-  SDL_SetWindowTitle(NULL, PACKAGE_NAME" "PACKAGE_VERSION);
+  SDL_SetWindowTitle(NULL, PACKAGE_NAME " " PACKAGE_VERSION);
 }
 
 // 
@@ -1129,8 +1129,10 @@ int I_GetModeFromString(const char *modestr)
 void I_UpdateVideoMode(void)
 {
   int init_flags = 0;
+  const dboolean novsync = M_CheckParm("-timedemo") || \
+                           M_CheckParm("-fastdemo");
 
-  if(screen)
+  if(sdl_window)
   {
     // video capturing cannot be continued with new screen settings
     I_CaptureFinish();
@@ -1167,6 +1169,10 @@ void I_UpdateVideoMode(void)
     init_flags = SDL_WINDOW_OPENGL;
   }
 
+  // Fullscreen desktop for software renderer only - DTIED
+  if (desired_fullscreen && V_GetMode() != VID_MODEGL)
+    init_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+  else
   if ( desired_fullscreen )
     init_flags |= SDL_WINDOW_FULLSCREEN;
 
@@ -1199,7 +1205,7 @@ void I_UpdateVideoMode(void)
     gld_MultisamplingInit();
 
     sdl_window = SDL_CreateWindow(
-      PACKAGE_NAME" "PACKAGE_VERSION,
+      PACKAGE_NAME " " PACKAGE_VERSION,
       SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
       REAL_SCREENWIDTH, REAL_SCREENHEIGHT,
       init_flags);
@@ -1212,11 +1218,11 @@ void I_UpdateVideoMode(void)
   {
     int flags = SDL_RENDERER_TARGETTEXTURE;
 
-    if (render_vsync)
+    if (render_vsync && !novsync)
       flags |= SDL_RENDERER_PRESENTVSYNC;
 
     sdl_window = SDL_CreateWindow(
-      PACKAGE_NAME" "PACKAGE_VERSION,
+      PACKAGE_NAME " " PACKAGE_VERSION,
       SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
       REAL_SCREENWIDTH, REAL_SCREENHEIGHT,
       init_flags);
@@ -1259,7 +1265,7 @@ void I_UpdateVideoMode(void)
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
   {
-    SDL_GL_SetSwapInterval((render_vsync ? 1 : 0));
+    SDL_GL_SetSwapInterval(((render_vsync && !novsync) ? 1 : 0));
   }
 #endif
 
@@ -1270,7 +1276,7 @@ void I_UpdateVideoMode(void)
 
   if (V_GetMode() != VID_MODEGL)
   {
-    lprintf(LO_INFO, "I_UpdateVideoMode: 0x%x, %s, %s\n", init_flags, screen->pixels ? "SDL buffer" : "own buffer", SDL_MUSTLOCK(screen) ? "lock-and-copy": "direct access");
+    lprintf(LO_INFO, "I_UpdateVideoMode: 0x%x, %s, %s\n", init_flags, screen && screen->pixels ? "SDL buffer" : "own buffer", screen && SDL_MUSTLOCK(screen) ? "lock-and-copy": "direct access");
 
     // Get the info needed to render to the display
     if (screen_multiply==1 && !SDL_MUSTLOCK(screen))

@@ -43,6 +43,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <time.h>
 #include <signal.h>
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -201,8 +202,7 @@ void I_GetTime_SaveMS(void)
  */
 unsigned long I_GetRandomTimeSeed(void)
 {
-/* This isnt very random */
-  return(SDL_GetTicks());
+  return (unsigned long)time(NULL);
 }
 
 /* cphipps - I_GetVersionString
@@ -219,7 +219,7 @@ const char* I_GetVersionString(char* buf, size_t sz)
  */
 const char* I_SigString(char* buf, size_t sz, int signum)
 {
-#if HAVE_DECL_SYS_SIGLIST // NSM: automake defines this symbol as 0 or 1
+#ifdef HAVE_DECL_SYS_SIGLIST
   if (strlen(sys_siglist[signum]) < sz)
     strcpy(buf,sys_siglist[signum]);
   else
@@ -244,7 +244,7 @@ dboolean I_FileToBuffer(const char *filename, byte **data, int *size)
     filesize = ftell(hfile);
     fseek(hfile, 0, SEEK_SET);
 
-    buffer = malloc(filesize);
+    buffer = (byte*)malloc(filesize);
     if (buffer)
     {
       if (fread(buffer, filesize, 1, hfile) == 1)
@@ -284,7 +284,7 @@ dboolean I_FileToBuffer(const char *filename, byte **data, int *size)
  */
 void I_Read(int fd, void* vbuf, size_t sz)
 {
-  unsigned char* buf = vbuf;
+  unsigned char* buf = (unsigned char*)vbuf;
 
   while (sz) {
     int rc = read(fd,buf,sz);
@@ -343,7 +343,7 @@ const char *I_DoomExeDir(void)
   if (!base)        // cache multiple requests
     {
       size_t len = strlen(*myargv);
-      char *p = (base = malloc(len+1)) + len - 1;
+      char *p = (base = (char*)malloc(len+1)) + len - 1;
       strcpy(base,*myargv);
       while (p > base && *p!='/' && *p!='\\')
         *p--=0;
@@ -352,7 +352,7 @@ const char *I_DoomExeDir(void)
       if (strlen(base)<2)
       {
         free(base);
-        base = malloc(1024);
+        base = (char*)malloc(1024);
         if (!getcwd(base,1024))
           strcpy(base, current_dir_dummy);
       }
@@ -450,15 +450,21 @@ dboolean HasTrailingSlash(const char* dn)
 
 #ifndef MACOSX /* OSX defines its search paths elsewhere. */
 
+#ifdef _WIN32
+#define PATH_SEPARATOR ';'
+#else
+#define PATH_SEPARATOR ':'
+#endif
+
 char* I_FindFileInternal(const char* wfname, const char* ext, dboolean isStatic)
 {
   // lookup table of directories to search
-  static const struct {
+  static struct {
     const char *dir; // directory
     const char *sub; // subdirectory
     const char *env; // environment variable
     const char *(*func)(void); // for I_DoomExeDir
-  } search[] = {
+  } search0[] = {
     {NULL, NULL, NULL, I_DoomExeDir}, // config directory
     {NULL}, // current working directory
     {NULL, NULL, "DOOMWADDIR"}, // run-time $DOOMWADDIR
@@ -469,8 +475,9 @@ char* I_FindFileInternal(const char* wfname, const char* ext, dboolean isStatic)
     {"/usr/share/games/doom"},
     {"/usr/local/share/doom"},
     {"/usr/share/doom"},
-  };
+  }, *search;
 
+  static size_t num_search;
   size_t  i;
   size_t  pl;
 
@@ -481,10 +488,56 @@ char* I_FindFileInternal(const char* wfname, const char* ext, dboolean isStatic)
   if (!wfname)
     return NULL;
 
+  if (!num_search)
+  {
+    char *dwp;
+
+    // initialize with the static lookup table
+    num_search = sizeof(search0)/sizeof(*search0);
+    search = malloc(num_search * sizeof(*search));
+    memcpy(search, search0, num_search * sizeof(*search));
+
+    // add each directory from the $DOOMWADPATH environment variable
+    if ((dwp = getenv("DOOMWADPATH")))
+    {
+      char *left, *ptr, *dup_dwp;
+
+      dup_dwp = strdup(dwp);
+      left = dup_dwp;
+
+      for (;;)
+      {
+          ptr = strchr(left, PATH_SEPARATOR);
+          if (ptr != NULL)
+          {
+              *ptr = '\0';
+
+              num_search++;
+              search = realloc(search, num_search * sizeof(*search));
+              memset(&search[num_search-1], 0, sizeof(*search));
+              search[num_search-1].dir = strdup(left);
+
+              left = ptr + 1;
+          }
+          else
+          {
+              break;
+          }
+      }
+
+      num_search++;
+      search = realloc(search, num_search * sizeof(*search));
+      memset(&search[num_search-1], 0, sizeof(*search));
+      search[num_search-1].dir = strdup(left);
+
+      free(dup_dwp);
+    }
+  }
+
   /* Precalculate a length we will need in the loop */
   pl = strlen(wfname) + (ext ? strlen(ext) : 0) + 4;
 
-  for (i = 0; i < sizeof(search)/sizeof(*search); i++) {
+  for (i = 0; i < num_search; i++) {
     const char  * d = NULL;
     const char  * s = NULL;
     /* Each entry in the switch sets d to the directory to look in,
@@ -500,7 +553,7 @@ char* I_FindFileInternal(const char* wfname, const char* ext, dboolean isStatic)
     s = search[i].sub;
 
     if (!isStatic)
-      p = malloc((d ? strlen(d) : 0) + (s ? strlen(s) : 0) + pl);
+      p = (char*)malloc((d ? strlen(d) : 0) + (s ? strlen(s) : 0) + pl);
     sprintf(p, "%s%s%s%s%s", d ? d : "", (d && !HasTrailingSlash(d)) ? "/" : "",
                              s ? s : "", (s && !HasTrailingSlash(s)) ? "/" : "",
                              wfname);

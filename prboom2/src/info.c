@@ -79,14 +79,24 @@ const char *sprnames[NUMSPRITES+1] = {
   "COL5","TBLU","TGRN","TRED","SMBT","SMGT","SMRT","HDB1","HDB2","HDB3",
   "HDB4","HDB5","HDB6","POB1","POB2","BRS1","TLMP","TLP2",
   "TNT1", // invisible sprite                                 phares 3/9/98
-#ifdef DOGS
   "DOGS", /* killough 7/19/98: Marine's best friend :) */
-#endif
-
   "PLS1", // killough 7/19/98: first  of two plasma fireballs in the beta
   "PLS2", // killough 7/19/98: second of two plasma fireballs in the beta
   "BON3", // killough 7/11/98: evil sceptre in the beta version
   "BON4", // killough 7/11/98: unholy bible in the beta version
+  "BLD2", // blood splats from Doom Retro, unsused in PrBoom+
+
+  // 100 extra sprite names to use in dehacked patches
+  "SP00", "SP01", "SP02", "SP03", "SP04", "SP05", "SP06", "SP07", "SP08", "SP09",
+  "SP10", "SP11", "SP12", "SP13", "SP14", "SP15", "SP16", "SP17", "SP18", "SP19",
+  "SP20", "SP21", "SP22", "SP23", "SP24", "SP25", "SP26", "SP27", "SP28", "SP29",
+  "SP30", "SP31", "SP32", "SP33", "SP34", "SP35", "SP36", "SP37", "SP38", "SP39",
+  "SP40", "SP41", "SP42", "SP43", "SP44", "SP45", "SP46", "SP47", "SP48", "SP49",
+  "SP50", "SP51", "SP52", "SP53", "SP54", "SP55", "SP56", "SP57", "SP58", "SP59",
+  "SP60", "SP61", "SP62", "SP63", "SP64", "SP65", "SP66", "SP67", "SP68", "SP69",
+  "SP70", "SP71", "SP72", "SP73", "SP74", "SP75", "SP76", "SP77", "SP78", "SP79",
+  "SP80", "SP81", "SP82", "SP83", "SP84", "SP85", "SP86", "SP87", "SP88", "SP89",
+  "SP90", "SP91", "SP92", "SP93", "SP94", "SP95", "SP96", "SP97", "SP98", "SP99",
 
   NULL
 };
@@ -1088,7 +1098,6 @@ state_t states[NUMSTATES] = {
   {SPR_MISL,32770,6,A_Detonate,S_DETONATE3},  // S_DETONATE2
   {SPR_MISL,32771,10,NULL,S_NULL},            // S_DETONATE3
 
-#ifdef DOGS
   // killough 7/19/98: Marine's best friend :)
   {SPR_DOGS,0,10,A_Look,S_DOGS_STND2},  // S_DOGS_STND
   {SPR_DOGS,1,10,A_Look,S_DOGS_STND}, // S_DOGS_STND2
@@ -1117,36 +1126,6 @@ state_t states[NUMSTATES] = {
   {SPR_DOGS,10,5,NULL,S_DOGS_RAISE5}, // S_DOGS_RAISE4
   {SPR_DOGS,9,5,NULL,S_DOGS_RAISE6},  // S_DOGS_RAISE5
   {SPR_DOGS,8,5,NULL,S_DOGS_RUN1},  // S_DOGS_RAISE6
-#else
-  // if dogs are disabled, dummy states are required for dehacked compatibility
-  {0,0,-1,NULL,S_NULL}, // S_DOGS_STND
-  {0,0,-1,NULL,S_NULL}, // S_DOGS_STND2
-  {0,0,-1,NULL,S_NULL}, // S_DOGS_RUN1
-  {0,0,-1,NULL,S_NULL}, // S_DOGS_RUN2
-  {0,0,-1,NULL,S_NULL}, // S_DOGS_RUN3
-  {0,0,-1,NULL,S_NULL}, // S_DOGS_RUN4
-  {0,0,-1,NULL,S_NULL}, // S_DOGS_RUN5
-  {0,0,-1,NULL,S_NULL}, // S_DOGS_RUN6
-  {0,0,-1,NULL,S_NULL}, // S_DOGS_RUN7
-  {0,0,-1,NULL,S_NULL}, // S_DOGS_RUN8
-  {0,0,-1,NULL,S_NULL}, // S_DOGS_ATK1
-  {0,0,-1,NULL,S_NULL}, // S_DOGS_ATK2
-  {0,0,-1,NULL,S_NULL}, // S_DOGS_ATK3
-  {0,0,-1,NULL,S_NULL}, // S_DOGS_PAIN
-  {0,0,-1,NULL,S_NULL}, // S_DOGS_PAIN2
-  {0,0,-1,NULL,S_NULL}, // S_DOGS_DIE1
-  {0,0,-1,NULL,S_NULL}, // S_DOGS_DIE2
-  {0,0,-1,NULL,S_NULL}, // S_DOGS_DIE3
-  {0,0,-1,NULL,S_NULL}, // S_DOGS_DIE4
-  {0,0,-1,NULL,S_NULL}, // S_DOGS_DIE5
-  {0,0,-1,NULL,S_NULL}, // S_DOGS_DIE6
-  {0,0,-1,NULL,S_NULL}, // S_DOGS_RAISE1
-  {0,0,-1,NULL,S_NULL}, // S_DOGS_RAISE2
-  {0,0,-1,NULL,S_NULL}, // S_DOGS_RAISE3
-  {0,0,-1,NULL,S_NULL}, // S_DOGS_RAISE4
-  {0,0,-1,NULL,S_NULL}, // S_DOGS_RAISE5
-  {0,0,-1,NULL,S_NULL}, // S_DOGS_RAISE6
-#endif
 
   // add dummy beta bfg / lost soul frames for dehacked compatibility
   // fixes bug #1576151 (part 2)
@@ -5844,7 +5823,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
 	S_NULL,	// crushstate
 
   },
-#ifdef DOGS
+
   // Marine's best friend :)      // killough 7/19/98
   {   // MT_DOGS
     888,   // doomednum
@@ -5878,7 +5857,6 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
 	S_NULL,	// crushstate
 
   },
-#endif
 
   // killough 7/11/98: this is the first of two plasma fireballs in the beta
   {   // MT_PLASMA1

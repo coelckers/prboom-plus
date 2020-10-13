@@ -106,13 +106,10 @@ static char *ParseMultiString(Scanner &scanner, int error)
 		if (build == NULL) build = strdup(scanner.string);
 		else
 		{
-			size_t oldlen = strlen(build);
-			size_t newlen = oldlen + strlen(scanner.string) + 2;
-
-			build = (char*)realloc(build, newlen);
-			build[oldlen] = '\n';
-			strcpy(build + oldlen + 1, scanner.string);
-			build[newlen] = 0;
+			size_t newlen = strlen(build) + strlen(scanner.string) + 2; // strlen for both the existing text and the new line, plus room for one \n and one \0
+			build = (char*)realloc(build, newlen); // Prepare the destination memory for the below strcats
+			strcat(build, "\n"); // Replace the existing text's \0 terminator with a \n
+			strcat(build, scanner.string); // Concatenate the new line onto the existing text
 		}
 	} while (scanner.CheckToken(','));
 	return build;
@@ -367,12 +364,12 @@ int ParseUMapInfo(const unsigned char *buffer, size_t length, umapinfo_errorfunc
 		ParseMapEntry(scanner, &parsed);
 
 		// Set default level progression here to simplify the checks elsewhere. Doing this lets us skip all normal code for this if nothing has been defined.
-		if (parsed.endpic[0])
+		if (parsed.endpic[0] && (strcmp(parsed.endpic, "-") != 0))
 		{
 			parsed.nextmap[0] = parsed.nextsecret[0] = 0;
 			if (parsed.endpic[0] == '!') parsed.endpic[0] = 0;
 		}
-		if (!parsed.nextmap[0] && !parsed.endpic[0])
+		else if (!parsed.nextmap[0] && !parsed.endpic[0])
 		{
 			if (!stricmp(parsed.mapname, "MAP30")) strcpy(parsed.endpic, "$CAST");
 			else if (!stricmp(parsed.mapname, "E1M8"))  strcpy(parsed.endpic, gamemode == retail? "CREDIT" : "HELP2");

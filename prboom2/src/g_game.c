@@ -85,6 +85,7 @@
 #include "r_demo.h"
 #include "r_fps.h"
 #include "e6y.h"//e6y
+#include "statdump.h"
 
 #define SAVEGAMESIZE  0x20000
 #define SAVESTRINGSIZE  24
@@ -141,7 +142,6 @@ dboolean         demorecording;
 dboolean         demoplayback;
 dboolean         democontinue = false;
 char             democontinuename[PATH_MAX];
-int             demover;
 dboolean         singledemo;           // quit after playing a demo from cmdline
 wbstartstruct_t wminfo;               // parms for world map / intermission
 dboolean         haswolflevels = false;// jff 4/18/98 wolf levels present
@@ -150,6 +150,9 @@ int             autorun = false;      // always running?          // phares
 int             totalleveltimes;      // CPhipps - total time for all completed levels
 int             longtics;
 int             bytes_per_tic;
+
+dboolean boom_autoswitch;
+dboolean done_autoswitch;
 
 // e6y
 // There is a new command-line switch "-shorttics".
@@ -342,27 +345,6 @@ static inline signed char fudgef(signed char b)
   return b;
 }
 
-static inline signed short fudgea(signed short b)
-{
-/*e6y
-  if (!b || !demo_compatibility || !longtics) return b;
-  b |= 1; if (b>2) b-=2;*/
-  if (shorttics && !demorecording && !demoplayback)
-  {
-    // e6y
-    // There is a new command-line switch "-shorttics".
-    // This makes it possible to practice routes and tricks
-    // (e.g. glides, where this makes a significant difference)
-    // with the same mouse behaviour as when recording,
-    // but without having to be recording every time.
-    return (((b + 128) >> 8) << 8);
-  }
-  else
-  {
-    return b;
-  }
-}
-
 void G_SetSpeed(void)
 {
   int p;
@@ -495,7 +477,8 @@ void G_BuildTiccmd(ticcmd_t* cmd)
                                                                   //    |
   if (gamekeydown[key_reverse])                                   //    V
     {
-      cmd->angleturn += QUICKREVERSE;                             //    ^
+      if (!strafe)
+        cmd->angleturn += QUICKREVERSE;                           //    ^
       gamekeydown[key_reverse] = false;                           //    |
     }                                                             // phares
 
@@ -563,9 +546,14 @@ void G_BuildTiccmd(ticcmd_t* cmd)
   //
   // killough 3/26/98, 4/2/98: fix autoswitch when no weapons are left
 
+  // Make Boom insert only a single weapon change command on autoswitch.
   if ((!demo_compatibility && players[consoleplayer].attackdown && // killough
-       !P_CheckAmmo(&players[consoleplayer])) || gamekeydown[key_weapontoggle])
+       !P_CheckAmmo(&players[consoleplayer])) && !done_autoswitch && boom_autoswitch ||
+       gamekeydown[key_weapontoggle])
+  {
     newweapon = P_SwitchWeapon(&players[consoleplayer]);           // phares
+    done_autoswitch = true;
+  }
   else
     {                                 // phares 02/26/98: Added gamemode checks
       if (next_weapon)
@@ -694,7 +682,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 
   forward += mousey;
   if (strafe)
-    side += mousex / 4;       /* mead  Don't want to strafe as fast as turns.*/
+    side += mousex / movement_mousestrafedivisor; /* mead  Don't want to strafe as fast as turns.*/
   else
     cmd->angleturn -= mousex; /* mead now have enough dynamic range 2-10-00 */
 
@@ -725,9 +713,25 @@ void G_BuildTiccmd(ticcmd_t* cmd)
     }
   }
 
+  if (stroller) side = 0;
+
   cmd->forwardmove += fudgef((signed char)forward);
   cmd->sidemove += side;
-  cmd->angleturn = fudgea(cmd->angleturn);
+
+  if ((demorecording && !longtics) || shorttics)
+  {
+	// Chocolate Doom Mouse Behaviour
+	// Don't discard mouse delta even if value is too small to
+	// turn the player this tic
+	if (mouse_carrytics) {
+	  static signed short carry = 0;
+	  signed short desired_angleturn = cmd->angleturn + carry;
+	  cmd->angleturn = (desired_angleturn + 128) & 0xff00;
+	  carry = desired_angleturn - cmd->angleturn;
+	}
+
+    cmd->angleturn = (((cmd->angleturn + 128) >> 8) << 8);
+  }
 
   upmove = 0;
   if (gamekeydown[key_flyup])
@@ -1560,12 +1564,15 @@ void G_DoCompleted (void)
   if (automapmode & am_active)
     AM_Stop();
 
+  wminfo.nextep = wminfo.epsd = gameepisode -1;
+  wminfo.last = gamemap -1;
+
   wminfo.lastmapinfo = gamemapinfo;
   wminfo.nextmapinfo = NULL;
   if (gamemapinfo)
   {
 	  const char *next = "";
-	  if (gamemapinfo->endpic[0] && gamemapinfo->nointermission)
+	  if (gamemapinfo->endpic[0] && (strcmp(gamemapinfo->endpic, "-") != 0) && gamemapinfo->nointermission)
 	  {
 		  gameaction = ga_victory;
 		  return;
@@ -1577,6 +1584,12 @@ void G_DoCompleted (void)
 		  G_ValidateMapName(next, &wminfo.nextep, &wminfo.next);
 		  wminfo.nextep--;
 		  wminfo.next--;
+		  // episode change
+		  if (wminfo.nextep != wminfo.epsd)
+		  {
+		    for (i = 0; i < MAXPLAYERS; i++)
+		      players[i].didsecret = false;
+		  }
 		  wminfo.didsecret = players[consoleplayer].didsecret;
 		  wminfo.partime = gamemapinfo->partime;
 		  goto frommapinfo;	// skip past the default setup.
@@ -1608,8 +1621,6 @@ void G_DoCompleted (void)
   }
 
   wminfo.didsecret = players[consoleplayer].didsecret;
-  wminfo.epsd = gameepisode -1;
-  wminfo.last = gamemap -1;
 
   // wminfo.next is 0 biased, unlike gamemap
   if (gamemode == commercial)
@@ -1642,11 +1653,12 @@ void G_DoCompleted (void)
               wminfo.next = 2;
               break;
             }
+            // fallthrough
           default:
             wminfo.next = gamemap;
           }
-        if (gamemission == pack_nerve && singleplayer && gamemap == 9)
-          wminfo.next = 4;
+      if (gamemission == pack_nerve && singleplayer && gamemap == 9)
+        wminfo.next = 4;
     }
   else
     {
@@ -1728,6 +1740,11 @@ frommapinfo:
 
   e6y_G_DoCompleted();//e6y
 
+  if (gamemode == commercial || gamemap != 8)
+  {
+    StatCopy(&wminfo);
+  }
+
   WI_Start (&wminfo);
 }
 
@@ -1758,7 +1775,7 @@ void G_WorldDone (void)
 
 		  return;
 	  }
-	  else if (gamemapinfo->endpic[0])
+	  else if (gamemapinfo->endpic[0] && (strcmp(gamemapinfo->endpic, "-") != 0))
 	  {
 		  // game ends without a status screen.
 		  gameaction = ga_victory;
@@ -1775,6 +1792,7 @@ void G_WorldDone (void)
         case 31:
           if (!secretexit)
             break;
+          // fallthrough
         case 6:
         case 11:
         case 20:
@@ -2500,16 +2518,13 @@ void G_Compatibility(void)
     monster_friction = 0;
     help_friends = 0;
 
-#ifdef DOGS
     dogs = 0;
     dog_jumping = 0;
-#endif
 
     monkeys = 0;
   }
 }
 
-#ifdef DOGS
 /* killough 7/19/98: Marine's best friend :) */
 static int G_GetHelpers(void)
 {
@@ -2519,7 +2534,6 @@ static int G_GetHelpers(void)
     j = M_CheckParm ("-dogs");
   return j ? j+1 < myargc ? atoi(myargv[j+1]) : 1 : default_dogs;
 }
-#endif
 
 // killough 3/1/98: function to reload all the default parameter
 // settings before a new game begins
@@ -2543,10 +2557,8 @@ void G_ReloadDefaults(void)
 
   monster_infighting = default_monster_infighting; // killough 7/19/98
 
-#ifdef DOGS
   dogs = netgame ? 0 : G_GetHelpers();             // killough 7/19/98
   dog_jumping = default_dog_jumping;
-#endif
 
   distfriend = default_distfriend;                 // killough 8/8/98
 
@@ -2694,6 +2706,7 @@ int G_ValidateMapName(const char *mapname, int *pEpi, int *pMap)
 	{
 		if (sscanf(mapuname, "MAP%d", &map) != 1) return 0;
 		snprintf(lumpname, 9, "MAP%02d", map);
+		epi = 1;
 	}
 	if (pEpi) *pEpi = epi;
 	if (pMap) *pMap = map;
@@ -2705,6 +2718,8 @@ int G_ValidateMapName(const char *mapname, int *pEpi, int *pMap)
 // Can be called by the startup code or the menu task,
 // consoleplayer, displayplayer, playeringame[] should be set.
 //
+
+extern int EpiCustom;
 
 void G_InitNew(skill_t skill, int episode, int map)
 {
@@ -2730,6 +2745,9 @@ void G_InitNew(skill_t skill, int episode, int map)
 
   if (episode < 1)
     episode = 1;
+
+  if (!EpiCustom)	// Disable all sanity checks if there are custom episode definitions. They do not make sense in this case.
+  {
 
   //e6y: We need to remove the fourth episode for pre-ultimate complevels.
   if (compatibility_level < ultdoom_compatibility && episode > 3)
@@ -2770,6 +2788,7 @@ void G_InitNew(skill_t skill, int episode, int map)
     map = 1;
   if (map > 9 && gamemode != commercial)
     map = 9;
+  }
 
   G_SetFastParms(fastparm || skill == sk_nightmare);  // killough 4/10/98
 
@@ -3034,11 +3053,7 @@ byte *G_WriteOptions(byte *demo_p)
 
   *demo_p++ = monster_infighting;   // killough 7/19/98
 
-#ifdef DOGS
   *demo_p++ = dogs;                 // killough 7/19/98
-#else
-  *demo_p++ = 0;
-#endif
 
   *demo_p++ = 0;
   *demo_p++ = 0;
@@ -3054,11 +3069,7 @@ byte *G_WriteOptions(byte *demo_p)
 
   *demo_p++ = help_friends;             // killough 9/9/98
 
-#ifdef DOGS
   *demo_p++ = dog_jumping;
-#else
-  *demo_p++ = 0;
-#endif
 
   *demo_p++ = monkeys;
 
@@ -3128,11 +3139,7 @@ const byte *G_ReadOptions(const byte *demo_p)
     {
       monster_infighting = *demo_p++;   // killough 7/19/98
 
-#ifdef DOGS
       dogs = *demo_p++;                 // killough 7/19/98
-#else
-      demo_p++;
-#endif
 
       demo_p += 2;
 
@@ -3147,11 +3154,7 @@ const byte *G_ReadOptions(const byte *demo_p)
 
       help_friends = *demo_p++;          // killough 9/9/98
 
-#ifdef DOGS
       dog_jumping = *demo_p++;           // killough 10/98
-#else
-      demo_p++;
-#endif
 
       monkeys = *demo_p++;
 
@@ -3178,6 +3181,11 @@ void G_BeginRecording (void)
   byte *demostart, *demo_p;
   demostart = demo_p = malloc(1000);
   longtics = 0;
+
+  if (umapinfo_loaded)
+  {
+	  *demo_p++ = 255;
+  }
 
   /* cph - 3 demo record formats supported: MBF+, BOOM, and Doom v1.9 */
   if (mbf_features) {
@@ -3389,17 +3397,13 @@ void G_SaveRestoreGameOptions(int save)
     {1, 0, &player_bobbing},
     {1, 0, &demo_insurance},
     {1, 0, &monster_infighting},
-#ifdef DOGS
     {1, 0, &dogs},
-#endif
     {1, 0, &distfriend},
     {1, 0, &monster_backing},
     {1, 0, &monster_avoid_hazards},
     {1, 0, &monster_friction},
     {1, 0, &help_friends},
-#ifdef DOGS
     {1, 0, &dog_jumping},
-#endif
     {1, 0, &monkeys},
   
     {2, 0, (int*)&forceOldBsp},
@@ -3508,6 +3512,22 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
   demover = *demo_p++;
   longtics = 0;
 
+  if (demover == 255)
+  {
+	  // Uses UMAPINFO. The real version will be in the second byte.
+	  // This prepended 255 is here to prevent non-UMAPINFO ports from recognizing the demo.
+	  demover = *demo_p++;
+	  if (!umapinfo_loaded)
+	  {
+		  lprintf(LO_ERROR, "UMAPINFO not loaded but trying to play a demo recorded with it\n");
+	  }
+  }
+  else if (umapinfo_loaded)
+  {
+	  // Q: Should this abort?
+	  lprintf(LO_ERROR, "UMAPINFO loaded but trying to play a demo recorded without it\n");
+  }
+
   // e6y
   // Handling of unrecognized demo formats
   // Versions up to 1.2 use a 7-byte header - first byte is a skill level.
@@ -3534,10 +3554,8 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
 
       monster_infighting = 1;           // killough 7/19/98
 
-#ifdef DOGS
       dogs = 0;                         // killough 7/19/98
       dog_jumping = 0;                  // killough 10/98
-#endif
 
       monster_backing = 0;              // killough 9/8/98
 
@@ -3621,7 +3639,7 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
 	  compatibility_level = boom_201_compatibility;
         else
 	  compatibility_level = boom_compatibility_compatibility;
-	  break;
+        break;
       case 202:
         //e6y: check for overrun
         if (CheckForOverrun(header_p, demo_p, size, 1, failonerror))
@@ -3631,7 +3649,7 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
 	  compatibility_level = boom_202_compatibility;
         else
 	  compatibility_level = boom_compatibility_compatibility;
-	  break;
+        break;
       case 203:
 	/* LxDoom or MBF - determine from signature
 	 * cph - load compatibility level */
@@ -4054,6 +4072,10 @@ void G_ReadDemoContinueTiccmd (ticcmd_t* cmd)
   {
     demo_continue_p = NULL;
     democontinue = false;
+    // Sometimes this bit is not available
+    if ((demo_compatibility && !prboom_comp[PC_ALLOW_SSG_DIRECT].state) ||
+      (cmd->buttons & BT_CHANGE) == 0)
+      cmd->buttons |= BT_JOIN;
   }
 }
 

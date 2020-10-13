@@ -291,6 +291,7 @@ void M_ExtHelp(int);
 static int M_GetPixelWidth(const char*);
 void M_DrawKeybnd(void);
 void M_DrawWeapons(void);
+static void M_DrawString(int cx, int cy, int color, const char* ch);
 static void M_DrawMenuString(int,int,int);
 static void M_DrawStringCentered(int,int,int,const char*);
 void M_DrawStatusHUD(void);
@@ -558,12 +559,12 @@ menu_t EpiDef =
 
 // This is for customized episode menus
 int EpiCustom;
-short EpiMenuEpi[8], EpiMenuMap[8];
+short EpiMenuMap[8] = { 1, 1, 1, 1, -1, -1, -1, -1 }, EpiMenuEpi[8] = { 1,2,3,4,-1,-1,-1,-1 };
 
 //
 //    M_Episode
 //
-int epi;
+int epiChoice;
 
 void M_AddEpisode(const char *map, char *def)
 {
@@ -622,7 +623,7 @@ void M_Episode(int choice)
 			choice = 0;
 		}
 	}
-	epi = choice;
+	epiChoice = choice;
 	M_SetupNextMenu(&NewDef);
 }
 
@@ -707,10 +708,13 @@ void M_NewGame(int choice)
   }
 
   // Chex Quest disabled the episode select screen, as did Doom II.
-  if (gamemode == commercial || gamemission == chex)
+  if (((gamemode == commercial || gamemission == chex) && !EpiCustom) || EpiDef.numitems == 1)
     M_SetupNextMenu(&NewDef);
   else
-    M_SetupNextMenu(&EpiDef);
+  {
+	  epiChoice = 0;
+	  M_SetupNextMenu(&EpiDef);
+  }
 }
 
 // CPhipps - static
@@ -719,7 +723,7 @@ static void M_VerifyNightmare(int ch)
   if (ch != 'y')
     return;
 
-  G_DeferedInitNew(nightmare,epi+1,1);
+  G_DeferedInitNew(nightmare,EpiMenuEpi[epiChoice], EpiMenuMap[epiChoice]);
   M_ClearMenus ();
 }
 
@@ -730,9 +734,9 @@ void M_ChooseSkill(int choice)
       M_StartMessage(s_NIGHTMARE,M_VerifyNightmare,true);
       return;
     }
+  if (EpiMenuEpi[epiChoice] == -1 || EpiMenuMap[epiChoice] == -1) return;	// There is no map to start here.
 
-  if (!EpiCustom) G_DeferedInitNew(choice,epi+1,1);
-  else G_DeferedInitNew(choice, EpiMenuEpi[epi], EpiMenuMap[epi]);
+  G_DeferedInitNew(choice, EpiMenuEpi[epiChoice], EpiMenuMap[epiChoice]);
   M_ClearMenus ();
 }
 
@@ -1580,7 +1584,7 @@ setup_menu_t* current_setup_menu; // points to current setup menu table
 //
 // The menu_buffer is used to construct strings for display on the screen.
 
-static char menu_buffer[64];
+static char menu_buffer[66];
 
 /////////////////////////////
 //
@@ -1878,6 +1882,9 @@ static void M_DrawItem(const setup_menu_t* s)
   if (!(flags & S_LEFTJUST))
     w = M_GetPixelWidth(menu_buffer) + 4;
   M_DrawMenuString(x - w, y ,color);
+  // print a blinking "arrow" next to the currently highlighted menu item
+  if (s == current_setup_menu + set_menu_itemon && whichSkull)
+    M_DrawString(x - w - 8, y, color, ">");
       }
     free(t);
   }
@@ -1917,6 +1924,8 @@ static void M_DrawSetting(const setup_menu_t* s)
 
   if (flags & S_YESNO) {
     strcpy(menu_buffer,*s->var.def->location.pi ? "YES" : "NO");
+    if (s == current_setup_menu + set_menu_itemon && whichSkull && !setup_select)
+      strcat(menu_buffer, " <");
     M_DrawMenuString(x,y,color);
     return;
   }
@@ -1931,6 +1940,8 @@ static void M_DrawSetting(const setup_menu_t* s)
     }
     else
       sprintf(menu_buffer,"%d",*s->var.def->location.pi);
+    if (s == current_setup_menu + set_menu_itemon && whichSkull && !setup_select)
+      strcat(menu_buffer, " <");
     M_DrawMenuString(x,y,color);
     return;
   }
@@ -1954,6 +1965,8 @@ static void M_DrawSetting(const setup_menu_t* s)
       sprintf(menu_buffer+strlen(menu_buffer), "/JSB%d",
         *s->m_joy+1);
   }
+      if (s == current_setup_menu + set_menu_itemon && whichSkull && !setup_select)
+        strcat(menu_buffer, " <");
       M_DrawMenuString(x,y,color);
     }
     return;
@@ -1971,6 +1984,8 @@ static void M_DrawSetting(const setup_menu_t* s)
   if (flags & (S_WEAP|S_CRITEM)) // weapon number or color range
     {
       sprintf(menu_buffer,"%d", *s->var.def->location.pi);
+      if (s == current_setup_menu + set_menu_itemon && whichSkull && !setup_select)
+        M_DrawString(x + 8, y, color, " <");
       M_DrawMenuString(x,y, flags & S_CRITEM ? *s->var.def->location.pi : color);
       return;
     }
@@ -1996,6 +2011,8 @@ static void M_DrawSetting(const setup_menu_t* s)
 
       if (!ch) // don't show this item in automap mode
   V_DrawNamePatch(x+1,y,0,"M_PALNO", CR_DEFAULT, VPT_STRETCH);
+  if (s == current_setup_menu + set_menu_itemon && whichSkull && !setup_select)
+    M_DrawString(x + 8, y, color, " <");
       return;
     }
 
@@ -2054,6 +2071,8 @@ static void M_DrawSetting(const setup_menu_t* s)
     // Draw the setting for the item
 
     strcpy(menu_buffer,text);
+    if (s == current_setup_menu + set_menu_itemon && whichSkull && !setup_select)
+      strcat(menu_buffer, " <");
     M_DrawMenuString(x,y,color);
     return;
   }
@@ -2073,6 +2092,8 @@ static void M_DrawSetting(const setup_menu_t* s)
       sprintf(menu_buffer,"%s", *s->var.def->location.ppsz);
     }
 
+    if (s == current_setup_menu + set_menu_itemon && whichSkull && !setup_select)
+      strcat(menu_buffer, " <");
     M_DrawMenuString(x,y,color);
     return;
   }
@@ -2407,8 +2428,10 @@ setup_menu_t keys_settings4[] =  // Key Binding screen strings
   {"CLEAR MARKS",S_KEY       ,m_map ,KB_X,KB_Y+ 9*8,{&key_map_clear}},
   {"FULL/ZOOM"  ,S_KEY       ,m_map ,KB_X,KB_Y+10*8,{&key_map_gobig}},
   {"GRID"       ,S_KEY       ,m_map ,KB_X,KB_Y+11*8,{&key_map_grid}},
+  {"ROTATE"     ,S_KEY       ,m_map ,KB_X,KB_Y+12*8,{&key_map_rotate}},
+  {"OVERLAY"    ,S_KEY       ,m_map ,KB_X,KB_Y+13*8,{&key_map_overlay}},
 #ifdef GL_DOOM
-  {"TEXTURED"   ,S_KEY       ,m_map ,KB_X,KB_Y+12*8,{&key_map_textured}},
+  {"TEXTURED"   ,S_KEY       ,m_map ,KB_X,KB_Y+14*8,{&key_map_textured}},
 #endif
 
   {"<- PREV" ,S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {keys_settings3}},
@@ -2574,6 +2597,7 @@ setup_menu_t weap_settings1[] =  // Weapons Settings screen
 {
   {"ENABLE RECOIL", S_YESNO,m_null,WP_X, WP_Y+ weap_recoil*8, {"weapon_recoil"}},
   {"ENABLE BOBBING",S_YESNO,m_null,WP_X, WP_Y+weap_bobbing*8, {"player_bobbing"}},
+  {"WEAPON ATTACK ALIGNMENT",S_CHOICE,m_null,WP_X, WP_Y+weap_attack_alignment*8, {"weapon_attack_alignment"}, 0, 0, NULL, weapon_attack_alignment_strings},
 
   {"1ST CHOICE WEAPON",S_WEAP,m_null,WP_X,WP_Y+weap_pref1*8, {"weapon_choice_1"}},
   {"2nd CHOICE WEAPON",S_WEAP,m_null,WP_X,WP_Y+weap_pref2*8, {"weapon_choice_2"}},
@@ -2673,12 +2697,13 @@ setup_menu_t stat_settings1[] =  // Status Bar and HUD Settings screen
   {"HEALTH LOW/OK"     ,S_NUM       ,m_null,SB_X,SB_Y+ 7*8, {"health_red"}},
   {"HEALTH OK/GOOD"    ,S_NUM       ,m_null,SB_X,SB_Y+ 8*8, {"health_yellow"}},
   {"HEALTH GOOD/EXTRA" ,S_NUM       ,m_null,SB_X,SB_Y+ 9*8, {"health_green"}},
-  {"ARMOR LOW/OK"      ,S_NUM       ,m_null,SB_X,SB_Y+10*8, {"armor_red"}},
-  {"ARMOR OK/GOOD"     ,S_NUM       ,m_null,SB_X,SB_Y+11*8, {"armor_yellow"}},
-  {"ARMOR GOOD/EXTRA"  ,S_NUM       ,m_null,SB_X,SB_Y+12*8, {"armor_green"}},
-  {"AMMO LOW/OK"       ,S_NUM       ,m_null,SB_X,SB_Y+13*8, {"ammo_red"}},
-  {"AMMO OK/GOOD"      ,S_NUM       ,m_null,SB_X,SB_Y+14*8, {"ammo_yellow"}},
-  {"BACKPACK CHANGES THRESHOLDS",S_CHOICE,m_null,SB_X,SB_Y+15*8, 
+  {"ARMOR COLOR DEPENDS ON TYPE",S_YESNO, m_null,SB_X,SB_Y+ 10*8, {"sts_armorcolor_type"}},
+  {"ARMOR LOW/OK"      ,S_NUM       ,m_null,SB_X,SB_Y+11*8, {"armor_red"}},
+  {"ARMOR OK/GOOD"     ,S_NUM       ,m_null,SB_X,SB_Y+12*8, {"armor_yellow"}},
+  {"ARMOR GOOD/EXTRA"  ,S_NUM       ,m_null,SB_X,SB_Y+13*8, {"armor_green"}},
+  {"AMMO LOW/OK"       ,S_NUM       ,m_null,SB_X,SB_Y+14*8, {"ammo_red"}},
+  {"AMMO OK/GOOD"      ,S_NUM       ,m_null,SB_X,SB_Y+15*8, {"ammo_yellow"}},
+  {"BACKPACK CHANGES THRESHOLDS",S_CHOICE,m_null,SB_X,SB_Y+16*8, 
    {"ammo_colour_behaviour"},0,0,NULL,ammo_colour_behaviour_list},
 
   // Button for resetting to defaults
@@ -2695,7 +2720,7 @@ setup_menu_t stat_settings1[] =  // Status Bar and HUD Settings screen
 setup_menu_t stat_settings2[] =
 {
   {"ADVANCED HUD SETTINGS"       ,S_SKIP|S_TITLE,m_null,ADVHUD_X,SB_Y+1*8},
-  {"SECRET AREAS"                ,S_YESNO     ,m_null,ADVHUD_X,SB_Y+ 2*8, {"hudadd_secretarea"}},
+  {"REPORT REVEALED SECRETS"     ,S_YESNO     ,m_null,ADVHUD_X,SB_Y+ 2*8, {"hudadd_secretarea"}},
   {"SMART TOTALS"                ,S_YESNO     ,m_null,ADVHUD_X,SB_Y+ 3*8, {"hudadd_smarttotals"}},
   {"SHOW GAMESPEED"              ,S_YESNO     ,m_null,ADVHUD_X,SB_Y+ 4*8, {"hudadd_gamespeed"}},
   {"SHOW LEVELTIME"              ,S_YESNO     ,m_null,ADVHUD_X,SB_Y+ 5*8, {"hudadd_leveltime"}},
@@ -2975,15 +3000,11 @@ enum {
   enem_friction,
   enem_help_friends,
 
-#ifdef DOGS
   enem_helpers,
-#endif
 
   enem_distfriend,
 
-#ifdef DOGS
   enem_dog_jumping,
-#endif
 
   enem_end
 };
@@ -3008,7 +3029,6 @@ setup_menu_t enem_settings1[] =  // Enemy Settings screen
 
   {"Rescue Dying Friends",S_YESNO,m_null,E_X,E_Y+ enem_help_friends*8, {"help_friends"}},
 
-#ifdef DOGS
   // killough 7/19/98
   {"Number Of Single-Player Helper Dogs",S_NUM|S_LEVWARN,m_null,E_X,E_Y+ enem_helpers*8, {"player_helpers"}},
 
@@ -3016,7 +3036,6 @@ setup_menu_t enem_settings1[] =  // Enemy Settings screen
   {"Distance Friends Stay Away",S_NUM,m_null,E_X,E_Y+ enem_distfriend*8, {"friend_distance"}},
 
   {"Allow dogs to jump down",S_YESNO,m_null,E_X,E_Y+ enem_dog_jumping*8, {"dog_jumping"}},
-#endif
 
   // Button for resetting to defaults
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
@@ -3198,16 +3217,18 @@ setup_menu_t gen_settings3[] = { // General Settings screen2
   {"Overwrite Existing",          S_YESNO, m_null, G_X, G_Y+ 3*8, {"demo_overwriteexisting"}},
   {"Smooth Demo Playback",        S_YESNO, m_null, G_X, G_Y+ 4*8, {"demo_smoothturns"}, 0, 0, M_ChangeDemoSmoothTurns},
   {"Smooth Demo Playback Factor", S_NUM,   m_null, G_X, G_Y+ 5*8, {"demo_smoothturnsfactor"}, 0, 0, M_ChangeDemoSmoothTurns},
+  {"Quickstart Window (ms)",      S_NUM,   m_null, G_X, G_Y+6*8, {"quickstart_window_ms"}},
 
-  {"Movements",                   S_SKIP|S_TITLE,m_null,G_X, G_Y+7*8},
-  {"Permanent Strafe50",          S_YESNO, m_null, G_X, G_Y+ 8*8, {"movement_strafe50"}, 0, 0, M_ChangeSpeed},
+  {"Movements",                   S_SKIP|S_TITLE,m_null,G_X, G_Y+8*8},
+  {"Permanent Strafe50",          S_YESNO, m_null, G_X, G_Y+ 9*8, {"movement_strafe50"}, 0, 0, M_ChangeSpeed},
 
   {"Mouse",                       S_SKIP|S_TITLE,m_null, G_X, G_Y+11*8},
   {"Dbl-Click As Use",            S_YESNO, m_null, G_X, G_Y+12*8, {"mouse_doubleclick_as_use"}},
-
-  {"Enable Mouselook",            S_YESNO, m_null, G_X, G_Y+13*8, {"movement_mouselook"}, 0, 0, M_ChangeMouseLook},
-  {"Invert Mouse",                S_YESNO, m_null, G_X, G_Y+14*8, {"movement_mouseinvert"}, 0, 0, M_ChangeMouseInvert},
-  {"Max View Pitch",              S_NUM,   m_null, G_X, G_Y+15*8, {"movement_maxviewpitch"}, 0, 0, M_ChangeMaxViewPitch},
+  {"Carry Fractional Tics",       S_YESNO, m_null, G_X, G_Y+13*8, {"mouse_carrytics"}},
+  {"Enable Mouselook",            S_YESNO, m_null, G_X, G_Y+14*8, {"movement_mouselook"}, 0, 0, M_ChangeMouseLook},
+  {"Invert Mouse",                S_YESNO, m_null, G_X, G_Y+15*8, {"movement_mouseinvert"}, 0, 0, M_ChangeMouseInvert},
+  {"Max View Pitch",              S_NUM,   m_null, G_X, G_Y+16*8, {"movement_maxviewpitch"}, 0, 0, M_ChangeMaxViewPitch},
+  {"Mouse Strafe Divisor",        S_NUM,   m_null, G_X, G_Y+17*8, {"movement_mousestrafedivisor"}},
 
   {"<- PREV",S_SKIP|S_PREV, m_null,KB_PREV, KB_Y+20*8, {gen_settings2}},
   {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings4}},
@@ -4037,13 +4058,23 @@ void M_InitExtendedHelp(void)
     i = W_CheckNumForName(namebfr);
     if (i == -1) {
       if (extended_help_count) {
+        /* The Extended Help menu is accessed using the
+         * Help hotkey (F1) or the "Read This!" menu item.
+         *
+         * If Extended Help screens are present, use the
+         * Extended Help routine when either the F1 Help Menu
+         * or the "Read This!" menu items are accessed.
+         *
+         * See also: https://www.doomworld.com/forum/topic/111465-boom-extended-help-screens-an-undocumented-feature/
+         */
+          HelpMenu[0].routine = M_ExtHelp;
         if (gamemode == commercial) {
           ExtHelpDef.prevMenu  = &ReadDef1; /* previous menu */
           ReadMenu1[0].routine = M_ExtHelp;
-  } else {
+        } else {
           ExtHelpDef.prevMenu  = &ReadDef2; /* previous menu */
           ReadMenu2[0].routine = M_ExtHelp;
-  }
+        }
       }
       return;
     }
@@ -4211,6 +4242,8 @@ setup_menu_t helpstrings[] =  // HELP screen strings
   {"CLEAR MARKS" ,S_SKIP|S_KEY,m_null,KT_X1,KT_Y2+ 5*8,{&key_map_clear}},
   {"FULL/ZOOM"   ,S_SKIP|S_KEY,m_null,KT_X1,KT_Y2+ 6*8,{&key_map_gobig}},
   {"GRID"        ,S_SKIP|S_KEY,m_null,KT_X1,KT_Y2+ 7*8,{&key_map_grid}},
+  {"ROTATE"      ,S_SKIP|S_KEY,m_null,KT_X1,KT_Y2+ 8*8,{&key_map_rotate}},
+  {"OVERLAY"     ,S_SKIP|S_KEY,m_null,KT_X1,KT_Y2+ 9*8,{&key_map_overlay}},
 
   {"WEAPONS"     ,S_SKIP|S_TITLE,m_null,KT_X3,KT_Y1},
   {"FIST"        ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y1+ 1*8,{&key_weapon1}},
@@ -6117,6 +6150,7 @@ void M_Init(void)
       // killough 2/21/98: Fix registered Doom help screen
       // killough 10/98: moved to second screen, moved up to the top
       ReadDef2.y = 15;
+      // fallthrough
 
     case shareware:
       // We need to remove the fourth episode.

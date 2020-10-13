@@ -148,7 +148,7 @@ static dboolean P_GiveAmmo(player_t *player, ammotype_t ammo, int num)
       if (player->readyweapon == wp_fist || player->readyweapon == wp_pistol)
         if (player->weaponowned[wp_shotgun])
           player->pendingweapon = wp_shotgun;
-        break;
+      break;
 
       case am_cell:
         if (player->readyweapon == wp_fist || player->readyweapon == wp_pistol)
@@ -646,12 +646,14 @@ static void P_KillMobj(mobj_t *source, mobj_t *target)
   mobj_t     *mo;
   dboolean   e6y = false;
   
+#if 0
   if (target->player && source && target->health < -target->info->spawnhealth &&
     !demorecording && !demoplayback)
   {
     angle_t ang = R_PointToAngle2(target->x, target->y, source->x, source->y) - target->angle;
     e6y = (ang > (unsigned)(ANG180 - ANG45) && ang < (unsigned)(ANG180 + ANG45));
   }
+#endif
 
   target->flags &= ~(MF_SHOOTABLE|MF_FLOAT|MF_SKULLFLY);
 
@@ -803,24 +805,11 @@ static void P_KillMobj(mobj_t *source, mobj_t *target)
   // This determines the kind of object spawned
   // during the death frame of a thing.
 
-  switch (target->type)
-    {
-    case MT_WOLFSS:
-    case MT_POSSESSED:
-      item = MT_CLIP;
-      break;
-
-    case MT_SHOTGUY:
-      item = MT_SHOTGUN;
-      break;
-
-    case MT_CHAINGUY:
-      item = MT_CHAINGUN;
-      break;
-
-    default:
-      return;
-    }
+  if (target->info->droppeditem != MT_NULL)
+  {
+    item = target->info->droppeditem;
+  }
+  else return;
 
   mo = P_SpawnMobj (target->x,target->y,ONFLOORZ, item);
   mo->flags |= MF_DROPPED;    // special versions of items

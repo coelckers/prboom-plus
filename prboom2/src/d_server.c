@@ -583,7 +583,8 @@ int main(int argc, char** argv)
 	  if (ingame && !curplayers) exit(0); // All players have exited
         }
       }
-      // Fall through and broadcast it
+      // fallthrough
+      // and broadcast it
     case PKT_EXTRA:
       BroadcastPacket(packet, len);
       if (packet->type == PKT_EXTRA) {
@@ -681,7 +682,7 @@ int main(int argc, char** argv)
       int tics;
       if (lowtic <= remoteticto[i]) continue;
       if ((remoteticto[i] -= xtratics) < 0) remoteticto[i] = 0;
-      tics = lowtic - remoteticto[i];
+      tics = MIN(lowtic - remoteticto[i], 128); // limit number of sent tics (CVE-2019-20797)
       {
         byte *p;
         packet = malloc(sizeof(packet_header_t) + 1 +

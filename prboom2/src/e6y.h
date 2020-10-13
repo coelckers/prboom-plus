@@ -123,13 +123,16 @@ extern int movement_shorttics;
 extern int movement_mouselook;
 extern int movement_mouseinvert;
 extern int movement_maxviewpitch;
+extern int movement_mousestrafedivisor;
 extern int mouse_handler;
 extern int mouse_doubleclick_as_use;
+extern int mouse_carrytics;
 extern int render_multisampling;
 extern int render_paperitems;
 extern int render_wipescreen;
 extern int mouse_acceleration;
 extern int demo_overwriteexisting;
+extern int quickstart_window_ms;
 
 extern int render_fov;
 extern int render_aspect;
@@ -288,6 +291,7 @@ const char* WINError(void);
 #endif
 
 extern int stats_level;
+extern int stroller;
 void e6y_G_DoCompleted(void);
 void e6y_WriteStats(void);
 
@@ -323,7 +327,7 @@ extern int force_singletics_to;
 
 int HU_DrawDemoProgress(int force);
 
-#ifdef _MSC_VER
+#ifdef _WIN32
 int GetFullPath(const char* FileName, const char* ext, char *Buffer, size_t BufferLength);
 #endif
 

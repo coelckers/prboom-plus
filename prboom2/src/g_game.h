@@ -197,6 +197,7 @@ extern int  joybspeed;
 
 extern int  defaultskill;      //jff 3/24/98 default skill
 extern dboolean haswolflevels;  //jff 4/18/98 wolf levels present
+extern dboolean secretexit;
 
 extern int  bodyquesize;       // killough 2/8/98: adustable corpse limit
 
@@ -222,6 +223,9 @@ extern int shorttics;
 //e6y: for r_demo.c
 extern int longtics;
 extern int bytes_per_tic;
+
+extern dboolean boom_autoswitch;
+extern dboolean done_autoswitch;
 
 #define singleplayer (!demorecording && !demoplayback && !democontinue && !netgame)
 #define comperr(i) (default_comperr[i] && !demorecording && !demoplayback && !democontinue && !netgame)
