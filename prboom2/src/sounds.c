@@ -124,7 +124,7 @@ musicinfo_t S_music[] = {
 // Information about all the sfx
 //
 
-static sfxinfo_t S_sfx_orig[] = {
+sfxinfo_t S_sfx[] = {
   // S_sfx[0] needs to be a dummy for odd reasons.
   { "none", false,  0, 0, -1, -1, 0 },
 
@@ -213,7 +213,7 @@ static sfxinfo_t S_sfx_orig[] = {
   { "punch", false, 64, 0, -1, -1, 0 },
   { "hoof", false, 70, 0, -1, -1, 0 },
   { "metal", false, 70, 0, -1, -1, 0 },
-  { "chgun", false, 64, &S_sfx_orig[sfx_pistol], 150, 0, 0 },
+  { "chgun", false, 64, &S_sfx[sfx_pistol], 150, 0, 0 },
   { "tink", false, 60, 0, -1, -1, 0 },
   { "bdopn", false, 100, 0, -1, -1, 0 },
   { "bdcls", false, 100, 0, -1, -1, 0 },
@@ -248,6 +248,3 @@ static sfxinfo_t S_sfx_orig[] = {
   { "secret", false, 60, 0, -1, -1, 0 },
   { "gibdth", false, 60, 0, -1, -1, 0 },
 };
-
-sfxinfo_t *S_sfx = &S_sfx_orig[0];
-int numsfx = NUMSFX;

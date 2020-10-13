@@ -217,20 +217,28 @@ static dboolean P_CheckMissileRange(mobj_t *actor)
 
   dist >>= FRACBITS;
 
-  // generalization of the Arch Vile's special behavior.
-  if (actor->info->maxattackrange > 0 && dist > actor->info->maxattackrange)
+  if (actor->type == MT_VILE)
+    if (dist > 14*64)
       return false;     // too far away
 
-  // generalization of the Revenant's special behavior
-  if (actor->info->meleestate != S_NULL && dist < actor->info->meleethreshold)
-	  return false;   // close for fist attack
 
-  if (actor->flags & MF_MISSILEMORE)
+  if (actor->type == MT_UNDEAD)
+    {
+      if (dist < 196)
+        return false;   // close for fist attack
+      dist >>= 1;
+    }
+
+  if (actor->type == MT_CYBORG ||
+      actor->type == MT_SPIDER ||
+      actor->type == MT_SKULL)
     dist >>= 1;
 
-  // hard coded values turned into a settable property
-  if (dist > actor->info->minmissilechance)
-    dist = actor->info->minmissilechance;
+  if (dist > 200)
+    dist = 200;
+
+  if (actor->type == MT_CYBORG && dist > 160)
+    dist = 160;
 
   if (P_Random(pr_missrange) < dist)
     return false;
@@ -736,7 +744,7 @@ static dboolean PIT_FindTarget(mobj_t *mo)
   mobj_t *actor = current_actor;
 
   if (!((mo->flags ^ actor->flags) & MF_FRIEND &&        // Invalid target
-  mo->health > 0 && (mo->flags & MF_ISMONSTER)))
+  mo->health > 0 && (mo->flags & MF_COUNTKILL || mo->type == MT_SKULL)))
     return true;
 
   // If the monster is already engaged in a one-on-one attack
@@ -1089,7 +1097,7 @@ void A_Look(mobj_t *actor)
           sound = actor->info->seesound;
           break;
         }
-      if (actor->flags & MF_FULLVOLSIGHT)
+      if (actor->type==MT_SPIDER || actor->type == MT_CYBORG)
         S_StartSound(NULL, sound);          // full volume
       else
         S_StartSound(actor, sound);
@@ -1692,10 +1700,7 @@ void A_VileChase(mobj_t* actor)
                   A_FaceTarget(actor);
                   actor->target = temp;
 
-				  // Allow customization.
-				  int state = actor->info->healstate;
-				  if (state == S_NULL) state = S_VILE_HEAL1;
-                  P_SetMobjState(actor, state);
+                  P_SetMobjState(actor, S_VILE_HEAL1);
                   S_StartSound(corpsehit, sfx_slop);
                   info = corpsehit->info;
 
@@ -2124,7 +2129,7 @@ void A_Scream(mobj_t *actor)
     }
 
   // Check for bosses.
-  if (actor->flags & MF_FULLVOLDEATH)
+  if (actor->type==MT_SPIDER || actor->type == MT_CYBORG)
     S_StartSound(NULL, sound); // full volume
   else
     S_StartSound(actor, sound);
@@ -2190,13 +2195,11 @@ void A_Pain(mobj_t *actor)
     S_StartSound(actor, actor->info->painsound);
 }
 
-/*
 void A_Fall(mobj_t *actor)
 {
   // actor is on ground, it can be walked over
   actor->flags &= ~MF_SOLID;
 }
-*/
 
 //
 // A_Explode

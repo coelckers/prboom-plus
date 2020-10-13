@@ -1546,7 +1546,6 @@ typedef struct
 } mobjinfo_t;
 
 /* See p_mobj_h for addition more technical info */
-extern mobjinfo_t *mobjinfo;
-extern int nummobjtypes;
+extern mobjinfo_t mobjinfo[NUMMOBJTYPES];
 
 #endif
