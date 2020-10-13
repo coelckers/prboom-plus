@@ -1425,8 +1425,13 @@ void D_BuildBEXTables(void)
       deh_musicnames[i] = strdup(S_music[i].name);
    deh_musicnames[0] = deh_musicnames[NUMMUSIC] = NULL;
 
-   for(i = 1; i < NUMSFX; i++)
-      deh_soundnames[i] = strdup(S_sfx[i].name);
+   for(i = 1; i < NUMSFX; i++) {
+      if (S_sfx[i].name != NULL) {
+         deh_soundnames[i] = strdup(S_sfx[i].name);
+      } else { // This is possible due to how DEHEXTRA has turned S_sfx into a sparse array
+         deh_soundnames[i] = NULL;
+      }
+   }
    deh_soundnames[0] = deh_soundnames[NUMSFX] = NULL;
 
   // ferk: initialize Thing extra properties (keeping vanilla props in info.c)
@@ -1803,20 +1808,6 @@ static uint_64_t getConvertedDEHBits(uint_64_t bits) {
 }
 
 //---------------------------------------------------------------------------
-// Helper to preserve the newly added flags
-//---------------------------------------------------------------------------
-static void setFlags(int miindex, uint64_t value)
-{
-	mobjinfo_t *mi = &mobjinfo[miindex];
-	// Any flag above NOTARGET is not accessible here.
-	const uint64_t mask = MF_NOTARGET - 1;
-	mi->flags = (mi->flags & ~mask) | (value & mask);
-	// MF_ISMONSTER must mirror MF_COUNTKILL, except for the Lost Soul
-	if ((mi->flags & MF_COUNTKILL) || miindex == MT_SKULL) mi->flags |= MF_ISMONSTER;
-	else mi->flags &= ~MF_ISMONSTER;
-}
-
-//---------------------------------------------------------------------------
 // See usage below for an explanation of this function's existence - POPE
 //---------------------------------------------------------------------------
 static void setMobjInfoValue(int mobjInfoIndex, int keyIndex, uint_64_t value) {
@@ -1845,7 +1836,7 @@ static void setMobjInfoValue(int mobjInfoIndex, int keyIndex, uint_64_t value) {
     case 18: mi->mass = (int)value; return;
     case 19: mi->damage = (int)value; return;
     case 20: mi->activesound = (int)value; return;
-    case 21: setFlags(mobjInfoIndex, value); return;
+    case 21: mi->flags = value; return;
     // e6y
     // Correction of wrong processing of "Respawn frame" entry.
     // There is no more synch on http://www.doomworld.com/sda/dwdemo/w303-115.zip
@@ -1950,7 +1941,7 @@ static void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line)
           // No more desync on HACX demos.
           if (bGetData==1) { // proff
             value = getConvertedDEHBits(value);
-            setFlags(indexnum, value);
+            mobjinfo[indexnum].flags = value;
             DEH_mobjinfo_bits[indexnum] = true; //e6y: changed by DEH
           }
           else {
@@ -1988,8 +1979,8 @@ static void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line)
                 (unsigned long)value & 0xffffffff
               );
             }
-			setFlags(indexnum, value);
-			DEH_mobjinfo_bits[indexnum] = true; //e6y: changed by DEH
+            mobjinfo[indexnum].flags = value; // e6y
+            DEH_mobjinfo_bits[indexnum] = true; //e6y: changed by DEH
           }
         }
         if (fpout) {

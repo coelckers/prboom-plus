@@ -1240,7 +1240,7 @@ state_t states[NUMSTATES] = {
 //
 // This goes on for the next 3000+ lines...
 
-static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
+mobjinfo_t mobjinfo[NUMMOBJTYPES] = {
   {   // MT_PLAYER
     -1,   // doomednum
     S_PLAY,   // spawnstate
@@ -1264,13 +1264,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID|MF_SHOOTABLE|MF_DROPOFF|MF_PICKUP|MF_NOTDMATCH,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
+    S_NULL    // raisestate
   },
 
   {   // MT_POSSESSED
@@ -1295,11 +1289,8 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     100,    // mass
     0,    // damage
     sfx_posact,   // activesound
-    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL|MF_ISMONSTER,   // flags
-    S_POSS_RAISE1,    // raisestate
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
+    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL,   // flags
+    S_POSS_RAISE1   // raisestate
   },
 
   {   // MT_SHOTGUY
@@ -1324,14 +1315,8 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     100,    // mass
     0,    // damage
     sfx_posact,   // activesound
-    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL|MF_ISMONSTER,   // flags
-    S_SPOS_RAISE1,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
+    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL,   // flags
+    S_SPOS_RAISE1   // raisestate
   },
 
   {   // MT_VILE
@@ -1356,15 +1341,8 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     500,    // mass
     0,    // damage
     sfx_vilact,   // activesound
-    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL|MF_ISMONSTER|MF_NOTARGET|MF_QUICKTORETALIATE,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	14*64,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL,   // flags
+    S_NULL    // raisestate
   },
 
   {   // MT_FIRE
@@ -1390,14 +1368,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_NOBLOCKMAP|MF_NOGRAVITY|MF_TRANSLUCENT,   // flags  // killough 2/21/98
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_UNDEAD
@@ -1422,15 +1393,8 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     500,    // mass
     0,    // damage
     sfx_skeact,   // activesound
-    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL|MF_ISMONSTER|MF_MISSILEMORE,   // flags
-    S_SKEL_RAISE1,    // raisestate
-	196,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL,   // flags
+    S_SKEL_RAISE1   // raisestate
   },
 
   {   // MT_TRACER
@@ -1456,14 +1420,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     10,   // damage
     sfx_None,   // activesound
     MF_NOBLOCKMAP|MF_MISSILE|MF_DROPOFF|MF_NOGRAVITY,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_SMOKE
@@ -1489,14 +1446,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_NOBLOCKMAP|MF_NOGRAVITY|MF_TRANSLUCENT,   // flags             // phares
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_FATSO
@@ -1521,15 +1471,8 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     1000,   // mass
     0,    // damage
     sfx_posact,   // activesound
-    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL|MF_ISMONSTER,   // flags
-    S_FATT_RAISE1,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL,   // flags
+    S_FATT_RAISE1   // raisestate
   },
 
   {   // MT_FATSHOT
@@ -1555,14 +1498,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     8,    // damage
     sfx_None,   // activesound
     MF_NOBLOCKMAP|MF_MISSILE|MF_DROPOFF|MF_NOGRAVITY|MF_TRANSLUCENT,   // flags \\ killough 2/21/98
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_CHAINGUY
@@ -1587,15 +1523,8 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     100,    // mass
     0,    // damage
     sfx_posact,   // activesound
-    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL|MF_ISMONSTER,   // flags
-    S_CPOS_RAISE1,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL,   // flags
+    S_CPOS_RAISE1   // raisestate
   },
 
   {   // MT_TROOP
@@ -1620,15 +1549,8 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     100,    // mass
     0,    // damage
     sfx_bgact,    // activesound
-    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL|MF_ISMONSTER, // killough |MF_TRANSLUCENT,   // flags     // phares
-    S_TROO_RAISE1,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL, // killough |MF_TRANSLUCENT,   // flags     // phares
+    S_TROO_RAISE1   // raisestate
   },
 
   {   // MT_SERGEANT
@@ -1653,15 +1575,8 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     400,    // mass
     0,    // damage
     sfx_dmact,    // activesound
-    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL|MF_ISMONSTER,   // flags
-    S_SARG_RAISE1,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL,   // flags
+    S_SARG_RAISE1   // raisestate
   },
 
   {   // MT_SHADOWS
@@ -1686,15 +1601,8 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     400,    // mass
     0,    // damage
     sfx_dmact,    // activesound
-    MF_SOLID|MF_SHOOTABLE|MF_SHADOW|MF_COUNTKILL|MF_ISMONSTER,   // flags
-    S_SARG_RAISE1,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    MF_SOLID|MF_SHOOTABLE|MF_SHADOW|MF_COUNTKILL,   // flags
+    S_SARG_RAISE1   // raisestate
   },
 
   {   // MT_HEAD
@@ -1719,15 +1627,8 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     400,    // mass
     0,    // damage
     sfx_dmact,    // activesound
-    MF_SOLID|MF_SHOOTABLE|MF_FLOAT|MF_NOGRAVITY|MF_COUNTKILL|MF_ISMONSTER,   // flags
-    S_HEAD_RAISE1,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    MF_SOLID|MF_SHOOTABLE|MF_FLOAT|MF_NOGRAVITY|MF_COUNTKILL,   // flags
+    S_HEAD_RAISE1   // raisestate
   },
 
   {   // MT_BRUISER
@@ -1752,15 +1653,8 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     1000,   // mass
     0,    // damage
     sfx_dmact,    // activesound
-    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL|MF_ISMONSTER,   // flags
-    S_BOSS_RAISE1,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL,   // flags
+    S_BOSS_RAISE1   // raisestate
   },
 
   {   // MT_BRUISERSHOT
@@ -1786,14 +1680,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     8,    // damage
     sfx_None,   // activesound
     MF_NOBLOCKMAP|MF_MISSILE|MF_DROPOFF|MF_NOGRAVITY|MF_TRANSLUCENT,   // flags  killough 2/21/98
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_KNIGHT
@@ -1818,15 +1705,8 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     1000,   // mass
     0,    // damage
     sfx_dmact,    // activesound
-    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL|MF_ISMONSTER,   // flags
-    S_BOS2_RAISE1,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL,   // flags
+    S_BOS2_RAISE1   // raisestate
   },
 
   {   // MT_SKULL
@@ -1851,15 +1731,8 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     50,   // mass
     3,    // damage
     sfx_dmact,    // activesound
-    MF_SOLID|MF_SHOOTABLE|MF_FLOAT|MF_NOGRAVITY|MF_MISSILEMORE|MF_ISMONSTER,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    MF_SOLID|MF_SHOOTABLE|MF_FLOAT|MF_NOGRAVITY,    // flags
+    S_NULL    // raisestate
   },
 
   {   // MT_SPIDER
@@ -1884,15 +1757,8 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     1000,   // mass
     0,    // damage
     sfx_dmact,    // activesound
-    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL|MF_ISMONSTER|MF_MISSILEMORE|MF_FULLVOLSIGHT|MF_FULLVOLDEATH|MF_NORADIUSDMG,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL,   // flags
+    S_NULL    // raisestate
   },
 
   {   // MT_BABY
@@ -1917,15 +1783,8 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     600,    // mass
     0,    // damage
     sfx_bspact,   // activesound
-    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL|MF_ISMONSTER,   // flags
-    S_BSPI_RAISE1,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL,   // flags
+    S_BSPI_RAISE1   // raisestate
   },
 
   {   // MT_CYBORG
@@ -1950,15 +1809,8 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     1000,   // mass
     0,    // damage
     sfx_dmact,    // activesound
-    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL|MF_ISMONSTER|MF_MISSILEMORE|MF_FULLVOLSIGHT|MF_FULLVOLDEATH|MF_NORADIUSDMG,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL,   // flags
+    S_NULL    // raisestate
   },
 
   {   // MT_PAIN
@@ -1983,15 +1835,8 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     400,    // mass
     0,    // damage
     sfx_dmact,    // activesound
-    MF_SOLID|MF_SHOOTABLE|MF_FLOAT|MF_NOGRAVITY|MF_COUNTKILL|MF_ISMONSTER,   // flags
-    S_PAIN_RAISE1,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    MF_SOLID|MF_SHOOTABLE|MF_FLOAT|MF_NOGRAVITY|MF_COUNTKILL,   // flags
+    S_PAIN_RAISE1   // raisestate
   },
 
   {   // MT_WOLFSS
@@ -2016,15 +1861,8 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     100,    // mass
     0,    // damage
     sfx_posact,   // activesound
-    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL|MF_ISMONSTER,   // flags
-    S_SSWV_RAISE1,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL,   // flags
+    S_SSWV_RAISE1   // raisestate
   },
 
   {   // MT_KEEN
@@ -2049,15 +1887,8 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     10000000,   // mass
     0,    // damage
     sfx_None,   // activesound
-    MF_SOLID|MF_SPAWNCEILING|MF_NOGRAVITY|MF_SHOOTABLE|MF_COUNTKILL|MF_ISMONSTER,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    MF_SOLID|MF_SPAWNCEILING|MF_NOGRAVITY|MF_SHOOTABLE|MF_COUNTKILL,    // flags
+    S_NULL    // raisestate
   },
 
   {   // MT_BOSSBRAIN
@@ -2083,14 +1914,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID|MF_SHOOTABLE,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_BOSSSPIT
@@ -2116,14 +1940,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_NOBLOCKMAP|MF_NOSECTOR,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_BOSSTARGET
@@ -2149,14 +1966,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_NOBLOCKMAP|MF_NOSECTOR,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_SPAWNSHOT
@@ -2182,14 +1992,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     3,    // damage
     sfx_None,   // activesound
     MF_NOBLOCKMAP|MF_MISSILE|MF_DROPOFF|MF_NOGRAVITY|MF_NOCLIP,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_SPAWNFIRE
@@ -2215,14 +2018,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_NOBLOCKMAP|MF_NOGRAVITY|MF_TRANSLUCENT,   // flags             // phares
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_BARREL
@@ -2248,14 +2044,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID|MF_SHOOTABLE|MF_NOBLOOD,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_TROOPSHOT
@@ -2281,14 +2070,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     3,    // damage
     sfx_None,   // activesound
     MF_NOBLOCKMAP|MF_MISSILE|MF_DROPOFF|MF_NOGRAVITY|MF_TRANSLUCENT, // flags // phares
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_HEADSHOT
@@ -2314,14 +2096,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     5,    // damage
     sfx_None,   // activesound
     MF_NOBLOCKMAP|MF_MISSILE|MF_DROPOFF|MF_NOGRAVITY|MF_TRANSLUCENT, // flags // phares,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_ROCKET
@@ -2347,14 +2122,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     20,   // damage
     sfx_None,   // activesound
     MF_NOBLOCKMAP|MF_MISSILE|MF_DROPOFF|MF_NOGRAVITY,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_PLASMA
@@ -2380,14 +2148,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     5,    // damage
     sfx_None,   // activesound
     MF_NOBLOCKMAP|MF_MISSILE|MF_DROPOFF|MF_NOGRAVITY|MF_TRANSLUCENT, // flags // phares
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_BFG
@@ -2413,14 +2174,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     100,    // damage
     sfx_None,   // activesound
     MF_NOBLOCKMAP|MF_MISSILE|MF_DROPOFF|MF_NOGRAVITY|MF_TRANSLUCENT, // flags // phares
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_ARACHPLAZ
@@ -2446,14 +2200,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     5,    // damage
     sfx_None,   // activesound
     MF_NOBLOCKMAP|MF_MISSILE|MF_DROPOFF|MF_NOGRAVITY|MF_TRANSLUCENT, // flags // phares
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_PUFF
@@ -2479,14 +2226,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_NOBLOCKMAP|MF_NOGRAVITY|MF_TRANSLUCENT, // flags // phares
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_BLOOD
@@ -2512,14 +2252,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_NOBLOCKMAP,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_TFOG
@@ -2545,14 +2278,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_NOBLOCKMAP|MF_NOGRAVITY|MF_TRANSLUCENT, // flags // phares
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_IFOG
@@ -2578,14 +2304,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_NOBLOCKMAP|MF_NOGRAVITY|MF_TRANSLUCENT, // flags // phares
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_TELEPORTMAN
@@ -2611,14 +2330,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_NOBLOCKMAP|MF_NOSECTOR,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_EXTRABFG
@@ -2644,14 +2356,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_NOBLOCKMAP|MF_NOGRAVITY,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC0
@@ -2677,14 +2382,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC1
@@ -2710,14 +2408,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC2
@@ -2743,14 +2434,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL|MF_COUNTITEM,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC3
@@ -2776,14 +2460,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL|MF_COUNTITEM,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC4
@@ -2809,14 +2486,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL|MF_NOTDMATCH,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC5
@@ -2842,14 +2512,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL|MF_NOTDMATCH,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC6
@@ -2875,14 +2538,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL|MF_NOTDMATCH,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC7
@@ -2908,14 +2564,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL|MF_NOTDMATCH,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC8
@@ -2941,14 +2590,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL|MF_NOTDMATCH,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC9
@@ -2974,14 +2616,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL|MF_NOTDMATCH,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC10
@@ -3007,14 +2642,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC11
@@ -3040,14 +2668,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC12
@@ -3073,14 +2694,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL|MF_COUNTITEM|MF_TRANSLUCENT,    // flags   // killough 2/21/98
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_INV
@@ -3106,14 +2720,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL|MF_COUNTITEM|MF_TRANSLUCENT,    // flags // killough 2/21/98
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC13
@@ -3139,14 +2746,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL|MF_COUNTITEM,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_INS
@@ -3172,14 +2772,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL|MF_COUNTITEM|MF_TRANSLUCENT,    // flags // killough 2/21/98
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC14
@@ -3205,14 +2798,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC15
@@ -3238,14 +2824,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL|MF_COUNTITEM,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC16
@@ -3271,14 +2850,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL|MF_COUNTITEM,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MEGA
@@ -3304,14 +2876,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL|MF_COUNTITEM|MF_TRANSLUCENT,    // flags // killough 2/21/98
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_CLIP
@@ -3337,14 +2902,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC17
@@ -3370,14 +2928,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC18
@@ -3403,14 +2954,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC19
@@ -3436,14 +2980,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC20
@@ -3469,14 +3006,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC21
@@ -3502,14 +3032,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC22
@@ -3535,14 +3058,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC23
@@ -3568,14 +3084,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC24
@@ -3601,14 +3110,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC25
@@ -3634,14 +3136,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_CHAINGUN
@@ -3667,14 +3162,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC26
@@ -3700,14 +3188,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC27
@@ -3733,14 +3214,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC28
@@ -3766,14 +3240,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_SHOTGUN
@@ -3799,14 +3266,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_SUPERSHOTGUN
@@ -3832,14 +3292,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPECIAL,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC29
@@ -3865,14 +3318,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC30
@@ -3898,14 +3344,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC31
@@ -3931,14 +3370,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC32
@@ -3964,14 +3396,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC33
@@ -3997,14 +3422,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC34
@@ -4030,14 +3448,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC35
@@ -4063,14 +3474,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC36
@@ -4096,14 +3500,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC37
@@ -4129,14 +3526,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC38
@@ -4162,14 +3552,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC39
@@ -4195,14 +3578,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC40
@@ -4228,14 +3604,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC41
@@ -4261,14 +3630,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC42
@@ -4294,14 +3656,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC43
@@ -4327,14 +3682,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC44
@@ -4360,14 +3708,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC45
@@ -4393,14 +3734,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC46
@@ -4426,14 +3760,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC47
@@ -4459,14 +3786,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC48
@@ -4492,14 +3812,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC49
@@ -4525,14 +3838,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     0,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC50
@@ -4558,14 +3864,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC51
@@ -4591,14 +3890,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID|MF_SPAWNCEILING|MF_NOGRAVITY,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC52
@@ -4624,14 +3916,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID|MF_SPAWNCEILING|MF_NOGRAVITY,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC53
@@ -4657,14 +3942,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID|MF_SPAWNCEILING|MF_NOGRAVITY,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC54
@@ -4690,14 +3968,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID|MF_SPAWNCEILING|MF_NOGRAVITY,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC55
@@ -4723,14 +3994,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID|MF_SPAWNCEILING|MF_NOGRAVITY,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC56
@@ -4756,14 +4020,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPAWNCEILING|MF_NOGRAVITY,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC57
@@ -4789,14 +4046,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPAWNCEILING|MF_NOGRAVITY,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC58
@@ -4822,14 +4072,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPAWNCEILING|MF_NOGRAVITY,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC59
@@ -4855,14 +4098,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPAWNCEILING|MF_NOGRAVITY,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC60
@@ -4888,14 +4124,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SPAWNCEILING|MF_NOGRAVITY,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC61
@@ -4921,14 +4150,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     0,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC62
@@ -4954,14 +4176,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     0,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC63
@@ -4987,14 +4202,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     0,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC64
@@ -5020,14 +4228,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     0,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC65
@@ -5053,14 +4254,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     0,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC66
@@ -5086,14 +4280,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     0,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC67
@@ -5119,14 +4306,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     0,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC68
@@ -5152,14 +4332,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     0,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC69
@@ -5185,14 +4358,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     0,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC70
@@ -5218,14 +4384,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC71
@@ -5251,14 +4410,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     0,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC72
@@ -5284,14 +4436,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC73
@@ -5317,14 +4462,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC74
@@ -5350,14 +4488,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC75
@@ -5383,14 +4514,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC76
@@ -5416,14 +4540,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC77
@@ -5449,14 +4566,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID,   // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC78
@@ -5482,14 +4592,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID|MF_SPAWNCEILING|MF_NOGRAVITY,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC79
@@ -5515,14 +4618,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID|MF_SPAWNCEILING|MF_NOGRAVITY,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC80
@@ -5548,14 +4644,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID|MF_SPAWNCEILING|MF_NOGRAVITY,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC81
@@ -5581,14 +4670,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID|MF_SPAWNCEILING|MF_NOGRAVITY,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC82
@@ -5614,14 +4696,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID|MF_SPAWNCEILING|MF_NOGRAVITY,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC83
@@ -5647,14 +4722,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_SOLID|MF_SPAWNCEILING|MF_NOGRAVITY,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC84
@@ -5680,14 +4748,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_NOBLOCKMAP,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC85
@@ -5713,14 +4774,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_NOBLOCKMAP,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   {   // MT_MISC86
@@ -5746,14 +4800,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,    // damage
     sfx_None,   // activesound
     MF_NOBLOCKMAP,    // flags
-    S_NULL,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL    // raisestate
   },
 
   // For use with wind and current effects
@@ -5780,14 +4827,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,              // damage
     sfx_None,       // activesound
     MF_NOBLOCKMAP,  // flags
-    S_NULL,		    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL          // raisestate
   },
 
   // For use with wind and current effects
@@ -5814,14 +4854,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,              // damage
     sfx_None,       // activesound
     MF_NOBLOCKMAP,  // flags
-	S_NULL,		    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL          // raisestate
   },
 
   // Marine's best friend :)      // killough 7/19/98
@@ -5847,15 +4880,8 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     100,    // mass
     0,    // damage
     sfx_dgact,    // activesound
-    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL|MF_ISMONSTER, // flags
-    S_DOGS_RAISE1,    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL, // flags
+    S_DOGS_RAISE1   // raisestate
   },
 
   // killough 7/11/98: this is the first of two plasma fireballs in the beta
@@ -5882,14 +4908,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     4,              // damage
     sfx_None,       // activesound
     MF_NOBLOCKMAP|MF_MISSILE|MF_DROPOFF|MF_NOGRAVITY|MF_BOUNCES, // flags
-	S_NULL,		    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL          // raisestate
   },
   
   // killough 7/11/98: this is the second of two plasma fireballs in the beta
@@ -5916,14 +4935,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     4,              // damage
     sfx_None,       // activesound
     MF_NOBLOCKMAP|MF_MISSILE|MF_DROPOFF|MF_NOGRAVITY|MF_BOUNCES, // flags
-	S_NULL,		    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL          // raisestate
   },
 
   // killough 7/11/98: this is the evil sceptre in the beta version
@@ -5950,14 +4962,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,              // damage
     sfx_None,       // activesound
     MF_SPECIAL|MF_COUNTITEM, // flags
-	S_NULL,		    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL          // raisestate
   },
 
   // killough 7/11/98: this is the unholy bible in the beta version
@@ -5984,14 +4989,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,              // damage
     sfx_None,       // activesound
     MF_SPECIAL|MF_COUNTITEM, // flags
-	S_NULL,		    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL          // raisestate
   },
 
 
@@ -6019,14 +5017,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,              // damage
     sfx_None,       // activesound
     MF_NOBLOCKMAP,  // flags
-	S_NULL,		    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL          // raisestate
   },
 
   {   // MT_GIBDTH
@@ -6052,17 +5043,7 @@ static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
     0,              // damage
     sfx_None,       // activesound
     MF_NOBLOCKMAP|MF_DROPOFF, // flags
-	S_NULL,		    // raisestate
-	0,		// meleethreshold
-	0,		// maxattackrange
-	200,	// minmissilechance
-	-1,		// dropindex
-	S_NULL,	// healstate
-	S_NULL,	// crushstate
-
+    S_NULL          // raisestate
   },
 
 };
-
-mobjinfo_t *mobjinfo = mobjinfo_orig;
-int nummobjtypes = NUMMOBJTYPES;
