@@ -247,7 +247,7 @@ sfxinfo_t S_sfx[] = {
   //e6y
   { "secret", false, 60, 0, -1, -1, 0 },
   { "gibdth", false, 60, 0, -1, -1, 0 },
-  // Everything from here up to 400 is reserved for future use.
+  // Everything from here up to 500 is reserved for future use.
 
   // Free slots for DEHEXTRA. Priorities should be overridden by user.
   // The gap to accomodate Eternity means I must use desginated initializers,
