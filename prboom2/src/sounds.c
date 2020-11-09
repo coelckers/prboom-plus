@@ -250,9 +250,10 @@ sfxinfo_t S_sfx[] = {
   // Everything from here up to 500 is reserved for future use.
 
   // Free slots for DEHEXTRA. Priorities should be overridden by user.
-  // The gap to accomodate Eternity means I must use desginated initializers,
-  // or otherwise supply an exact number of dummy entries to pad it out.
-  // Not sure which would be uglier to maintain. -SH
+  // There is a gap present to accomodate Eternity Engine - see their commit
+  // @ https://github.com/team-eternity/eternity/commit/b8fb8f71 - which  means
+  // I must use desginated initializers, or else supply an exact number of dummy
+  // entries to pad it out. Not sure which would be uglier to maintain. -SH
   [500] = { "fre000", false, 127, 0, -1, -1, 0 },
   [501] = { "fre001", false, 127, 0, -1, -1, 0 },
   [502] = { "fre002", false, 127, 0, -1, -1, 0 },
