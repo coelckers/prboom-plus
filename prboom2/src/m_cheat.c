@@ -253,8 +253,8 @@ static void cheat_god()
       mt.y = plyr->mo->y >> FRACBITS;
       mt.angle = (plyr->mo->angle + ANG45/2)*(uint_64_t)45/ANG45;
       mt.type = consoleplayer + 1;
-      mt.options = 7; // arbitrary non-zero value
-      P_SpawnPlayer(0, &mt);
+      mt.options = 1; // arbitrary non-zero value
+      P_SpawnPlayer(consoleplayer, &mt);
 
       // spawn a teleport fog
       an = plyr->mo->angle >> ANGLETOFINESHIFT;
