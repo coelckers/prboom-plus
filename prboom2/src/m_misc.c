@@ -790,7 +790,7 @@ default_t defaults[] =
    def_hex,ss_none}, // automap mode
   {"map_always_updates", {&map_always_updates}, {1},0,1,
    def_bool,ss_auto},
-  {"map_grid_size", {&map_grid_size}, {128},8,256,
+  {"map_grid_size", {&map_grid_size}, {128},-1,256,
    def_int,ss_auto},
   {"map_scroll_speed", {&map_scroll_speed}, {8},1,32,
    def_int,ss_auto},
