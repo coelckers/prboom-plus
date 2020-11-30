@@ -3198,11 +3198,11 @@ setup_menu_t gen_settings2[] = { // General Settings screen2
   {"Game speed, percentage of normal", S_NUM|S_PRGWARN, m_null, G_X, G_Y+13*8, {"realtic_clock_rate"}},
   {"Default skill level",              S_CHOICE,        m_null, G_X, G_Y+14*8, {"default_skill"}, 0, 0, NULL, gen_skillstrings},
   {"Default compatibility level",      S_CHOICE,        m_null, G_X, G_Y+15*8, {"default_compatibility_level"}, 0, 0, NULL, &gen_compstrings[1]},
-  {"Show Secret Notifications",        S_YESNO,         m_null, ADVHUD_X, SB_Y+ 2*8, {"hudadd_secretarea"}},
-  {"Show ENDOOM screen",               S_YESNO,         m_null, G_X, G_Y+16*8, {"showendoom"}},
-  {"Fullscreen menu background",       S_YESNO, m_null, G_X, G_Y + 17*8, {"menu_background"}},
+  {"Show Secret Notifications",        S_YESNO,         m_null, G_X, G_Y+16*8, {"hudadd_secretarea"}},
+  {"Show ENDOOM screen",               S_YESNO,         m_null, G_X, G_Y+17*8, {"showendoom"}},
+  {"Fullscreen menu background",       S_YESNO, m_null, G_X, G_Y + 18*8, {"menu_background"}},
 #ifdef USE_WINDOWS_LAUNCHER
-  {"Use In-Game Launcher",             S_CHOICE,        m_null, G_X, G_Y+ 18*8, {"launcher_enable"}, 0, 0, NULL, launcher_enable_states},
+  {"Use In-Game Launcher",             S_CHOICE,        m_null, G_X, G_Y+ 19*8, {"launcher_enable"}, 0, 0, NULL, launcher_enable_states},
 #endif
 
 
