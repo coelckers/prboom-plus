@@ -1,3 +1,77 @@
+Basic Installation (ZIP, tarball, Git)
+==================
+
+  1. To compile PrBoom-Plus, you need at least SDL2. To enable various
+     extensions and optional features, the following are required:
+     - SDL2_net (for network play)
+     - SDL2_image (for high-res textures in OpenGL, and PNG screenshots)
+     - PCRE (for demo filename pattern matching)
+     - for music support, some or all of
+       * SDL2_mixer (midi, timidity)
+       * Fluidsynth (midi)
+       * Portmidi (midi)
+       * MAD (mp3)
+       * DUMB (various tracker-style formats)
+       * vorbisfile (ogg)
+     On a typical Debian or Ubuntu system this may be sufficient:
+       apt-get install libsdl2-dev libsdl2-net-dev libsdl2-image-dev \
+         libpcre3-dev libsdl2-mixer-dev libfluidsynth-dev \
+         libportmidi-dev libmad0-dev libdumb1-dev libvorbis-dev
+         
+    You will also need `cmake` and `make` if you haven't already got them.
+         
+  2. `cd' to the directory containing the PrBoom distribution (the directory
+     this file is in, prboom2).
+
+     Run `cmake .` from this folder
+     
+     This should end with the message "Build files have been written to: [folderpath]"
+
+  3. Type `make' to compile PrBoom. This may take some time; while it's
+     compiling I suggest you read the README, or maybe go and look for some
+     good doom levels to play when it's finished :-).
+
+     This should work on all Linux systems, but systems that have a make
+     utility other than GNU make may have problems. E.g. you might need to
+     install GNU make, and then use it instead of make for these
+     instructions. I have tested BSD pmake and it works fine.
+
+  4. Type `make install-strip' as root, to install the programs, data files
+     and man pages for PrBoom. If you don't have root access on the machine,
+     you should ask the syadmin to do this and the next step for you.
+     
+     If you want to install manually then you must put the `prboom-plus.wad` 
+     in /usr/local/share/games/doom/ (or symlink it from there).
+
+  5. Copy your Doom, Doom 2, Ultimate Doom or Final Doom IWAD (doom.wad or
+     doom2.wad) to /usr/local/share/games/doom/ (or symlink it from there).
+     Or if you don't have any of those, use the shareware IWAD, which you can
+     get from http://www.doomworld.com/ or http://www.idsoftware.com/.
+
+     If you have a system with many users, you should read the license for
+     your version of Doom, and make sure only those users allowed to use it
+     can access the IWAD file.
+     
+     You can also aquire FreeDoom from https://freedoom.github.io/ which is a 
+     free replacement to the iD Doom iWADs (although if you intend to upload demos to DSDA this iWAD isn't sufficient) 
+
+  6. You can remove the program binaries and object files from the
+     source directory by typing `make clean'.  To also remove the
+     files that `configure' created (so you can compile the package for
+     a different kind of computer), type `make distclean'.  There is
+     also a `make maintainer-clean' target, but that is intended mainly
+     for the package's developers.  If you use it, you may have to get
+     all sorts of other programs in order to regenerate files that came
+     with the distribution.
+
+  7. PrBoom is now ready for use. If /usr/local/games is in your path,
+     you can just run prboom; otherwise give the full path.
+
+     See the README file for information about getting the Timidity
+     patches needed for music support, and more.
+
+     
+     
 Installation From SVN
 =====================
 
@@ -22,74 +96,7 @@ section.
   4. If the 'configure' script was created by step 3 then proceed to the
      "Basic Installation" section.
 
-Basic Installation
-==================
-
-  1. To compile PrBoom-Plus, you need at least SDL2. To enable various
-     extensions and optional features, the following are required:
-     - SDL2_net (for network play)
-     - SDL2_image (for high-res textures in OpenGL, and PNG screenshots)
-     - PCRE (for demo filename pattern matching)
-     - for music support, some or all of
-       * SDL2_mixer (midi, timidity)
-       * Fluidsynth (midi)
-       * Portmidi (midi)
-       * MAD (mp3)
-       * DUMB (various tracker-style formats)
-       * vorbisfile (ogg)
-     On a typical Debian or Ubuntu system this may be sufficient:
-       apt-get install libsdl2-dev libsdl2-net-dev libsdl2-image-dev \
-         libpcre3-dev libsdl2-mixer-dev libfluidsynth-dev \
-         libportmidi-dev libmad0-dev libdumb1-dev libvorbis-dev
-
-  2. `cd' to the directory containing the PrBoom distribution (the directory
-     this file is in).
-
-     Type `./configure' to configure PrBoom for your system.  If you're
-     using `csh' on an old version of System V, you might need to type
-     `sh ./configure' instead to prevent `csh' from trying to execute
-     `configure' itself.
-
-     Running `configure' takes awhile.  While running, it prints some
-     messages telling which features it is checking for.
-
-  3. Type `make' to compile PrBoom. This may take some time; while it's
-     compiling I suggest you read the README, or maybe go and look for some
-     good doom levels to play when it's finished :-).
-
-     This should work on all Linux systems, but systems that have a make
-     utility other than GNU make may have problems. E.g. you might need to
-     install GNU make, and then use it instead of make for these
-     instructions. I have tested BSD pmake and it works fine.
-
-  4. Type `make install-strip' as root, to install the programs, data files
-     and man pages for PrBoom. If you don't have root access on the machine,
-     you should ask the syadmin to do this and the next step for you.
-
-  5. Copy your Doom, Doom 2, Ultimate Doom or Final Doom IWAD (doom.wad or
-     doom2.wad) to /usr/local/share/games/doom/ (or symlink it from there).
-     Or if you don't have any of those, use the shareware IWAD, which you can
-     get from http://www.doomworld.com/ or http://www.idsoftware.com/.
-
-     If you have a system with many users, you should read the license for
-     your version of Doom, and make sure only those users allowed to use it
-     can access the IWAD file.
-
-  6. You can remove the program binaries and object files from the
-     source directory by typing `make clean'.  To also remove the
-     files that `configure' created (so you can compile the package for
-     a different kind of computer), type `make distclean'.  There is
-     also a `make maintainer-clean' target, but that is intended mainly
-     for the package's developers.  If you use it, you may have to get
-     all sorts of other programs in order to regenerate files that came
-     with the distribution.
-
-  7. PrBoom is now ready for use. If /usr/local/games is in your path,
-     you can just run prboom; otherwise give the full path.
-
-     See the README file for information about getting the Timidity
-     patches needed for music support, and more.
-
+     
 Building an RPM
 ===============
 
