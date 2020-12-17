@@ -23,7 +23,10 @@ Basic Installation (ZIP, tarball, Git)
   2. `cd' to the directory containing the PrBoom distribution (the directory
      this file is in, prboom2).
 
-     Run `cmake .` from this folder
+     Run `cmake . -DCMAKE_BUILD_TYPE=Release` from this folder
+     (You should remove the -DCMAKE... if you wish to get a debug build
+     for better info about crashes and such if using experimental code.
+     This does reduce performance)
      
      This should end with the message "Build files have been written to: [folderpath]"
 
@@ -53,7 +56,7 @@ Basic Installation (ZIP, tarball, Git)
      can access the IWAD file.
      
      You can also aquire FreeDoom from https://freedoom.github.io/ which is a 
-     free replacement to the iD Doom iWADs (although if you intend to upload demos to DSDA this iWAD isn't sufficient) 
+     free replacement to the iD Doom iWADs
 
   6. You can remove the program binaries and object files from the
      source directory by typing `make clean'.  To also remove the
