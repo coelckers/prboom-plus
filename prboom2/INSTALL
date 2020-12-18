@@ -23,14 +23,14 @@ Basic Installation (ZIP, tarball, Git)
   2. `cd' to the directory containing the PrBoom distribution (the directory
      this file is in, prboom2).
 
-     Run `cmake . -DCMAKE_BUILD_TYPE=Release` from this folder
-     (You should remove the -DCMAKE... if you wish to get a debug build
-     for better info about crashes and such if using experimental code.
-     This does reduce performance)
+     Run `cmake . -DCMAKE_BUILD_TYPE=Release` from this folder, or 
+     `cmake . -DCMAKE_BUILD_TYPE=Debug` for a debug build. (This gives
+     slightly lower performance, but more details in the event of 
+     issues)
      
-     This should end with the message "Build files have been written to: [folderpath]"
+     This should end with the message "Build files have been written to: [folderpath]".
 
-  3. Type `make' to compile PrBoom. This may take some time; while it's
+  3. Type `make` to compile PrBoom. This may take some time; while it's
      compiling I suggest you read the README, or maybe go and look for some
      good doom levels to play when it's finished :-).
 
@@ -43,7 +43,7 @@ Basic Installation (ZIP, tarball, Git)
      and man pages for PrBoom. If you don't have root access on the machine,
      you should ask the syadmin to do this and the next step for you.
      
-     If you want to install manually then you must put the `prboom-plus.wad` 
+     If you want to install manually then you should put the `prboom-plus.wad` 
      in /usr/local/share/games/doom/ (or symlink it from there).
 
   5. Copy your Doom, Doom 2, Ultimate Doom or Final Doom IWAD (doom.wad or
@@ -55,11 +55,11 @@ Basic Installation (ZIP, tarball, Git)
      your version of Doom, and make sure only those users allowed to use it
      can access the IWAD file.
      
-     You can also aquire FreeDoom from https://freedoom.github.io/ which is a 
+     You may also aquire FreeDoom from https://freedoom.github.io/ which is a 
      free replacement to the iD Doom iWADs
 
   6. You can remove the program binaries and object files from the
-     source directory by typing `make clean'.  To also remove the
+     source directory by typing `make clean`.  To also remove the
      files that `configure' created (so you can compile the package for
      a different kind of computer), type `make distclean'.  There is
      also a `make maintainer-clean' target, but that is intended mainly
@@ -69,9 +69,6 @@ Basic Installation (ZIP, tarball, Git)
 
   7. PrBoom is now ready for use. If /usr/local/games is in your path,
      you can just run prboom; otherwise give the full path.
-
-     See the README file for information about getting the Timidity
-     patches needed for music support, and more.
 
      
      
