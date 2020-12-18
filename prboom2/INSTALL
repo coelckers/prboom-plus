@@ -29,7 +29,7 @@ Basic Installation (ZIP, tarball, Git)
      Run `cmake .. -DCMAKE_BUILD_TYPE=Release` from this folder, or 
      `cmake .. -DCMAKE_BUILD_TYPE=Debug` for a debug build. (This gives
      slightly lower performance, but more details in the event of 
-     issues)
+     issues).
      
      This should end with the message "Build files have been written to: [folderpath]".
 
@@ -59,7 +59,7 @@ Basic Installation (ZIP, tarball, Git)
      can access the IWAD file.
      
      You may also aquire FreeDoom from https://freedoom.github.io/ which is a 
-     free replacement to the iD Doom iWADs
+     free replacement to the iD Doom iWADs.
 
   6. You can remove the program binaries and object files from the
      source directory by typing `make clean`.  To also remove the
@@ -73,31 +73,6 @@ Basic Installation (ZIP, tarball, Git)
   7. PrBoom is now ready for use. If /usr/local/games is in your path,
      you can just run prboom; otherwise give the full path.
 
-     
-     
-Installation From SVN
-=====================
-
-If you intend to compile PrBoom from a source tar file, such as
-prboom-plus-2.5.1.5.tar.gz, as opposed to SVN, skip to the "Basic Installation"
-section.
-
-  1. Extract the PrBoom distribution from SVN:
-        svn co https://svn.prboom.org/repos/branches/prboom-plus-24/prboom2
-
-  2. 'cd' to the directory containing the PrBoom distribution (the directory
-     this file is in):
-        cd prboom2
-
-  3. Run the 'bootstrap' script in order to create the 'configure' script.
-        ./bootstrap
-     If you get this error:
-        aclocal: configure.ac: 153: macro `AM_PATH_SDL' not found in library
-     Then you have to locate sdl.m4 and copy it to ./autotools/sdl.m4 in your
-     prboom directory.
-
-  4. If the 'configure' script was created by step 3 then proceed to the
-     "Basic Installation" section.
 
      
 Building an RPM
