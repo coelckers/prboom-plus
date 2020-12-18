@@ -22,9 +22,12 @@ Basic Installation (ZIP, tarball, Git)
          
   2. `cd' to the directory containing the PrBoom distribution (the directory
      this file is in, prboom2).
-
-     Run `cmake . -DCMAKE_BUILD_TYPE=Release` from this folder, or 
-     `cmake . -DCMAKE_BUILD_TYPE=Debug` for a debug build. (This gives
+     
+     Create a new `build` folder and `cd` into it. 
+     `mkdir build && cd build`
+     
+     Run `cmake .. -DCMAKE_BUILD_TYPE=Release` from this folder, or 
+     `cmake .. -DCMAKE_BUILD_TYPE=Debug` for a debug build. (This gives
      slightly lower performance, but more details in the event of 
      issues)
      
