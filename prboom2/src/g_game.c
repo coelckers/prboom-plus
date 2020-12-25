@@ -3628,7 +3628,7 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
       return NULL;
 
     // we check for the PR+UM signature as mentioned.
-    // MBF and Eternity Engine also use 255 demover, with other signatures.
+    // Eternity Engine also uses 255 demover, with other signatures.
     if (strncmp((const char *)demo_p, prdemosig, 5) != 0)
     {
       I_Error("G_ReadDemoHeader: Extended demo format 255 found, but \"PR+UM\" string not found.");
