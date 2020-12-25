@@ -3187,7 +3187,7 @@ void G_BeginRecording (void)
   longtics = 0;
 
   // ano - jun2019 - add the extension format if needed
-  if (gamemapinfo)
+  if (umapinfo_loaded)
   {
     num_extensions++;
   }
@@ -3209,9 +3209,26 @@ void G_BeginRecording (void)
     *demo_p++ =  num_extensions & 0xff;
     *demo_p++ = (num_extensions >> 8) & 0xff;
 
-    if (gamemapinfo)
+    if (umapinfo_loaded)
     {
-      int mapname_len = strnlen(gamemapinfo->mapname, 9);
+      // [XA] get the map name from gamemapinfo if the
+      // starting map has a UMAPINFO definition. if not,
+      // fall back to the usual MAPxx/ExMy default.
+      char mapname[9];
+      if (gamemapinfo)
+      {
+        strncpy(mapname, gamemapinfo->mapname, 8);
+      }
+      else if(gamemode == commercial)
+      {
+        snprintf(mapname, 9, "MAP%02d", gamemap);
+      }
+      else
+      {
+        snprintf(mapname, 9, "E%dM%d", gameepisode, gamemap);
+      }
+
+      int mapname_len = strnlen(gamemapinfo ? gamemapinfo->mapname : mapname, 9);
 
       // ano - note that the format has each length by each string
       // as opposed to a table of lengths
@@ -3231,7 +3248,7 @@ void G_BeginRecording (void)
       // follow the order of their appearance in the extensions table.
       if (mapname_len > 8)
       {
-        I_Error("Unable to save map lump name %s, too large.", gamemapinfo->mapname);
+        I_Error("Unable to save map lump name %s, too large.", mapname);
       }
 
       for (i = 0; i < mapname_len; i++)
@@ -3239,7 +3256,7 @@ void G_BeginRecording (void)
         // FIXME - the toupper is a hacky workaround for the case insensitivity
         // in the current UMAPINFO reader. lump names should probably not be
         // lowercase ever (?)
-        *demo_p++ = toupper(gamemapinfo->mapname[i]);
+        *demo_p++ = toupper(mapname[i]);
       }
 
       // lets pad out any spare chars if the length was too short
