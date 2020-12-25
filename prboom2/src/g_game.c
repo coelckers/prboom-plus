@@ -3745,7 +3745,7 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
             I_Error("G_ReadDemoHeader: Unable to determine map for UMAPINFO demo.");
           }
 
-          episode = (episode * 10) + (cur - '0');
+          map = (map * 10) + (cur - '0');
         }
       }
       else
