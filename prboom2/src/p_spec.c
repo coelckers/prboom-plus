@@ -2687,7 +2687,7 @@ void P_SpawnSpecials (void)
   for (i=0; i<numlines; i++)
     switch (lines[i].special)
     {
-      int s, sec;
+      int s;
         // killough 10/98:
         //
         // Support for sky textures being transferred from sidedefs.
