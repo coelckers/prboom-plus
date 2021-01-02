@@ -1000,7 +1000,7 @@ static void R_DrawPSprite (pspdef_t *psp)
   vis = &avis;
   vis->mobjflags = MF_PLAYERSPRITE;
    // killough 12/98: fix psprite positioning problem
-  vis->texturemid = (BASEYCENTER<<FRACBITS) /* +  FRACUNIT/2 */ -
+  vis->texturemid = (BASEYCENTER<<FRACBITS) + FRACUNIT/4 -
                     (psp_sy-topoffset);
 
   // Move the weapon down for 1280x1024.
