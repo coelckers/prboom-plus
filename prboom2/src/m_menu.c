@@ -3259,28 +3259,30 @@ setup_menu_t gen_settings4[] = { // General Settings screen3
   {"Change Palette On Powers",   S_YESNO,  m_null, G_X, G_Y+16*8, {"palette_onpowers"}, 0, 0, M_ChangeApplyPalette},
 
   {"<- PREV",S_SKIP|S_PREV, m_null, KB_PREV, KB_Y+20*8, {gen_settings3}},
+#ifdef GL_DOOM
   {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings5}},
+#else
+  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings6}},
+#endif
   // Final entry
 
   {0,S_SKIP|S_END,m_null}
 };
 
 setup_menu_t gen_settings5[] = { // General Settings screen3
-  {"Software Options",               S_SKIP|S_TITLE, m_null, G_X, G_Y+1*8},
-  {"Screen Multiple Factor (1-None)", S_NUM,m_null,G_X,G_Y+2*8, {"render_screen_multiply"}, 0, 0, M_ChangeScreenMultipleFactor},
 #ifdef GL_DOOM
-  {"OpenGL Options",             S_SKIP|S_TITLE,m_null,G_X,G_Y+5*8},
-  {"Multisampling (0-None)",    S_NUM|S_PRGWARN|S_CANT_GL_ARB_MULTISAMPLEFACTOR,m_null,G_X,G_Y+6*8, {"render_multisampling"}, 0, 0, M_ChangeMultiSample},
-  {"Field Of View",             S_NUM,    m_null, G_X, G_Y+ 7*8, {"render_fov"}, 0, 0, M_ChangeFOV},
-  {"Sector Light Mode",         S_CHOICE, m_null, G_X, G_Y+ 8*8, {"gl_lightmode"}, 0, 0, M_ChangeLightMode, gl_lightmodes},
-  {"Allow Fog",                 S_YESNO,  m_null, G_X, G_Y+ 9*8, {"gl_fog"}, 0, 0, M_ChangeAllowFog},
-  {"Simple Shadows",            S_YESNO,  m_null, G_X, G_Y+10*8, {"gl_shadows"}},
+  {"OpenGL Options",             S_SKIP|S_TITLE,m_null,G_X,G_Y+1*8},
+  {"Multisampling (0-None)",    S_NUM|S_PRGWARN|S_CANT_GL_ARB_MULTISAMPLEFACTOR,m_null,G_X,G_Y+2*8, {"render_multisampling"}, 0, 0, M_ChangeMultiSample},
+  {"Field Of View",             S_NUM,    m_null, G_X, G_Y+ 3*8, {"render_fov"}, 0, 0, M_ChangeFOV},
+  {"Sector Light Mode",         S_CHOICE, m_null, G_X, G_Y+ 4*8, {"gl_lightmode"}, 0, 0, M_ChangeLightMode, gl_lightmodes},
+  {"Allow Fog",                 S_YESNO,  m_null, G_X, G_Y+ 5*8, {"gl_fog"}, 0, 0, M_ChangeAllowFog},
+  {"Simple Shadows",            S_YESNO,  m_null, G_X, G_Y+ 6*8, {"gl_shadows"}},
 
-  {"Paper Items",               S_YESNO,  m_null, G_X, G_Y+12*8, {"render_paperitems"}},
-  {"Smooth sprite edges",       S_YESNO,  m_null, G_X, G_Y+13*8, {"gl_sprite_blend"}},
-  {"Adjust Sprite Clipping",    S_CHOICE, m_null, G_X, G_Y+14*8, {"gl_spriteclip"}, 0, 0, M_ChangeSpriteClip, gl_spriteclipmodes},
-  {"Item out of Floor offset",  S_NUM,    m_null, G_X, G_Y+15*8, {"gl_sprite_offset"}, 0, 0, M_ChangeSpriteClip},
-  {"Health Bar Above Monsters", S_YESNO,  m_null, G_X, G_Y+16*8, {"health_bar"}},
+  {"Paper Items",               S_YESNO,  m_null, G_X, G_Y+ 8*8, {"render_paperitems"}},
+  {"Smooth sprite edges",       S_YESNO,  m_null, G_X, G_Y+ 9*8, {"gl_sprite_blend"}},
+  {"Adjust Sprite Clipping",    S_CHOICE, m_null, G_X, G_Y+10*8, {"gl_spriteclip"}, 0, 0, M_ChangeSpriteClip, gl_spriteclipmodes},
+  {"Item out of Floor offset",  S_NUM,    m_null, G_X, G_Y+11*8, {"gl_sprite_offset"}, 0, 0, M_ChangeSpriteClip},
+  {"Health Bar Above Monsters", S_YESNO,  m_null, G_X, G_Y+12*8, {"health_bar"}},
 #endif
 
   {"<- PREV",S_SKIP|S_PREV, m_null,KB_PREV, KB_Y+20*8, {gen_settings4}},
@@ -3304,7 +3306,11 @@ setup_menu_t gen_settings6[] =
   {"WARN ON MISSEDBACKSIDE OVERFLOW"   ,S_YESNO     ,m_null,G_X2,G_Y+12*8, {"overrun_missedbackside_warn"}},
   {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,G_X2,G_Y+13*8, {"overrun_missedbackside_emulate"}},
 
+#ifdef GL_DOOM
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {gen_settings5}},
+#else
+  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {gen_settings4}},
+#endif
   {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings7}},
   {0,S_SKIP|S_END,m_null}
 };
