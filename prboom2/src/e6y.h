@@ -204,7 +204,6 @@ void M_ChangeAllowFog(void);
 void M_ChangeTextureHQResize(void);
 #endif
 void M_ChangeSpeed(void);
-void M_ChangeScreenMultipleFactor(void);
 void M_ChangeInterlacedScanning(void);
 void M_MouseMLook(int choice);
 void M_MouseAccel(int choice);

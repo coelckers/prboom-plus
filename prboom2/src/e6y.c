@@ -513,11 +513,6 @@ void M_ChangeMaxViewPitch(void)
   viewpitch = 0;
 }
 
-void M_ChangeScreenMultipleFactor(void)
-{
-  V_ChangeScreenResolution();
-}
-
 dboolean GetMouseLook(void)
 {
   return movement_mouselook;
