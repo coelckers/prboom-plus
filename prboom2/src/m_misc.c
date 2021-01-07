@@ -451,15 +451,7 @@ default_t defaults[] =
   {"mus_opl_gain",{&mus_opl_gain},{50},0,1000,def_int,ss_none}, // NSM  fine tune opl output level
 
   {"Video settings",{NULL},{0},UL,UL,def_none,ss_none},
-#ifdef GL_DOOM
-  #ifdef _MSC_VER
-    {"videomode",{NULL, &default_videomode},{0,"OpenGL"},UL,UL,def_str,ss_none},
-  #else
-    {"videomode",{NULL, &default_videomode},{0,"8"},UL,UL,def_str,ss_none},
-  #endif
-#else
   {"videomode",{NULL, &default_videomode},{0,"8"},UL,UL,def_str,ss_none},
-#endif
   /* 640x480 default resolution */
   {"screen_resolution",{NULL, &screen_resolution},{0,"640x480"},UL,UL,def_str,ss_none},
   {"use_fullscreen",{&use_fullscreen},{0},0,1, /* proff 21/05/2000 */
@@ -854,13 +846,8 @@ default_t defaults[] =
    def_int,ss_auto},
   {"map_wheel_zoom", {&map_wheel_zoom}, {1},0,1,
    def_bool,ss_auto},
-#ifdef GL_DOOM
-  {"map_use_multisamling", {&map_use_multisamling}, {1},0,1,
-   def_bool,ss_auto},
-#else
   {"map_use_multisamling", {&map_use_multisamling}, {0},0,1,
    def_bool,ss_auto},
-#endif
   {"map_textured", {&map_textured}, {1},0,1,
    def_bool,ss_auto},
   {"map_textured_trans", {&map_textured_trans}, {100},0,100,
