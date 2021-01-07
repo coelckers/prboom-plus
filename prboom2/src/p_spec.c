@@ -2682,9 +2682,10 @@ void P_SpawnSpecials (void)
 
   P_SpawnScrollers(); // killough 3/7/98: Add generalized scrollers
 
-  // allow MBF sky transfers for all complevels
+  // allow MBF sky transfers in all complevels
 
-  for (i=0; i<numlines; i++)
+  if (comp_skytransfers || !demo_compatibility)
+   for (i=0; i<numlines; i++)
     switch (lines[i].special)
     {
       int s;
