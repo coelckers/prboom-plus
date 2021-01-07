@@ -51,6 +51,7 @@
 #endif
 
 extern int render_vsync;
+extern int integer_scaling;
 
 extern SDL_Window *sdl_window;
 extern SDL_Renderer *sdl_renderer;
