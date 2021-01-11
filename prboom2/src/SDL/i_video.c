@@ -112,6 +112,8 @@ extern void M_QuitDOOM(int choice);
 int use_fullscreen;
 int desired_fullscreen;
 int render_vsync;
+int screen_multiply;
+int render_screen_multiply;
 int integer_scaling;
 SDL_Surface *screen;
 static SDL_Surface *buffer;
@@ -1151,6 +1153,9 @@ void I_UpdateVideoMode(void)
     buffer = NULL;
     sdl_texture = NULL;
   }
+
+  // e6y: initialisation of screen_multiply
+  screen_multiply = render_screen_multiply;
 
   // Initialize SDL with this graphics mode
   if (V_GetMode() == VID_MODEGL) {
