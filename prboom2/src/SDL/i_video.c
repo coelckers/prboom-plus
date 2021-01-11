@@ -1120,6 +1120,7 @@ video_mode_t I_GetModeFromString(const char *modestr)
 void I_UpdateVideoMode(void)
 {
   int init_flags = 0;
+  int actualheight;
   const dboolean novsync = M_CheckParm("-timedemo") || \
                            M_CheckParm("-fastdemo");
 
@@ -1221,16 +1222,30 @@ void I_UpdateVideoMode(void)
       init_flags);
     sdl_renderer = SDL_CreateRenderer(sdl_window, -1, flags);
 
+    // [FG] aspect ratio correction for the canonical video modes
     if ((SCREENWIDTH == 320 && SCREENHEIGHT == 200) ||
         (SCREENWIDTH == 640 && SCREENHEIGHT == 400))
     {
-      SDL_SetWindowMinimumSize(sdl_window, SCREENWIDTH, 6*SCREENHEIGHT/5);
-      SDL_RenderSetLogicalSize(sdl_renderer, SCREENWIDTH, 6*SCREENHEIGHT/5);
+      actualheight = 6*SCREENHEIGHT/5;
     }
     else
     {
-      SDL_SetWindowMinimumSize(sdl_window, SCREENWIDTH, SCREENHEIGHT);
-      SDL_RenderSetLogicalSize(sdl_renderer, SCREENWIDTH, SCREENHEIGHT);
+      actualheight = SCREENHEIGHT;
+    }
+
+    SDL_SetWindowMinimumSize(sdl_window, SCREENWIDTH, actualheight);
+    SDL_RenderSetLogicalSize(sdl_renderer, SCREENWIDTH, actualheight);
+
+    // [FG] make sure initial window size is always >= 640x480
+    if (SCREENWIDTH <= 320 && SCREENHEIGHT <= 240 && screen_multiply == 1)
+    {
+      screen_multiply = 2;
+    }
+
+    // [FG] apply screen_multiply to initial window size
+    if (!(init_flags & SDL_WINDOW_FULLSCREEN_DESKTOP))
+    {
+      SDL_SetWindowSize(sdl_window, screen_multiply*SCREENWIDTH, screen_multiply*actualheight);
     }
 
     // [FG] force integer scales
