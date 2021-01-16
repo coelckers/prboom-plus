@@ -4565,7 +4565,7 @@ dboolean M_Responder (event_t* ev) {
       // to where key binding can eat it.
 
       if (setup_active && set_keybnd_active)
-  if (ev->data1&(4 + 8 + 16 + 32 + 64 + 128))
+  if (ev->data1 >> 2)
     {
     ch = 0; // meaningless, just to get you past the check for -1
     mousewait = I_GetTime() + 15;
