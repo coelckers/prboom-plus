@@ -4459,6 +4459,23 @@ static int M_IndexInChoices(const char *str, const char **choices) {
   return 0;
 }
 
+// [FG] support more joystick and mouse buttons
+
+static inline int GetButtons(const unsigned int max, int data)
+{
+  int i;
+
+  for (i = 0; i < max; ++i)
+  {
+    if (data & (1 << i))
+    {
+      return i;
+    }
+  }
+
+  return -1;
+}
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // M_Responder
@@ -5204,23 +5221,7 @@ dboolean M_Responder (event_t* ev) {
 
     oldbutton = *ptr1->m_mouse;
     group  = ptr1->m_group;
-    if (ev->data1 & 1)
-      ch = 0;
-    else if (ev->data1 & 2)
-      ch = 1;
-    else if (ev->data1 & 4)
-      ch = 2;
-    else if (ev->data1 & 8)
-      ch = 3;
-    else if (ev->data1 & 16)
-      ch = 4;
-    else if (ev->data1 & 32)
-      ch = 5;
-    else if (ev->data1 & 64)
-      ch = 6;
-    else if (ev->data1 & 128)
-      ch = 7;
-    else
+    if ((ch = GetButtons(MAX_MOUSE_BUTTONS, ev->data1)) == -1)
       return true;
     for (i = 0 ; keys_settings[i] && search ; i++)
       for (ptr2 = keys_settings[i] ; !(ptr2->m_flags & S_END) ; ptr2++)

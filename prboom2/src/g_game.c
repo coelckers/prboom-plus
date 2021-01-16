@@ -297,8 +297,6 @@ static const struct
   { wp_bfg,          wp_bfg }
 };
 
-#define MAX_MOUSE_BUTTONS 8
-
 static int mousearray[MAX_MOUSE_BUTTONS + 1];
 static int *mousebuttons = &mousearray[1];    // allow [-1]
 
