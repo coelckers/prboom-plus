@@ -376,7 +376,7 @@ int G_ReloadLevel(void)
 
   if ((gamestate == GS_LEVEL) &&
       !deathmatch && !netgame &&
-      !demoplayback &&
+      !democontinue && !demoplayback &&
       !menuactive)
   {
     // restart demos from the map they were started
