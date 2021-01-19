@@ -5457,7 +5457,7 @@ dboolean M_Responder (event_t* ev) {
     do
       if (ptr1->m_flags & S_END)
         {
-    set_menu_itemon = M_GetSetupMenuItemOn();
+    set_menu_itemon = 0;
     ptr1 = current_setup_menu;
         }
       else
