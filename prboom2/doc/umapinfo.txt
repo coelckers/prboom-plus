@@ -42,7 +42,7 @@ episode = "patch", "name", "key"
 							; Defines an entry for the episode menu. If all defined episodes define a valid patch, those will be shown, otherwise the names will be used with the HUD font. At most 8 episodes can be defined.
 bossaction = thingtype, linespecial, tag
 							; Defines a boss death action, overriding any map default actions. Tag 0 is not allowed except for level exits. Shoot triggers, teleporters and locked doors are not supported. A map may define multiple death actions. Thingtype uses ZDoom's class names (see list below.)
-bossaction = clear			; Disables default boss actions for the given map.
+bossaction = clear			; Disables any previously-defined boss actions (including map defaults) for the given map.
 
 
 Default handling:
