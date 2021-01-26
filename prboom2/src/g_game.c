@@ -2004,6 +2004,35 @@ unsigned int GetPackageVersion(void)
   return PACKAGEVERSION;
 }
 
+// [FG] support named complevels on the command line, e.g. "-complevel boom",
+// names based on the args to Chocolate Doom's "-gameversion" parameter
+
+static int GetComplevel (const char *arg)
+{
+  int i;
+
+  struct {
+    const int level;
+    const char *const name;
+  } named_complevel[] = {
+    {2, "1.9"},
+    {3, "ultimate"},
+    {4, "final"},
+    {9, "boom"},
+    {11, "mbf"},
+  };
+
+  for (i = 0; i < sizeof(named_complevel)/sizeof(*named_complevel); i++)
+  {
+    if (!strcasecmp(arg, named_complevel[i].name))
+    {
+      return named_complevel[i].level;
+    }
+  }
+
+  return atoi(arg);
+}
+
 //==========================================================================
 //
 // RecalculateDrawnSubsectors
@@ -2649,7 +2678,7 @@ void G_ReloadDefaults(void)
   {
     int i = M_CheckParm("-complevel");
     if (i && (1+i) < myargc) {
-      int l = atoi(myargv[i+1]);;
+      int l = GetComplevel(myargv[i+1]);;
       if (l >= -1) compatibility_level = l;
     }
   }
@@ -3480,7 +3509,7 @@ static int G_GetOriginalDoomCompatLevel(int ver)
     int i = M_CheckParm("-complevel");
     if (i && (i+1 < myargc))
     {
-      lev = atoi(myargv[i+1]);
+      lev = GetComplevel(myargv[i+1]);
       if (lev>=0)
         return lev;
     }
