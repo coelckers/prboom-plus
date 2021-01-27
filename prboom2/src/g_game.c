@@ -2006,18 +2006,23 @@ unsigned int GetPackageVersion(void)
 
 // [FG] support named complevels on the command line, e.g. "-complevel boom",
 // names based on the args to Chocolate Doom's "-gameversion" parameter
+// and IWAD file names
 
 static int GetComplevel (const char *arg)
 {
   int i;
 
-  struct {
-    const int level;
+  const struct {
+    int level;
     const char *const name;
   } named_complevel[] = {
     {2, "1.9"},
+    {2, "doom2"},
     {3, "ultimate"},
+    {3, "udoom"},
     {4, "final"},
+    {4, "tnt"},
+    {4, "plutonia"},
     {9, "boom"},
     {11, "mbf"},
   };
