@@ -2008,7 +2008,7 @@ unsigned int GetPackageVersion(void)
 // names based on the args to Chocolate Doom's "-gameversion" parameter
 // and IWAD file names
 
-static int GetComplevel (const char *arg)
+int GetComplevel (const char *arg)
 {
   int i;
 
