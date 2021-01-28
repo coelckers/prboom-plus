@@ -2609,6 +2609,17 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
     sprite.fogdensity = gld_CalcFogDensity(thing->subsector->sector, lightlevel, GLDIT_SPRITE);
   }
   sprite.cm = CR_LIMIT + (int)((thing->flags & MF_TRANSLATION) >> (MF_TRANSSHIFT));
+  // [FG] colored blood and gibs
+  if (colored_blood)
+  {
+    if ((thing->type == MT_BLOOD || thing->state - states == S_GIBS) && thing->target)
+    {
+      if (thing->target->type == MT_HEAD)
+        sprite.cm = CR_BLUE2;
+      else if (thing->target->type == MT_BRUISER || thing->target->type == MT_KNIGHT)
+        sprite.cm = CR_GREEN;
+    }
+  }
   sprite.gltexture = gld_RegisterPatch(lump, sprite.cm, true);
   if (!sprite.gltexture)
     goto unlock_patch;
