@@ -39,6 +39,7 @@
 #include "p_map.h"
 #include "p_setup.h"
 #include "p_spec.h"
+#include "p_tick.h" // P_SetTarget()
 #include "s_sound.h"
 #include "sounds.h"
 #include "p_inter.h"
@@ -1971,7 +1972,7 @@ dboolean PIT_ChangeSector (mobj_t* thing)
     }
     thing->height = 0;
     thing->radius = 0;
-    thing->target = thing;
+    P_SetTarget(&thing->target, thing);
     return true; // keep checking
     }
 
@@ -2009,7 +2010,7 @@ dboolean PIT_ChangeSector (mobj_t* thing)
     mo = P_SpawnMobj (thing->x,
                       thing->y,
                       thing->z + thing->height/2, MT_BLOOD);
-    mo->target = thing;
+    P_SetTarget(&mo->target, thing);
 
     /* killough 8/10/98: remove dependence on order of evaluation */
     t = P_Random(pr_crush);

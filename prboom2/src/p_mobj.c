@@ -1507,7 +1507,7 @@ void P_SpawnBlood(fixed_t x,fixed_t y,fixed_t z,int damage, mobj_t* bleeder)
   th = P_SpawnMobj(x,y,z, MT_BLOOD);
   th->momz = FRACUNIT*2;
   th->tics -= P_Random(pr_spawnblood)&3;
-  th->target = bleeder;
+  P_SetTarget(&th->target, bleeder);
 
   if (th->tics < 1)
     th->tics = 1;
