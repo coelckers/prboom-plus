@@ -573,9 +573,10 @@ static void R_DemoEx_GetParams(const byte *pwad_p, waddata_t *waddata)
       {
         int level;
         static char str[4];
-        extern int GetComplevel (const char *arg);
+        extern int G_GetNamedComplevel (const char *arg);
         M_AddParam("-complevel");
-        level = GetComplevel(params[p + 1]);
+        // [FG] only save numeric complevel values
+        level = G_GetNamedComplevel(params[p + 1]);
         snprintf(str, sizeof(str), "%d", level);
         M_AddParam(str);
       }

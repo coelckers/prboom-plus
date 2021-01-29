@@ -2008,7 +2008,7 @@ unsigned int GetPackageVersion(void)
 // names based on the args to Chocolate Doom's "-gameversion" parameter
 // and IWAD file names
 
-int GetComplevel (const char *arg)
+int G_GetNamedComplevel (const char *arg)
 {
   int i;
 
@@ -2019,6 +2019,7 @@ int GetComplevel (const char *arg)
     {2, "1.9"},
     {2, "doom2"},
     {3, "ultimate"},
+//  {3, "doom"}, // deemed too ambigious
     {3, "udoom"},
     {4, "final"},
     {4, "tnt"},
@@ -2026,6 +2027,16 @@ int GetComplevel (const char *arg)
     {9, "boom"},
     {11, "mbf"},
   };
+
+  if (!strcasecmp(arg, "vanilla"))
+  {
+    if (gamemode == retail)
+      return 3;
+    else if (gamemode == commercial && (gamemission == pack_plut || gamemission == pack_tnt))
+      return 4;
+    else
+      return 2;
+  }
 
   for (i = 0; i < sizeof(named_complevel)/sizeof(*named_complevel); i++)
   {
@@ -2683,7 +2694,7 @@ void G_ReloadDefaults(void)
   {
     int i = M_CheckParm("-complevel");
     if (i && (1+i) < myargc) {
-      int l = GetComplevel(myargv[i+1]);;
+      int l = G_GetNamedComplevel(myargv[i+1]);;
       if (l >= -1) compatibility_level = l;
     }
   }
@@ -3514,7 +3525,7 @@ static int G_GetOriginalDoomCompatLevel(int ver)
     int i = M_CheckParm("-complevel");
     if (i && (i+1 < myargc))
     {
-      lev = GetComplevel(myargv[i+1]);
+      lev = G_GetNamedComplevel(myargv[i+1]);
       if (lev>=0)
         return lev;
     }
