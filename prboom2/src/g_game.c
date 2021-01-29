@@ -2028,6 +2028,7 @@ int G_GetNamedComplevel (const char *arg)
     {11, "mbf"},
   };
 
+  // choose the complevel based on the IWAD
   if (!strcasecmp(arg, "vanilla"))
   {
     if (gamemode == retail)
