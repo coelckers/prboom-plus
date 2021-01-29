@@ -103,9 +103,6 @@ static int drawsegs_xrange_count = 0;
 int *negonearray;        // killough 2/8/98: // dropoff overflow
 int *screenheightarray;  // change to MAX_* // dropoff overflow
 
-// [FG] colored blood and gibs
-dboolean colored_blood;
-
 //
 // INITIALIZATION FUNCTIONS
 //
@@ -541,18 +538,19 @@ static void R_DrawVisSprite(vissprite_t *vis)
   if (!dcvars.colormap)   // NULL colormap = shadow draw
     colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_FUZZ, filter, filterz);    // killough 3/14/98
   else
+    // [FG] colored blood and gibs
+    if (vis->mobjflags & MF_COLOREDBLOOD)
+      {
+        colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLATED, filter, filterz);
+        dcvars.translation = (vis->mobjflags & MF_TRANSLATION1) ?
+                             colrngs[CR_BLUE2] : colrngs[CR_GREEN];
+      }
+  else
     if (vis->mobjflags & MF_TRANSLATION)
       {
         colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLATED, filter, filterz);
         dcvars.translation = translationtables - 256 +
           ((vis->mobjflags & MF_TRANSLATION) >> (MF_TRANSSHIFT-8) );
-      }
-  else
-    // [FG] colored blood and gibs
-    if (vis->translation)
-      {
-        colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLATED, filter, filterz);
-        dcvars.translation = vis->translation;
       }
     else
       if (vis->mobjflags & MF_TRANSLUCENT && general_translucency) // phares
@@ -812,7 +810,6 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   vis->x1 = x1 < 0 ? 0 : x1;
   vis->x2 = x2 >= viewwidth ? viewwidth-1 : x2;
   iscale = FixedDiv (FRACUNIT, xscale);
-  vis->translation = NULL;
 
   if (flip)
     {
@@ -845,18 +842,6 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
         index = MAXLIGHTSCALE - 1;
       vis->colormap = spritelights[index];
     }
-
-  // [FG] colored blood and gibs
-  if (colored_blood)
-  {
-    if ((thing->type == MT_BLOOD || thing->state - states == S_GIBS) && thing->target)
-    {
-      if (thing->target->type == MT_HEAD)
-        vis->translation = colrngs[CR_BLUE2];
-      else if (thing->target->type == MT_BRUISER || thing->target->type == MT_KNIGHT)
-        vis->translation = colrngs[CR_GREEN];
-    }
-  }
 }
 
 //
@@ -1036,7 +1021,6 @@ static void R_DrawPSprite (pspdef_t *psp)
   vis->x2 = x2 >= viewwidth ? viewwidth-1 : x2;
 // proff 11/06/98: Added for high-res
   vis->scale = pspriteyscale;
-  vis->translation = NULL;
 
   if (flip)
     {

@@ -52,6 +52,9 @@
 #include "g_overflow.h"
 #include "e6y.h"//e6y
 
+// [FG] colored blood and gibs
+dboolean colored_blood;
+
 //
 // P_SetMobjState
 // Returns true if the mobj is still present.
@@ -1495,6 +1498,19 @@ void P_SpawnPuff(fixed_t x,fixed_t y,fixed_t z)
 }
 
 
+// [FG] colored blood and gibs
+uint_64_t P_ColoredBlood (mobj_t* bleeder)
+{
+  if (colored_blood)
+  {
+    if (bleeder->type == MT_HEAD)
+      return MF_COLOREDBLOOD | MF_TRANSLATION1;
+    else if (bleeder->type == MT_BRUISER || bleeder->type == MT_KNIGHT)
+      return MF_COLOREDBLOOD | MF_TRANSLATION2;
+  }
+  return 0;
+}
+
 //
 // P_SpawnBlood
 //
@@ -1507,7 +1523,7 @@ void P_SpawnBlood(fixed_t x,fixed_t y,fixed_t z,int damage, mobj_t* bleeder)
   th = P_SpawnMobj(x,y,z, MT_BLOOD);
   th->momz = FRACUNIT*2;
   th->tics -= P_Random(pr_spawnblood)&3;
-  P_SetTarget(&th->target, bleeder);
+  th->flags |= P_ColoredBlood(bleeder);
 
   if (th->tics < 1)
     th->tics = 1;

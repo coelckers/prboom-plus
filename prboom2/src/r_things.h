@@ -65,9 +65,6 @@ extern fixed_t pspriteiyscale;
 extern float pspritexscale_f;
 extern float pspriteyscale_f;
 
-// [FG] colored blood and gibs
-extern dboolean colored_blood;
-
 typedef enum {
   DOOM_ORDER_NONE,
   DOOM_ORDER_STATIC,
