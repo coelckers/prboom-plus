@@ -2031,7 +2031,7 @@ int G_GetNamedComplevel (const char *arg)
   // choose the complevel based on the IWAD
   if (!strcasecmp(arg, "vanilla"))
   {
-    if (gamemode == retail)
+    if (gamemode == retail || gamemission == chex)
       return 3;
     else if (gamemode == commercial && (gamemission == pack_plut || gamemission == pack_tnt))
       return 4;
