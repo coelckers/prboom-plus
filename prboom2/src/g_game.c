@@ -700,7 +700,15 @@ void G_BuildTiccmd(ticcmd_t* cmd)
     forward += mousey;
   }
   if (strafe)
+  {
     side += mousex / movement_mousestrafedivisor; /* mead  Don't want to strafe as fast as turns.*/
+
+    // You can only produce even strafe values in vanilla doom
+    if (demo_compatibility)
+    {
+      side &= ~1;
+    }
+  }
   else
     cmd->angleturn -= mousex; /* mead now have enough dynamic range 2-10-00 */
 
