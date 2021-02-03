@@ -1503,10 +1503,12 @@ uint_64_t P_ColoredBlood (mobj_t* bleeder)
 {
   if (colored_blood)
   {
-    if (bleeder->type == MT_HEAD)
-      return MF_COLOREDBLOOD | MF_TRANSLATION1;
-    else if (bleeder->type == MT_BRUISER || bleeder->type == MT_KNIGHT)
+    // Barons of Hell and Hell Knights bleed green blood
+    if (bleeder->type == MT_BRUISER || bleeder->type == MT_KNIGHT)
       return MF_COLOREDBLOOD;
+    // Cacodemons bleed blue blood
+    else if (bleeder->type == MT_HEAD)
+      return MF_COLOREDBLOOD | MF_TRANSLATION1;
   }
   return 0;
 }
