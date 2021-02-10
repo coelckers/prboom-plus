@@ -865,7 +865,7 @@ dboolean M_FindCheats(int key)
 static void cheat_comp_ext(char buf[3])
 {
   int cl = atoi(buf);
-  if(cl == 0 && (buf[0] != '0' && buf[1] != '0')) {
+  if(cl == 0 && (buf[0] != '0' || buf[1] != '0')) {
     return;
   }
   if( cl < 0 || cl >= MAX_COMPATIBILITY_LEVEL ) {
