@@ -736,6 +736,16 @@ default_t defaults[] =
   {"key_prevweapon",  {&key_prevweapon},      {KEYD_MWHEELDOWN},
    0,MAX_KEY,def_key,ss_keys}, // key to cycle to the previous weapon
 
+  {"mb_weapon1",{&mb_weapon1},{-1},-1,MAX_MOUSEB,def_int,ss_keys}, // mouse button to switch to weapon 1 (fist/chainsaw)
+  {"mb_weapon2",{&mb_weapon2},{-1},-1,MAX_MOUSEB,def_int,ss_keys}, // mouse button to switch to weapon 2 (pistol)
+  {"mb_weapon3",{&mb_weapon3},{-1},-1,MAX_MOUSEB,def_int,ss_keys}, // mouse button to switch to weapon 3 (supershotgun/shotgun)
+  {"mb_weapon4",{&mb_weapon4},{-1},-1,MAX_MOUSEB,def_int,ss_keys}, // mouse button to switch to weapon 4 (chaingun)
+  {"mb_weapon5",{&mb_weapon5},{-1},-1,MAX_MOUSEB,def_int,ss_keys}, // mouse button to switch to weapon 5 (rocket launcher)
+  {"mb_weapon6",{&mb_weapon6},{-1},-1,MAX_MOUSEB,def_int,ss_keys}, // mouse button to switch to weapon 6 (plasma rifle)
+  {"mb_weapon7",{&mb_weapon7},{-1},-1,MAX_MOUSEB,def_int,ss_keys}, // mouse button to switch to weapon 7 (bfg9000)
+  {"mb_weapon8",{&mb_weapon8},{-1},-1,MAX_MOUSEB,def_int,ss_keys}, // mouse button to switch to weapon 8 (chainsaw)
+  {"mb_weapon9",{&mb_weapon9},{-1},-1,MAX_MOUSEB,def_int,ss_keys}, // mouse button to switch to weapon 9 (supershotgun)
+
   // killough 2/22/98: screenshot key
   {"key_screenshot",  {&key_screenshot},      {'*'}            ,
    0,MAX_KEY,def_key,ss_keys}, // key to take a screenshot
