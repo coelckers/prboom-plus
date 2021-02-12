@@ -447,6 +447,7 @@ static void cheat_comp()
 {
   // CPhipps - modified for new compatibility system
   compatibility_level++; compatibility_level %= MAX_COMPATIBILITY_LEVEL;
+  last_compatibility_level = compatibility_level;
   // must call G_Compatibility after changing compatibility_level
   // (fixes sf bug number 1558738)
   G_Compatibility();
@@ -871,7 +872,7 @@ static void cheat_comp_ext(char buf[3])
   if( cl < 0 || cl >= MAX_COMPATIBILITY_LEVEL ) {
     return;
   }
-  compatibility_level = cl;
+  last_compatibility_level = compatibility_level = cl;
   G_Compatibility();
   doom_printf("New compatibility level:\n%s (%d)", comp_lev_str[compatibility_level], compatibility_level);
 }

@@ -2694,7 +2694,7 @@ void G_ReloadDefaults(void)
 
   consoleplayer = 0;
 
-  compatibility_level = default_compatibility_level;
+  compatibility_level = last_compatibility_level;
   {
     int i = M_CheckParm("-complevel");
     if (i && (1+i) < myargc) {
