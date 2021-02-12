@@ -192,8 +192,7 @@ cheatseq_t cheat[] = {
   CHEAT("tntcl",      NULL,               cht_never, cheat_comp_ext, -2),
 
   // Enable/disable shorttics in-game
-  CHEAT("tntshort",   NULL,               cht_never, cheat_shorttics, 1),
-  CHEAT("tntlong",    NULL,               cht_never, cheat_shorttics, 0),
+  CHEAT("tntshort",   NULL,               cht_never, cheat_shorttics, 0),
 
   // end-of-list marker
   {NULL}
@@ -883,11 +882,14 @@ static void cheat_comp_ext(char buf[3])
 }
 
 // Enable/disable shorttics in-game
-static void cheat_shorttics(int enable)
+static void cheat_shorttics()
 {
-  shorttics = enable;
-  if (enable) {
+  shorttics = !shorttics;
+  if (shorttics) {
+    doom_printf("Shorttics enabled");
     angle_t angle = plyr->mo->angle;
     plyr->mo->angle = (angle >> 24) << 24;
+  } else {
+    doom_printf("Shorttics disabled");
   }
 }
