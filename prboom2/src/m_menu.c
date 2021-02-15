@@ -1985,15 +1985,14 @@ static void M_DrawSetting(const setup_menu_t* s)
 
     if (key) {
       M_GetKeyString(*key,0); // string to display
-      if (s->m_mouse || s->m_joy)
-  {
-    if (s->m_mouse && *s->m_mouse != -1)
-      sprintf(menu_buffer+strlen(menu_buffer), "/MB%d",
-        *s->m_mouse+1);
-    if (s->m_joy)
-      sprintf(menu_buffer+strlen(menu_buffer), "/JSB%d",
-        *s->m_joy+1);
-  }
+
+      if (s->m_mouse && *s->m_mouse != -1)
+        sprintf(menu_buffer+strlen(menu_buffer), "/MB%d",
+          *s->m_mouse+1);
+      if (s->m_joy)
+        sprintf(menu_buffer+strlen(menu_buffer), "/JSB%d",
+          *s->m_joy+1);
+
       if (s == current_setup_menu + set_menu_itemon && whichSkull && !setup_select)
         strcat(menu_buffer, " <");
       M_DrawMenuString(x,y,color);
