@@ -1682,6 +1682,8 @@ void M_LoadDefaults (void)
   //e6y: Check on existence of prboom.wad
   if (!(wad_files[0] = I_FindFile(PACKAGE_TARNAME ".wad", "")))
     I_Error("PrBoom-Plus.wad not found. Can't continue.");
+
+  last_compatibility_level = default_compatibility_level;
 }
 
 
