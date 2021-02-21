@@ -3474,7 +3474,11 @@ void G_BeginRecording (void)
     switch (compatibility_level) {
     case boom_compatibility_compatibility: v = 202, c = 1; break;
     case boom_201_compatibility: v = 201; c = 0; break;
-    case boom_202_compatibility: v = 202, c = 0; break;
+    case boom_202_compatibility: v = 202, c = 0;
+      longtics = M_CheckParm("-longtics");
+      if (longtics)
+        v = 204; // boom 202 with longtics
+      break;
     default: I_Error("G_BeginRecording: Boom compatibility level unrecognised?");
     }
     *demo_p++ = v;
@@ -4052,6 +4056,11 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
 	  break;
 	}
 	break;
+      case 204: // boom 202 with longtics
+        compatibility_level = boom_202_compatibility;
+        longtics = 1;
+        demo_p++;
+        break;
       case 210:
 	compatibility_level = prboom_2_compatibility;
 	demo_p++;
