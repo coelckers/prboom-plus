@@ -2064,10 +2064,19 @@ int G_GetNamedComplevel (const char *arg)
     {4, "plutonia"},
     {9, "boom"},
     {11, "mbf"},
+    {2, "1.9_longtics"},
+    {2, "doom2_longtics"},
+    {3, "ultimate_longtics"},
+    {3, "udoom_longtics"},
+    {4, "final_longtics"},
+    {4, "tnt_longtics"},
+    {4, "plutonia_longtics"},
+    {9, "boom_longtics"},
+    {11, "mbf_longtics"},
   };
 
   // choose the complevel based on the IWAD
-  if (!strcasecmp(arg, "vanilla"))
+  if (!strcasecmp(arg, "vanilla") || !strcasecmp(arg, "vanilla_longtics"))
   {
     if (gamemode == retail || gamemission == chex)
       return 3;
@@ -2086,6 +2095,45 @@ int G_GetNamedComplevel (const char *arg)
   }
 
   return atoi(arg);
+}
+
+// check for the named _longtics variation of the complevel parameter
+int G_CheckNamedLongtics (const char *arg)
+{
+  int i;
+
+  const struct {
+    const char *const name;
+  } named_complevel[] = {
+    {"1.9_longtics"},
+    {"doom2_longtics"},
+    {"ultimate_longtics"},
+    {"udoom_longtics"},
+    {"final_longtics"},
+    {"tnt_longtics"},
+    {"plutonia_longtics"},
+    {"vanilla_longtics"},
+  };
+
+  int j = M_CheckParm("-complevel");
+  if (j && (j+1) < myargc)
+  {
+    if (!strcasecmp(arg, "vanilla_all"))
+    {
+      for (i = 0; i < sizeof(named_complevel)/sizeof(*named_complevel); i++)
+      {
+        if (!strcasecmp(myargv[j+1], named_complevel[i].name))
+          return 1;
+      }
+    }
+    else
+    {
+      if (!strcasecmp(myargv[j+1], arg))
+        return 1;
+    }
+  }
+
+  return 0;
 }
 
 //==========================================================================
@@ -3424,7 +3472,13 @@ void G_BeginRecording (void)
     { /* Write version code into demo */
       unsigned char v = 0;
       switch(compatibility_level) {
-        case mbf_compatibility: v = 203; break; // e6y: Bug in MBF compatibility mode fixed
+        case mbf_compatibility: v = 203; // e6y: Bug in MBF compatibility mode fixed
+          if (G_CheckNamedLongtics("mbf_longtics"))
+          {
+            v = 205;
+            longtics = 1;
+          }
+          break;
         case prboom_2_compatibility: v = 210; break;
         case prboom_3_compatibility: v = 211; break;
         case prboom_4_compatibility: v = 212; break;
@@ -3475,9 +3529,11 @@ void G_BeginRecording (void)
     case boom_compatibility_compatibility: v = 202, c = 1; break;
     case boom_201_compatibility: v = 201; c = 0; break;
     case boom_202_compatibility: v = 202, c = 0;
-      longtics = M_CheckParm("-longtics");
-      if (longtics)
-        v = 204; // boom 202 with longtics
+      if (G_CheckNamedLongtics("boom_longtics"))
+      {
+        v = 204;
+        longtics = 1;
+      }
       break;
     default: I_Error("G_BeginRecording: Boom compatibility level unrecognised?");
     }
@@ -3514,6 +3570,8 @@ void G_BeginRecording (void)
   } else { // cph - write old v1.9 demos (might even sync)
     unsigned char v = 109;
     longtics = M_CheckParm("-longtics");
+    if (G_CheckNamedLongtics("vanilla_all"))
+      longtics = 1;
     if (longtics)
     {
       v = 111;
@@ -4056,8 +4114,13 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
 	  break;
 	}
 	break;
-      case 204: // boom 202 with longtics
+      case 204: // boom with longtics
         compatibility_level = boom_202_compatibility;
+        longtics = 1;
+        demo_p++;
+        break;
+      case 205: // mbf with longtics
+        compatibility_level = mbf_compatibility;
         longtics = 1;
         demo_p++;
         break;
