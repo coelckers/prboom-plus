@@ -46,6 +46,7 @@
 #include "d_deh.h"  // Ty 03/27/98 - externalized strings
 /* cph 2006/07/23 - needs direct access to thinkercap */
 #include "p_tick.h"
+#include "w_wad.h" // W_GetLumpInfoByNum()
 
 #define plyr (players+consoleplayer)     /* the console player */
 
@@ -68,6 +69,7 @@ static void cheat_noclip();
 static void cheat_pw();
 static void cheat_behold();
 static void cheat_clev();
+static void cheat_clev0();
 static void cheat_mypos();
 static void cheat_rate();
 static void cheat_comp();
@@ -133,6 +135,7 @@ cheatseq_t cheat[] = {
   CHEAT("idbeholdl",  "Lite-Amp Goggles", not_dm, cheat_pw, pw_infrared),
   CHEAT("idbehold",   "BEHOLD menu",      not_dm, cheat_behold, 0),
   CHEAT("idclev",     "Level Warp",       cht_never | not_menu, cheat_clev, -2),
+  CHEAT("idclev",     NULL,               cht_never | not_menu, cheat_clev0, 0),
   CHEAT("idmypos",    "Player Position",  not_dm, cheat_mypos, 0),
   CHEAT("idrate",     "Frame rate",       always, cheat_rate, 0),
   // phares
@@ -380,6 +383,11 @@ extern int EpiCustom;
 struct MapEntry* G_LookupMapinfo(int gameepisode, int gamemap);
 
 // 'clev' change-level cheat
+static void cheat_clev0()
+{
+  doom_printf("Current: %s",  W_GetLumpInfoByNum(maplumpnum)->name);
+}
+
 static void cheat_clev(char buf[3])
 {
   int epsd, map;
@@ -886,9 +894,9 @@ static void cheat_shorttics()
 {
   shorttics = !shorttics;
   if (shorttics) {
-    doom_printf("Shorttics enabled");
     angle_t angle = plyr->mo->angle;
     plyr->mo->angle = (angle >> 24) << 24;
+    doom_printf("Shorttics enabled");
   } else {
     doom_printf("Shorttics disabled");
   }
