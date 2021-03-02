@@ -447,6 +447,7 @@ default_t defaults[] =
   {"snd_mididev",{NULL, &snd_mididev},{0,""},UL,UL,def_str,ss_none}, // midi device to use for portmidiplayer
   {"lowpass_filter",{&lowpass_filter},{0},0,1,
   def_bool,ss_none}, // low-pass filter borrowed from Chocolate Doom so upscaling old audio doesn't sound too horrible
+  {"full_sounds",{&full_sounds},{0},0,1,def_bool,ss_none}, // disable sound cutoffs
 
 #ifdef _WIN32
   {"mus_extend_volume",{&mus_extend_volume},{0},0,1,
@@ -461,8 +462,10 @@ default_t defaults[] =
   {"videomode",{NULL, &default_videomode},{0,"8bit"},UL,UL,def_str,ss_none},
   /* 640x480 default resolution */
   {"screen_resolution",{NULL, &screen_resolution},{0,"640x480"},UL,UL,def_str,ss_none},
-  {"use_fullscreen",{&use_fullscreen},{0},0,2, // 2 = mode-changing fullscreen
+  {"use_fullscreen",{&use_fullscreen},{0},0,1, /* proff 21/05/2000 */
    def_bool,ss_none},
+  {"exclusive_fullscreen",{&exclusive_fullscreen},{0},0,1, // [FG] mode-changing fullscreen
+  def_bool,ss_none},
   {"render_vsync",{&render_vsync},{1},0,1,
    def_bool,ss_none},
   {"translucency",{&default_translucency},{1},0,1,   // phares
@@ -1064,7 +1067,7 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"render_wipescreen", {&render_wipescreen},  {1},0,1,
    def_bool,ss_stat},
-  {"render_screen_multiply", {&render_screen_multiply},  {1},1,4,
+  {"render_screen_multiply", {&render_screen_multiply},  {1},1,5,
    def_int,ss_stat},
   {"integer_scaling", {&integer_scaling},  {0},0,1,
    def_bool,ss_stat},
