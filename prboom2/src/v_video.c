@@ -1786,14 +1786,19 @@ int V_BestColor(const unsigned char *palette, int r, int g, int b)
 // Alt-Enter: fullscreen <-> windowed
 void V_ToggleFullscreen(void)
 {
+  static int fullscreen_mode = 1;
+
+  if (desired_fullscreen == 2)
+    fullscreen_mode = 2;
+
   if (desired_fullscreen == use_fullscreen)
   {
-    use_fullscreen = (use_fullscreen ? 0 : 1);
+    use_fullscreen = (use_fullscreen ? 0 : fullscreen_mode);
     desired_fullscreen = use_fullscreen;
   }
   else
   {
-    desired_fullscreen = (desired_fullscreen ? 0 : 1);
+    desired_fullscreen = (desired_fullscreen ? 0 : fullscreen_mode);
   }
 
   I_UpdateVideoMode();
