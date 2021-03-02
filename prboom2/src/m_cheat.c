@@ -46,6 +46,7 @@
 #include "d_deh.h"  // Ty 03/27/98 - externalized strings
 /* cph 2006/07/23 - needs direct access to thinkercap */
 #include "p_tick.h"
+#include "e6y.h" // G_GotoNextLevel()
 #include "w_wad.h" // W_GetLumpInfoByNum()
 
 #define plyr (players+consoleplayer)     /* the console player */
@@ -385,7 +386,21 @@ struct MapEntry* G_LookupMapinfo(int gameepisode, int gamemap);
 // 'clev' change-level cheat
 static void cheat_clev0()
 {
-  doom_printf("Current: %s",  W_GetLumpInfoByNum(maplumpnum)->name);
+  char next[9];
+  int epsd, map;
+
+  G_GotoNextLevel(&epsd, &map);
+
+  if (gamemode == commercial)
+  {
+    snprintf(next, 9, "MAP%02d", map);
+  }
+  else
+  {
+    snprintf(next, 9, "E%dM%d", epsd, map);
+  }
+
+  doom_printf("Current: %s, Next: %s",  W_GetLumpInfoByNum(maplumpnum)->name, next);
 }
 
 static void cheat_clev(char buf[3])
