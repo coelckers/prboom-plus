@@ -144,8 +144,8 @@ static unsigned long alsa_now (void)
   // get current position in millisecs
 
   // update queue status
-  CHK_LPRINT_RET(snd_seq_get_queue_status(seq_handle, out_queue, queue_status),
-    LO_WARN, "alsaplayer: alsa_now(): error getting queue status\n", 0);
+  CHK_LPRINT_RET(snd_seq_get_queue_status(seq_handle, out_queue, queue_status), 0,
+    LO_WARN, "alsaplayer: alsa_now(): error getting queue status\n");
 
   const snd_seq_real_time_t *time = snd_seq_queue_status_get_real_time(queue_status);
 
@@ -180,14 +180,14 @@ static void alsa_midi_evt_start (snd_seq_event_t *ev, unsigned long when)
 
 static void alsa_midi_evt_finish (snd_seq_event_t *ev)
 {
-  CHK_LPRINT(snd_seq_event_output(seq_handle, ev),
-    LO_WARN, "alsa_midi_evt_finish: could not output alsa midi event\n");
+  CHK_LPRINT_ERR(snd_seq_event_output(seq_handle, ev),
+    LO_WARN, "alsa_midi_evt_finish: could not output alsa midi event: %s\n");
 }
 
 static void alsa_midi_evt_flush ()
 {
-  CHK_LPRINT(snd_seq_drain_output(seq_handle),
-    LO_WARN, "alsa_midi_evt_finish: could not drain alsa sequencer output\n");
+  CHK_LPRINT_ERR(snd_seq_drain_output(seq_handle),
+    LO_WARN, "alsa_midi_evt_finish: could not drain alsa sequencer output: %s\n");
 }
 
 static void alsa_midi_writeevent (unsigned long when, int evtype, int channel, int v1, int v2)
