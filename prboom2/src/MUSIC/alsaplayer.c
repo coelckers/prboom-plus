@@ -191,7 +191,7 @@ static void alsa_midi_evt_start (unsigned long when)
     rtime.tv_sec = when / 1000;
     rtime.tv_nsec = (when % 1000) * 1000000;
 
-    snd_seq_ev_schedule_real(&seq_ev, out_queue, 0, &rtime);
+    snd_seq_ev_schedule_real(&seq_ev, out_queue, 1, &rtime);
   }
 
   else {
@@ -213,27 +213,53 @@ static void alsa_midi_evt_flush ()
     LO_WARN, "alsa_midi_evt_finish: could not drain alsa sequencer output: %s\n");
 }
 
-static void alsa_midi_write_control (unsigned long when, int channel, int v1, int v2)
+static void alsa_midi_write_event (unsigned long when, midi_event_type_t type, int channel, int v1, int v2)
 {
   // ported from portmidiplayer.c (no pun intended!)
   alsa_midi_evt_start(when);
 
   // set event value fields
-  snd_seq_ev_set_controller(&seq_ev, channel, v1, v2);
+  switch(type) {
+    case MIDI_EVENT_NOTE_OFF:
+      snd_seq_ev_set_noteoff(&seq_ev, channel, v1, v2);
+      break;
+
+    case MIDI_EVENT_NOTE_ON:
+      snd_seq_ev_set_noteon(&seq_ev, channel, v1, v2);
+      break;
+
+    case MIDI_EVENT_AFTERTOUCH:
+      snd_seq_ev_set_keypress(&seq_ev, channel, v1, v2);
+      break;
+
+    case MIDI_EVENT_PROGRAM_CHANGE:
+      snd_seq_ev_set_pgmchange(&seq_ev, channel, v1);
+      break;
+
+    case MIDI_EVENT_CHAN_AFTERTOUCH:
+      snd_seq_ev_set_chanpress(&seq_ev, channel, v1);
+      break;
+
+    case MIDI_EVENT_PITCH_BEND:
+      snd_seq_ev_set_pitchbend(&seq_ev, channel, v1 << 8 | v2);
+      break;
+
+    case MIDI_EVENT_CONTROLLER:
+      snd_seq_ev_set_controller(&seq_ev, channel, v1, v2);
+      break;
+
+    default:
+      // unknown type
+      lprintf(LO_WARN, "alsa_midi_write_event: unknown midi event type: %i\n", type);
+      return;
+  }
 
   alsa_midi_evt_finish();
 }
 
-static void alsa_midi_write_event (unsigned long when, int type, int channel, int v1, int v2)
+static void alsa_midi_write_control (unsigned long when, int channel, int v1, int v2)
 {
-  // ported from portmidiplayer.c (no pun intended!)
-  alsa_midi_evt_start(when);
-
-  // set event value fields
-  snd_seq_ev_set_controller(&seq_ev, channel, v1, v2);
-  seq_ev.type = type;
-
-  alsa_midi_evt_finish();
+  alsa_midi_write_event(when, MIDI_EVENT_CONTROLLER, channel, v1, v2);
 }
 
 static void alsa_midi_write_control_now (int channel, int v1, int v2)
