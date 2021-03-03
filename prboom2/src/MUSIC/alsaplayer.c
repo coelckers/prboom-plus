@@ -99,6 +99,7 @@ static unsigned long trackstart;
 #define DRIVER_BUFFER 100 // events
 
 static snd_seq_t *seq_handle = NULL;
+snd_seq_event_t seq_ev;
 static int out_id;
 static int out_port;
 static int out_queue;
@@ -160,11 +161,11 @@ static unsigned long alsa_now (void)
   return time->tv_sec * 1000 + (time->tv_nsec / 1000000); // (s,ns) to ms
 }
 
-static void alsa_midi_evt_start (snd_seq_event_t *ev, unsigned long when)
+static void alsa_midi_evt_start (unsigned long when)
 {
-  snd_seq_ev_clear(ev);
-  snd_seq_ev_set_subs(ev);
-  snd_seq_ev_set_source(ev, out_port);
+  snd_seq_ev_clear(&seq_ev);
+  snd_seq_ev_set_subs(&seq_ev);
+  snd_seq_ev_set_source(&seq_ev, out_port);
 
   if (when != 0) {
     snd_seq_real_time_t rtime;
@@ -173,17 +174,17 @@ static void alsa_midi_evt_start (snd_seq_event_t *ev, unsigned long when)
     rtime.tv_sec = when / 1000;
     rtime.tv_nsec = (when % 1000) * 1000000;
 
-    snd_seq_ev_schedule_real(ev, out_queue, 0, &rtime);
+    snd_seq_ev_schedule_real(&seq_ev, out_queue, 0, &rtime);
   }
 
   else {
-    snd_seq_ev_set_direct(ev);
+    snd_seq_ev_set_direct(&seq_ev);
   }
 }
 
-static void alsa_midi_evt_finish (snd_seq_event_t *ev)
+static void alsa_midi_evt_finish ()
 {
-  CHK_LPRINT_ERR(snd_seq_event_output(seq_handle, ev),
+  CHK_LPRINT_ERR(snd_seq_event_output(seq_handle, &seq_ev),
     LO_WARN, "alsa_midi_evt_finish: could not output alsa midi event: %s\n");
 }
 
@@ -196,18 +197,16 @@ static void alsa_midi_evt_flush ()
 static void alsa_midi_writeevent (unsigned long when, int evtype, int channel, int v1, int v2)
 {
   // ported from portmidiplayer.c (no pun intended!)
-  snd_seq_event_t ev;
-  
-  alsa_midi_evt_start(&ev, when);
+  alsa_midi_evt_start(when);
 
   // set event value fields
-  ev.type = evtype;
+  seq_ev.type = evtype;
 
-  ev.data.control.channel = channel;
-  ev.data.control.param   = v1;
-  ev.data.control.value   = v2;
+  seq_ev.data.control.channel = channel;
+  seq_ev.data.control.param   = v1;
+  seq_ev.data.control.value   = v2;
 
-  alsa_midi_evt_finish(&ev);
+  alsa_midi_evt_finish();
 }
 
 static void alsa_midi_writeevent_now (int evtype, int channel, int v1, int v2)
@@ -420,11 +419,9 @@ static void alsa_midi_writesysex (unsigned long when, int etype, unsigned char *
   sysexbufflen += len;
   if (sysexbuff[sysexbufflen - 1] == 0xf7) // terminator
   {
-    snd_seq_event_t ev;
-  
-    alsa_midi_evt_start(&ev, when);
-    snd_seq_ev_set_sysex(&ev, sysexbufflen, sysexbuff);
-    alsa_midi_evt_finish(&ev);
+    alsa_midi_evt_start(when);
+    snd_seq_ev_set_sysex(&seq_ev, sysexbufflen, sysexbuff);
+    alsa_midi_evt_finish();
 
     sysexbufflen = 0;
   }
