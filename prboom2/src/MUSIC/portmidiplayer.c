@@ -178,6 +178,8 @@ static int pm_init (int samplerate)
   return 1;
 }
 
+static void pm_stop (void);
+
 static void pm_shutdown (void)
 {
   if (pm_stream)
