@@ -303,6 +303,9 @@ static int alsa_init (int samplerate)
 static void alsa_shutdown (void)
 {
   if (seq_handle) {
+    alsa_midi_all_notes_off();
+    alsa_midi_evt_flush();
+
     snd_seq_free_queue(seq_handle, out_queue);
     snd_seq_queue_status_free(queue_status);
 
