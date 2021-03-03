@@ -208,9 +208,7 @@ static void pm_shutdown (void)
     
     not a fix: calling Pm_Abort(); then midiStreamStop deadlocks instead of midiStreamClose. 
     */
-    #ifdef _WIN32
     Pt_Sleep (DRIVER_LATENCY * 2);
-    #endif
 
     Pm_Close (pm_stream);
     Pm_Terminate ();
