@@ -154,7 +154,7 @@ static unsigned long alsa_now (void)
     return 0;
   }
 
-  unsigned long now = time->tv_sec * 1000 + (time->tv_nsec / 1000000); // (s,ns) to ms
+  return time->tv_sec * 1000 + (time->tv_nsec / 1000000); // (s,ns) to ms
 }
 
 static void alsa_midi_evt_start (snd_seq_event_t *ev, unsigned long when)
