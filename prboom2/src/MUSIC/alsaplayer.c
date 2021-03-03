@@ -161,6 +161,23 @@ static unsigned long alsa_now (void)
   return time->tv_sec * 1000 + (time->tv_nsec / 1000000); // (s,ns) to ms
 }
 
+static const snd_seq_real_time_t *alsa_now_realtime (void)
+{
+  // get current position in millisecs
+
+  // update queue status
+  CHK_LPRINT_ERR_RET(snd_seq_get_queue_status(seq_handle, out_queue, queue_status), 0,
+    LO_WARN, "alsaplayer: alsa_now(): error getting queue status: %s\n");
+
+  const snd_seq_real_time_t *time = snd_seq_queue_status_get_real_time(queue_status);
+
+  if (time == 0) {
+    lprintf (LO_WARN, "alsaplayer: alsa_now(): error getting realtime position from queue status\n");
+  }
+
+  return time;
+}
+
 static void alsa_midi_evt_start (unsigned long when)
 {
   snd_seq_ev_clear(&seq_ev);
@@ -178,7 +195,7 @@ static void alsa_midi_evt_start (unsigned long when)
   }
 
   else {
-    snd_seq_ev_set_direct(&seq_ev);
+    snd_seq_ev_schedule_real(&seq_ev, out_queue, 0, alsa_now_realtime());
   }
 }
 
