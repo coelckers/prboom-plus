@@ -189,7 +189,7 @@ static void alsa_midi_evt_start (unsigned long when)
     rtime.tv_sec = when / 1000;
     rtime.tv_nsec = (when % 1000) * 1000000;
 
-    snd_seq_ev_schedule_real(&seq_ev, out_queue, 1, &rtime);
+    snd_seq_ev_schedule_real(&seq_ev, out_queue, 0, &rtime);
   }
 
   else {
