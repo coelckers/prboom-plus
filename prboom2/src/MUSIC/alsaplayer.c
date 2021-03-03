@@ -145,6 +145,11 @@ static unsigned long alsa_now (void)
 
   const snd_seq_real_time_t *time = snd_seq_queue_status_get_real_time(queue_status);
 
+  if (time == 0) {
+    lprintf (LO_WARN, "alsaplayer: alsa_now(): snd_seq_real_time_t *time is null");
+    return 0;
+  }
+
   unsigned long now = time->tv_sec * 1000 + (time->tv_nsec / 1000000); // (s,ns) to ms
 }
 
