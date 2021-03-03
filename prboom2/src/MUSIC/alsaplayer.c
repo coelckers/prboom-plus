@@ -133,9 +133,7 @@ static const char *alsa_midi_open (void)
     ),
     "could not open alsa port")
 
-  CHK_RET(
-    out_queue = snd_seq_alloc_named_queue(seq_handle, "prboom music queue"),
-    "could not allocate alsa seq qeueue")
+  out_queue = snd_seq_alloc_named_queue(seq_handle, "prboom music queue");
 
   snd_seq_queue_status_malloc(&queue_status);
 
