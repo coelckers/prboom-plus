@@ -108,6 +108,7 @@ static int sysexbufflen;
 
 #define CHK_RET(stmt, msg) if((stmt) < 0) { return (msg); }
 #define CHK_LPRINT(stmt, ltype, msg) if((stmt) < 0) { lprintf(ltype, (msg)); }
+#define CHK_LPRINT_RET(stmt, ltype, msg, ret) if((stmt) < 0) { lprintf(ltype, (msg)); return (ret); }
 
 static snd_seq_queue_status_t *queue_status;
 
@@ -141,12 +142,13 @@ static unsigned long alsa_now (void)
   // get current position in millisecs
 
   // update queue status
-  snd_seq_get_queue_status(seq_handle, out_queue, &queue_status);
+  CHK_LPRINT_RET(snd_seq_get_queue_status(seq_handle, out_queue, queue_status),
+    LO_WARN, "alsaplayer: alsa_now(): error getting queue status\n", 0);
 
   const snd_seq_real_time_t *time = snd_seq_queue_status_get_real_time(queue_status);
 
   if (time == 0) {
-    lprintf (LO_WARN, "alsaplayer: alsa_now(): snd_seq_real_time_t *time is null");
+    lprintf (LO_WARN, "alsaplayer: alsa_now(): error getting realtime position from queue status\n");
     return 0;
   }
 
