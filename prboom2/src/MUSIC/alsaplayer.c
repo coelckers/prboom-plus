@@ -626,6 +626,8 @@ static void alsa_render (void *vdest, unsigned bufflen)
   }
 
   trackstart = newtime;
+
+  alsa_midi_evt_flush();
 }  
 
 const music_player_t alsa_player =
