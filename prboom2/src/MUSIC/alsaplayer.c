@@ -364,12 +364,16 @@ static void alsa_pause (void)
   int i;
   alsa_paused = 1;
   alsa_midi_all_notes_off();
+
+  snd_seq_stop_queue(seq_handle, out_queue, 0);
 }
 
 static void alsa_resume (void)
 {
   alsa_paused = 0;
   trackstart = alsa_now ();
+
+  snd_seq_continue_queue(seq_handle, out_queue, 0);
 }
 static void alsa_play (const void *handle, int looping)
 {
@@ -382,6 +386,7 @@ static void alsa_play (const void *handle, int looping)
   alsa_refreshvolume ();
   trackstart = alsa_now ();
   
+  snd_seq_start_queue(seq_handle, out_queue, 0);
 }
 
 
@@ -435,6 +440,8 @@ static void alsa_stop (void)
   }
   // abort any partial sysex
   sysexbufflen = 0;
+
+  snd_seq_stop_queue(seq_handle, out_queue, 0);
 }
 
 static void alsa_render (void *vdest, unsigned bufflen)
