@@ -165,8 +165,8 @@ static unsigned long alsa_now (void)
 static void alsa_midi_evt_start (unsigned long when)
 {
   snd_seq_ev_clear(&seq_ev);
-  snd_seq_ev_set_subs(&seq_ev);
   snd_seq_ev_set_source(&seq_ev, out_port);
+  snd_seq_ev_set_subs(&seq_ev);
 
   if (when != 0) {
     snd_seq_real_time_t rtime;
