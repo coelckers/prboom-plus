@@ -555,7 +555,7 @@ static void alsa_render (void *vdest, unsigned bufflen)
     // event processed so advance midiclock
     alsa_delta += eventdelta;
     eventpos++;
-
+        alsa_midi_write_event (when, currevent->event_type, currevent->data.channel.channel, currevent->data.channel.param1, currevent->data.channel.param2);
   }
 
   if (samples + sampleswritten > length)
