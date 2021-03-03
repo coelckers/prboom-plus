@@ -390,7 +390,7 @@ static void writesysex (unsigned long when, int etype, unsigned char *data, int 
 static void pm_stop (void)
 {
   int i;
-  unsigned long when = Pt_Time ();
+  unsigned long when = 0;
   pm_playing = 0;
   
 
