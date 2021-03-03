@@ -99,6 +99,7 @@ static unsigned long trackstart;
 #define DRIVER_BUFFER 100 // events
 
 static snd_seq_t *seq_handle = NULL;
+static int out_id;
 static int out_port;
 static int out_queue;
 
@@ -122,10 +123,12 @@ static const char *alsa_midi_open (void)
   CHK_RET(snd_seq_set_client_name(seq_handle, "PrBoom+ MIDI"),
     "could not set client name")
 
+  out_id = snd_seq_client_id(seq_handle);
+
   CHK_RET(
     out_port = snd_seq_create_simple_port(seq_handle, "Music",
-      SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ,
-      SND_SEQ_PORT_TYPE_APPLICATION
+      SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ | SND_SEQ_PORT_CAP_SYNC_READ,
+      SND_SEQ_PORT_TYPE_MIDI_GENERIC | SND_SEQ_PORT_TYPE_APPLICATION | SND_SEQ_PORT_TYPE_SOFTWARE
     ),
     "could not open alsa port")
 
