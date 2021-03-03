@@ -178,26 +178,19 @@ static int pm_init (int samplerate)
   return 1;
 }
 
-#ifndef MIDI_EVENT_CHANNEL_MODE
-
-// channel mode events in MIDI, low nibble is channel value as usual
-#define MIDI_EVENT_CHANNEL_MODE 0xB0
-
-#endif
-
 // forward declaration, good enough for the time being
 static void writeevent (unsigned long when, int eve, int channel, int v1, int v2);
 
 static void pm_killnotes (unsigned long when)
 {
   /*
-  workaround to hanging notes with portmidi; send "All Sound Off"
+  workaround to hanging notes with portmidi; send "All Notes Off"
   events to all channels when the game exits
 
   see: http://personal.kent.edu/~sbirch/Music_Production/MP-II/MIDI/midi_channel_mode_messages.htm
 
-  the event would be Bn 78 00, where 'n' is a MIDI channel; eg. the
-  MIDI message B1 78 00 stops all sound in channel 2 (of 1-16)
+  the event would be Bn 7B 00, where 'n' is a MIDI channel; eg. the
+  MIDI message B1 7B 00 sends All Notes Off in channel 2 (of 1-16)
 
   'when' is a midi timestamp value. if in doubt, pass 0, to stop all
   notes right now·
@@ -205,8 +198,8 @@ static void pm_killnotes (unsigned long when)
 
   when = when | (Pt_Time() * !when); // set when to Pt_Time() if when is zero
 
-  for (int ch = 0; ch < 16; ch++) {
-    writeevent (when, MIDI_EVENT_CHANNEL_MODE, ch, 0x78, 0x00);
+  for (int ch = 0; ch < 0xF; ch++) {
+    writeevent (when, 0xB0, ch, 0x7B, 0x00);
   }
 }
 
