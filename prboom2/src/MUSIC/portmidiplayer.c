@@ -195,6 +195,9 @@ static void pm_killnotes (unsigned long when)
 
   the event would be Bn 78 00, where 'n' is a MIDI channel; eg. the
   MIDI message B1 78 00 stops all sound in channel 2 (of 1-16)
+
+  'when' is a midi timestamp value. if in doubt, pass 0, to stop all
+  notes right now·
   */
 
   when = when | (Pt_Time() * !when); // set when to Pt_Time() if when is zero
