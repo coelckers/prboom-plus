@@ -33,5 +33,6 @@
 
 extern const music_player_t alsa_player;
 
+void alsa_midi_set_dest (int client, int port);
 
 #endif // ALSAPLAYER_H
