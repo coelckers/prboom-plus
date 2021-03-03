@@ -200,9 +200,11 @@ static const snd_seq_real_time_t *alsa_now_realtime (void)
 static void alsa_midi_evt_start (unsigned long when)
 {
   snd_seq_ev_clear(&seq_ev);
-  snd_seq_ev_set_source(&seq_ev, out_port);
-  snd_seq_ev_set_subs(&seq_ev);
 
+  // source
+  snd_seq_ev_set_source(&seq_ev, out_port);
+
+  // schedule
   if (when != 0) {
     snd_seq_real_time_t rtime;
 
@@ -217,7 +219,11 @@ static void alsa_midi_evt_start (unsigned long when)
     snd_seq_ev_schedule_real(&seq_ev, out_queue, 0, alsa_now_realtime());
   }
 
+  // priority
   snd_seq_ev_set_priority(&seq_ev, 0);
+
+  // destination
+  snd_seq_ev_set_subs(&seq_ev);
 }
 
 static void alsa_midi_evt_finish ()
