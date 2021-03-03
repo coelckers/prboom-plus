@@ -237,6 +237,8 @@ set(DOOMMUSIC_SOURCES
     MUSIC/opl_queue.h
     MUSIC/portmidiplayer.c
     MUSIC/portmidiplayer.h
+    MUSIC/alsaplayer.c
+    MUSIC/alsaplayer.h
     MUSIC/vorbisplayer.c
     MUSIC/vorbisplayer.h
 )

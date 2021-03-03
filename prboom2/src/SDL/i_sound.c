@@ -1270,6 +1270,7 @@ const char *snd_mididev; // midi device to use (portmidiplayer)
 #include "MUSIC/dumbplayer.h"
 #include "MUSIC/flplayer.h"
 #include "MUSIC/vorbisplayer.h"
+#include "MUSIC/alsaplayer.h"
 #include "MUSIC/portmidiplayer.h"
 
 // list of possible music players
@@ -1282,6 +1283,7 @@ static const music_player_t *music_players[] =
   &db_player, // dumbplayer.h
   &fl_player, // flplayer.h
   &opl_synth_player, // oplplayer.h
+  &alsa_player, // alsaplayer.h
   &pm_player, // portmidiplayer.h
   NULL
 };
@@ -1296,6 +1298,7 @@ static int music_player_was_init[NUM_MUS_PLAYERS];
 #define PLAYER_FLUIDSYNTH "fluidsynth midi player"
 #define PLAYER_OPL2       "opl2 synth player"
 #define PLAYER_PORTMIDI   "portmidi midi player"
+#define PLAYER_ALSA       "alsa midi player"
 
 // order in which players are to be tried
 char music_player_order[NUM_MUS_PLAYERS][200] =
@@ -1305,6 +1308,7 @@ char music_player_order[NUM_MUS_PLAYERS][200] =
   PLAYER_DUMB,
   PLAYER_FLUIDSYNTH,
   PLAYER_OPL2,
+  PLAYER_ALSA,
   PLAYER_PORTMIDI,
 };
 
@@ -1312,7 +1316,7 @@ char music_player_order[NUM_MUS_PLAYERS][200] =
 const char *snd_midiplayer;
 
 const char *midiplayers[midi_player_last + 1] = {
-  "sdl", "fluidsynth", "opl2", "portmidi", NULL};
+  "sdl", "fluidsynth", "opl2", "alsa", "portmidi", NULL};
 
 static int current_player = -1;
 static const void *music_handle = NULL;
@@ -1504,6 +1508,7 @@ static int Exp_RegisterSongEx (const void *data, size_t len, int try_mus2mid)
           }
           else
             lprintf (LO_INFO, "Exp_RegisterSongEx: Music player %s on preferred list but it failed to init\n", music_players[i]-> name ());
+          break;
         }
       }
       if (!found)
@@ -1644,19 +1649,29 @@ void M_ChangeMIDIPlayer(void)
     {
       strcpy(music_player_order[3], PLAYER_FLUIDSYNTH);
       strcpy(music_player_order[4], PLAYER_OPL2);
-      strcpy(music_player_order[5], PLAYER_PORTMIDI);
+      strcpy(music_player_order[5], PLAYER_ALSA);
+      strcpy(music_player_order[6], PLAYER_PORTMIDI);
     }
     else if (!strcasecmp(snd_midiplayer, midiplayers[midi_player_opl2]))
     {
       strcpy(music_player_order[3], PLAYER_OPL2);
-      strcpy(music_player_order[4], PLAYER_FLUIDSYNTH);
-      strcpy(music_player_order[5], PLAYER_PORTMIDI);
+      strcpy(music_player_order[4], PLAYER_ALSA);
+      strcpy(music_player_order[5], PLAYER_FLUIDSYNTH);
+      strcpy(music_player_order[6], PLAYER_PORTMIDI);
+    }
+    else if (!strcasecmp(snd_midiplayer, midiplayers[midi_player_alsa]))
+    {
+      strcpy(music_player_order[3], PLAYER_ALSA);
+      strcpy(music_player_order[4], PLAYER_PORTMIDI);
+      strcpy(music_player_order[5], PLAYER_FLUIDSYNTH);
+      strcpy(music_player_order[6], PLAYER_OPL2);
     }
     else if (!strcasecmp(snd_midiplayer, midiplayers[midi_player_portmidi]))
     {
       strcpy(music_player_order[3], PLAYER_PORTMIDI);
       strcpy(music_player_order[4], PLAYER_FLUIDSYNTH);
       strcpy(music_player_order[5], PLAYER_OPL2);
+      strcpy(music_player_order[6], PLAYER_ALSA);
     }
   }
 
