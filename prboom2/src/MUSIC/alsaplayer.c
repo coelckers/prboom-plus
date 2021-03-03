@@ -141,6 +141,27 @@ static const char *alsa_midi_open (void)
   return NULL;
 }
 
+void alsa_midi_set_dest (int client, int port)
+{
+  // connects to a destination alsa-midi client and port
+
+  if (seq_handle) {
+    snd_seq_addr_t sender, dest;
+    snd_seq_port_subscribe_t *subs;
+
+    sender.client = out_id;
+    sender.port = out_port;
+
+    dest.client = client;
+    dest.port = port;
+
+    snd_seq_port_subscribe_alloca(&subs);
+    snd_seq_port_subscribe_set_sender(subs, &sender);
+    snd_seq_port_subscribe_set_dest(subs, &dest);
+    snd_seq_subscribe_port(&seq_handle, subs);
+  }
+}
+
 static unsigned long alsa_now (void)
 {
   // get current position in millisecs
