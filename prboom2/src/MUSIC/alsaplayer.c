@@ -452,8 +452,6 @@ static void alsa_midi_writesysex (unsigned long when, int etype, unsigned char *
 
     sysexbufflen = 0;
   }
-
-  alsa_midi_evt_flush();
 }  
 
 static void alsa_stop (void)
@@ -553,7 +551,6 @@ static void alsa_render (void *vdest, unsigned bufflen)
             // sdl_mixer does this as well
             for (i = 0; i < 16; i++)
               alsa_midi_write_control(when, i, 123, 0); // all notes off
-            alsa_midi_evt_flush();
             continue;
           }
           // stop
@@ -574,7 +571,6 @@ static void alsa_render (void *vdest, unsigned bufflen)
         } // fall through
       default:
         alsa_midi_write_event (when, currevent->event_type, currevent->data.channel.channel, currevent->data.channel.param1, currevent->data.channel.param2);
-        alsa_midi_evt_flush();
         break;
       
     }
