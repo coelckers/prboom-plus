@@ -149,8 +149,8 @@ static unsigned long alsa_now (void)
   // get current position in millisecs
 
   // update queue status
-  CHK_LPRINT_RET(snd_seq_get_queue_status(seq_handle, out_queue, queue_status), 0,
-    LO_WARN, "alsaplayer: alsa_now(): error getting queue status\n");
+  CHK_LPRINT_ERR_RET(snd_seq_get_queue_status(seq_handle, out_queue, queue_status), 0,
+    LO_WARN, "alsaplayer: alsa_now(): error getting queue status: %s\n");
 
   const snd_seq_real_time_t *time = snd_seq_queue_status_get_real_time(queue_status);
 
