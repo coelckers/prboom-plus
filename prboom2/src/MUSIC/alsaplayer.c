@@ -101,10 +101,14 @@ static unsigned long trackstart;
 static snd_seq_t *seq_handle = NULL;
 static int out_port;
 
+#define SYSEX_BUFF_SIZE 1024
+static unsigned char sysexbuff[SYSEX_BUFF_SIZE];
+static int sysexbufflen;
+
 #define CHK_RET(stmt, msg) if((stmt) < 0) { return (msg); }
 #define CHK_LPRINT(stmt, ltype, msg) if((stmt) < 0) { lprintf(ltype, (msg)); }
 
-static const char *alsa_midi_open(void)
+static const char *alsa_midi_open (void)
 {
   CHK_RET(snd_seq_open(&seq_handle, "PrBoom-Plus", SND_SEQ_OPEN_OUTPUT, 0),
     "could not open sequencer")
@@ -121,6 +125,16 @@ static const char *alsa_midi_open(void)
 
   alsa_open = 1;
   return NULL;
+}
+
+static unsigned long alsa_tick_now (void)
+{
+  // get current position in ticks
+
+  snd_seq_client_info_t info;
+  snd_seq_get_client_info(seq_handle, &info);
+
+  return info.time.tick;
 }
 
 static void alsa_midi_write_evt (snd_seq_event_t *ev)
@@ -140,8 +154,8 @@ static void alsa_midi_evt_finish (snd_seq_event_t *ev)
   CHK_LPRINT(snd_seq_event_output(seq_handle, ev),
     LO_WARN, "alsa_midi_evt_finish: could not output alsa midi event\n");
 
-  CHK_LPRINTsnd_seq_drain_output(seq_handle),
-    LO_WARN, "alsa_midi_evt_finish: could not drain alsa sequencer output\n")
+  CHK_LPRINTsnd_seq_drain_output(seq_handle,
+    LO_WARN, "alsa_midi_evt_finish: could not drain alsa sequencer output\n");
 }
 
 static void alsa_midi_writeevent (unsigned long when, int evtype, int channel, int v1, int v2)
@@ -163,7 +177,7 @@ static void alsa_midi_writeevent (unsigned long when, int evtype, int channel, i
   ev.data.control.param   = v1;
   ev.data.control.value   = v2;
   
-  snd_seq_ev_set_controller(&ev, channel, 123, 0)
+  snd_seq_ev_set_controller(&ev, channel, 123, 0);
   alsa_midi_evt_finish(&ev);
 }
 
@@ -331,7 +345,7 @@ static void alsa_pause (void)
 static void alsa_resume (void)
 {
   alsa_paused = 0;
-  trackstart = Pt_Time ();
+  trackstart = alsa_tick_now ();
 }
 static void alsa_play (const void *handle, int looping)
 {
@@ -342,12 +356,12 @@ static void alsa_play (const void *handle, int looping)
   alsa_delta = 0.0;
   alsa_clearchvolume ();
   alsa_refreshvolume ();
-  trackstart = Pt_Time ();
+  trackstart = alsa_tick_now ();
   
 }
 
 
-static void alsa_midi_writesysex(unsigned long when, int etype, unsigned char *data, int len)
+static void alsa_midi_writesysex (unsigned long when, int etype, unsigned char *data, int len)
 {
   // sysex code is untested
   // it's possible to use an auto-resizing buffer here, but a malformed
@@ -375,7 +389,7 @@ static void alsa_midi_writesysex(unsigned long when, int etype, unsigned char *d
   }
 }  
 
-static void alsa_stop(void)
+static void alsa_stop (void)
 {
   int i;
   alsa_playing = 0;
@@ -404,11 +418,8 @@ static void alsa_stop(void)
 static void alsa_render (void *vdest, unsigned bufflen)
 {
   // wherever you see samples in here, think milliseconds
-  
-  snd_seq_client_info_t info;
-  snd_seq_get_client_info(seq_handle, &info)
 
-  unsigned long newtime = info.time.tick;
+  unsigned long newtime = alsa_tick_now();
   unsigned long length = newtime - trackstart;
 
   //timerpos = newtime;
