@@ -238,11 +238,11 @@ static int alsa_init (int samplerate)
   if (msg == NULL) {
     // success
     lprintf (LO_INFO, "alsaplayer: Successfully opened port: %i\n", out_port);
-    return 0;
+    return 1;
   }
 
   lprintf(LO_WARN, "alsa_init: alsa_midi_open() failed: %s\n", msg);
-  return 1;
+  return 0;
 }
 
 static void alsa_shutdown (void)
