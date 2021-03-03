@@ -256,7 +256,7 @@ static void alsa_shutdown (void)
     snd_seq_delete_simple_port(seq_handle, out_port);
     snd_seq_close(seq_handle);
 
-    snd_seq_queue_info_free(queue_status);
+    snd_seq_queue_status_free(queue_status);
 
     seq_handle = NULL;
   }
