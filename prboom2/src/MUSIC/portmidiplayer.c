@@ -185,7 +185,7 @@ static int pm_init (int samplerate)
 
 #endif
 
-static void pm_killnotes (unsigned long when = 0)
+static void pm_killnotes (unsigned long when)
 {
   /*
   workaround to hanging notes with portmidi; send "All Sound Off"
@@ -234,7 +234,7 @@ static void pm_shutdown (void)
     #endif
 
 	// stop all sound, in case of hanging notes
-    pm_killnotes();
+    pm_killnotes(0);
 
     Pm_Close (pm_stream);
     Pm_Terminate ();
