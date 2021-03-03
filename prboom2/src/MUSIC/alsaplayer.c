@@ -137,6 +137,8 @@ static const char *alsa_midi_open (void)
     out_queue = snd_seq_alloc_named_queue(seq_handle, "prboom music queue"),
     "could not allocate alsa seq qeueue")
 
+  snd_seq_queue_status_malloc(&queue_status);
+
   alsa_open = 1;
   return NULL;
 }
