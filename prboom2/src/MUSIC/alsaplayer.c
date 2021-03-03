@@ -119,11 +119,11 @@ static const char *alsa_midi_open (void)
   CHK_RET(snd_seq_open(&seq_handle, "default", SND_SEQ_OPEN_OUTPUT, 0),
     "could not open sequencer")
 
-  CHK_RET(snd_seq_set_client_name(seq_handle, "PrBoom+ music"),
+  CHK_RET(snd_seq_set_client_name(seq_handle, "PrBoom+ MIDI"),
     "could not set client name")
 
   CHK_RET(
-    out_port = snd_seq_create_simple_port(seq_handle, "prboom-plus:out",
+    out_port = snd_seq_create_simple_port(seq_handle, "Music",
       SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ,
       SND_SEQ_PORT_TYPE_APPLICATION
     ),
