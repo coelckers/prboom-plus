@@ -392,6 +392,10 @@ int G_ReloadLevel(void)
   return result;
 }
 
+// [FG] Write the episode and map number of the next level
+//      to the e and m pointers, respectively, or outright
+//      warp to this level if both are NULL.
+
 int G_GotoNextLevel(int *e, int *m)
 {
 	static byte doom2_next[33] = {
