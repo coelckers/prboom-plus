@@ -197,6 +197,8 @@ static void alsa_midi_evt_start (unsigned long when)
   else {
     snd_seq_ev_schedule_real(&seq_ev, out_queue, 0, alsa_now_realtime());
   }
+
+  snd_seq_ev_set_priority(&seq_ev, 0);
 }
 
 static void alsa_midi_evt_finish ()
