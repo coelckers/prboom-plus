@@ -148,12 +148,6 @@ static unsigned long alsa_now (void)
   unsigned long now = time->tv_sec * 1000 + (time->tv_nsec / 1000000); // (s,ns) to ms
 }
 
-static void alsa_midi_write_evt (snd_seq_event_t *ev)
-{
-  CHK_LPRINT(snd_seq_event_output(seq_handle, ev),
-    LO_WARN, "alsa_midi_write_evt: could not write alsa midi event\n");
-}
-
 static void alsa_midi_evt_start (snd_seq_event_t *ev, unsigned long when)
 {
   snd_seq_ev_clear(ev);
@@ -179,7 +173,10 @@ static void alsa_midi_evt_finish (snd_seq_event_t *ev)
 {
   CHK_LPRINT(snd_seq_event_output(seq_handle, ev),
     LO_WARN, "alsa_midi_evt_finish: could not output alsa midi event\n");
+}
 
+static void alsa_midi_evt_flush ()
+{
   CHK_LPRINT(snd_seq_drain_output(seq_handle),
     LO_WARN, "alsa_midi_evt_finish: could not drain alsa sequencer output\n");
 }
@@ -210,6 +207,7 @@ static void alsa_midi_writeevent_now (int evtype, int channel, int v1, int v2)
 static void alsa_midi_all_notes_off_chan (int channel)
 {
   alsa_midi_writeevent_now(SND_SEQ_EVENT_CONTROLLER, channel, 123, 0);
+  alsa_midi_evt_flush();
 }
 
 static void alsa_midi_all_notes_off (void)
@@ -303,6 +301,7 @@ static void alsa_setchvolume (int ch, int v, unsigned long when)
 {
   channelvol[ch] = v;
   alsa_midi_writeevent(when, SND_SEQ_EVENT_CONTROLLER, ch, 7, channelvol[ch] * alsa_volume / 15);
+  alsa_midi_evt_flush();
 }
 
 static void alsa_refreshvolume (void)
@@ -311,6 +310,8 @@ static void alsa_refreshvolume (void)
 
   for (i = 0; i < 16; i ++)
     alsa_midi_writeevent_now(SND_SEQ_EVENT_CONTROLLER, i, 7, channelvol[i] * alsa_volume / 15);
+
+  alsa_midi_evt_flush();
 }
 
 static void alsa_clearchvolume (void)
@@ -414,6 +415,8 @@ static void alsa_midi_writesysex (unsigned long when, int etype, unsigned char *
 
     sysexbufflen = 0;
   }
+
+  alsa_midi_evt_flush();
 }  
 
 static void alsa_stop (void)
@@ -438,6 +441,7 @@ static void alsa_stop (void)
     alsa_midi_writeevent_now(SND_SEQ_EVENT_CONTROLLER, i, 0x64, 0x7f);
     alsa_midi_writeevent_now(SND_SEQ_EVENT_CONTROLLER, i, 0x65, 0x7f);
   }
+  alsa_midi_evt_flush();
   // abort any partial sysex
   sysexbufflen = 0;
 
@@ -512,6 +516,7 @@ static void alsa_render (void *vdest, unsigned bufflen)
             // sdl_mixer does this as well
             for (i = 0; i < 16; i++)
               alsa_midi_writeevent (when, SND_SEQ_EVENT_CONTROLLER, i, 123, 0); // all notes off
+            alsa_midi_evt_flush();
             continue;
           }
           // stop
@@ -532,6 +537,7 @@ static void alsa_render (void *vdest, unsigned bufflen)
         } // fall through
       default:
         alsa_midi_writeevent (when, currevent->event_type, currevent->data.channel.channel, currevent->data.channel.param1, currevent->data.channel.param2);
+        alsa_midi_evt_flush();
         break;
       
     }
