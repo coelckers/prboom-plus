@@ -128,7 +128,7 @@ static const char *alsa_midi_open (void)
 
   CHK_RET(
     out_port = snd_seq_create_simple_port(seq_handle, "Music",
-      SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ | SND_SEQ_PORT_CAP_SYNC_READ,
+      SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ | SND_SEQ_PORT_CAP_READ,
       SND_SEQ_PORT_TYPE_MIDI_GENERIC | SND_SEQ_PORT_TYPE_APPLICATION | SND_SEQ_PORT_TYPE_SOFTWARE
     ),
     "could not open alsa port")
