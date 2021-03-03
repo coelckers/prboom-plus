@@ -184,21 +184,15 @@ static void alsa_midi_writeevent (unsigned long when, int evtype, int channel, i
   // ported from portmidiplayer.c (no pun intended!)
   snd_seq_event_t ev;
   
-  alsa_midi_evt_start(&ev, 0);
+  alsa_midi_evt_start(&ev, when);
 
   // set event value fields
   ev.type = evtype;
 
-  if (when)
-  {
-    ev.time.tick = when;
-  }
-
   ev.data.control.channel = channel;
   ev.data.control.param   = v1;
   ev.data.control.value   = v2;
-  
-  snd_seq_ev_set_controller(&ev, channel, 123, 0);
+
   alsa_midi_evt_finish(&ev);
 }
 
