@@ -100,6 +100,7 @@ static unsigned long trackstart;
 
 static snd_seq_t *seq_handle = NULL;
 static int out_port;
+static int out_queue;
 
 #define SYSEX_BUFF_SIZE 1024
 static unsigned char sysexbuff[SYSEX_BUFF_SIZE];
@@ -107,6 +108,8 @@ static int sysexbufflen;
 
 #define CHK_RET(stmt, msg) if((stmt) < 0) { return (msg); }
 #define CHK_LPRINT(stmt, ltype, msg) if((stmt) < 0) { lprintf(ltype, (msg)); }
+
+static snd_seq_queue_status_t *queue_status;
 
 static const char *alsa_midi_open (void)
 {
@@ -123,18 +126,26 @@ static const char *alsa_midi_open (void)
     ),
     "could not open alsa port")
 
+  CHK_RET(
+    out_queue = snd_seq_alloc_named_queue(seq_handle, "prboom music queue"),
+    "could not allocate alsa seq qeueue")
+
+  snd_seq_queue_status_malloc(&queue_status);
+
   alsa_open = 1;
   return NULL;
 }
 
-static unsigned long alsa_tick_now (void)
+static unsigned long alsa_now (void)
 {
-  // get current position in ticks
+  // get current position in millisecs
 
-  snd_seq_client_info_t info;
-  snd_seq_get_client_info(seq_handle, &info);
+  // update queue status
+  snd_seq_get_queue_status(seq_handle, out_queue, &queue_status);
 
-  return info.time.tick;
+  const snd_seq_real_time_t *time = snd_seq_queue_status_get_real_time(queue_status);
+
+  unsigned long now = time->tv_sec * 1000 + (time->tv_nsec / 1000000); // (s,ns) to ms
 }
 
 static void alsa_midi_write_evt (snd_seq_event_t *ev)
@@ -143,10 +154,20 @@ static void alsa_midi_write_evt (snd_seq_event_t *ev)
     LO_WARN, "alsa_midi_write_evt: could not write alsa midi event\n");
 }
 
-static void alsa_midi_evt_start (snd_seq_event_t *ev)
+static void alsa_midi_evt_start (snd_seq_event_t *ev, unsigned long when)
 {
   snd_seq_ev_clear(ev);
   snd_seq_ev_set_subs(ev);
+
+  if (when != 0) {
+    snd_seq_real_time_t rtime;
+
+    // ms into (s,ns)
+    rtime.tv_sec = when / 1000;
+    rtime.tv_nsec = (when % 1000) * 1000000;
+
+    snd_seq_ev_schedule_real(ev, out_queue, 0, &rtime);
+  }
 }
 
 static void alsa_midi_evt_finish (snd_seq_event_t *ev)
@@ -154,7 +175,7 @@ static void alsa_midi_evt_finish (snd_seq_event_t *ev)
   CHK_LPRINT(snd_seq_event_output(seq_handle, ev),
     LO_WARN, "alsa_midi_evt_finish: could not output alsa midi event\n");
 
-  CHK_LPRINTsnd_seq_drain_output(seq_handle,
+  CHK_LPRINT(snd_seq_drain_output(seq_handle),
     LO_WARN, "alsa_midi_evt_finish: could not drain alsa sequencer output\n");
 }
 
@@ -163,7 +184,7 @@ static void alsa_midi_writeevent (unsigned long when, int evtype, int channel, i
   // ported from portmidiplayer.c (no pun intended!)
   snd_seq_event_t ev;
   
-  alsa_midi_evt_start(&ev);
+  alsa_midi_evt_start(&ev, 0);
 
   // set event value fields
   ev.type = evtype;
@@ -222,7 +243,11 @@ static int alsa_init (int samplerate)
 static void alsa_shutdown (void)
 {
   if (seq_handle) {
+    snd_seq_free_queue(seq_handle, out_queue);
+    snd_seq_delete_simple_port(seq_handle, out_port);
     snd_seq_close(seq_handle);
+
+    snd_seq_queue_info_free(queue_status);
 
     seq_handle = NULL;
   }
@@ -345,7 +370,7 @@ static void alsa_pause (void)
 static void alsa_resume (void)
 {
   alsa_paused = 0;
-  trackstart = alsa_tick_now ();
+  trackstart = alsa_now ();
 }
 static void alsa_play (const void *handle, int looping)
 {
@@ -356,7 +381,7 @@ static void alsa_play (const void *handle, int looping)
   alsa_delta = 0.0;
   alsa_clearchvolume ();
   alsa_refreshvolume ();
-  trackstart = alsa_tick_now ();
+  trackstart = alsa_now ();
   
 }
 
@@ -379,9 +404,7 @@ static void alsa_midi_writesysex (unsigned long when, int etype, unsigned char *
   {
     snd_seq_event_t ev;
   
-    alsa_midi_evt_start(&ev);
-    ev.time.tick = when;
-
+    alsa_midi_evt_start(&ev, when);
     snd_seq_ev_set_sysex(&ev, sysexbufflen, sysexbuff);
     alsa_midi_evt_finish(&ev);
 
@@ -419,7 +442,7 @@ static void alsa_render (void *vdest, unsigned bufflen)
 {
   // wherever you see samples in here, think milliseconds
 
-  unsigned long newtime = alsa_tick_now();
+  unsigned long newtime = alsa_now();
   unsigned long length = newtime - trackstart;
 
   //timerpos = newtime;
