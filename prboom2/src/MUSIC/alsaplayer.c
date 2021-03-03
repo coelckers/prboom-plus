@@ -158,6 +158,7 @@ static void alsa_midi_evt_start (snd_seq_event_t *ev, unsigned long when)
 {
   snd_seq_ev_clear(ev);
   snd_seq_ev_set_subs(ev);
+  snd_seq_ev_set_source(ev, out_port);
 
   if (when != 0) {
     snd_seq_real_time_t rtime;
@@ -167,6 +168,10 @@ static void alsa_midi_evt_start (snd_seq_event_t *ev, unsigned long when)
     rtime.tv_nsec = (when % 1000) * 1000000;
 
     snd_seq_ev_schedule_real(ev, out_queue, 0, &rtime);
+  }
+
+  else {
+    snd_seq_ev_set_direct(ev);
   }
 }
 
