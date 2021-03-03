@@ -203,6 +203,18 @@ static void alsa_midi_write_control (unsigned long when, int channel, int v1, in
   alsa_midi_evt_finish();
 }
 
+static void alsa_midi_write_event (unsigned long when, int type, int channel, int v1, int v2)
+{
+  // ported from portmidiplayer.c (no pun intended!)
+  alsa_midi_evt_start(when);
+
+  // set event value fields
+  snd_seq_ev_set_controller(&seq_ev, channel, v1, v2);
+  seq_ev.type = type;
+
+  alsa_midi_evt_finish();
+}
+
 static void alsa_midi_write_control_now (int channel, int v1, int v2)
 {
   // send event now, disregarding 'when'
@@ -540,7 +552,7 @@ static void alsa_render (void *vdest, unsigned bufflen)
           }
         } // fall through
       default:
-        alsa_midi_writeevent (when, currevent->event_type, currevent->data.channel.channel, currevent->data.channel.param1, currevent->data.channel.param2);
+        alsa_midi_write_event (when, currevent->event_type, currevent->data.channel.channel, currevent->data.channel.param1, currevent->data.channel.param2);
         alsa_midi_evt_flush();
         break;
       
@@ -552,7 +564,7 @@ static void alsa_render (void *vdest, unsigned bufflen)
     // event processed so advance midiclock
     alsa_delta += eventdelta;
     eventpos++;
-        alsa_midi_write_event (when, currevent->event_type, currevent->data.channel.channel, currevent->data.channel.param1, currevent->data.channel.param2);
+
   }
 
   if (samples + sampleswritten > length)
