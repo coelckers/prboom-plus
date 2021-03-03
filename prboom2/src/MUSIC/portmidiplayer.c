@@ -185,6 +185,9 @@ static int pm_init (int samplerate)
 
 #endif
 
+// forward declaration, good enough for the time being
+static void writeevent (unsigned long when, int eve, int channel, int v1, int v2);
+
 static void pm_killnotes (unsigned long when)
 {
   /*
