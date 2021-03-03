@@ -195,30 +195,26 @@ static void alsa_midi_evt_flush ()
     LO_WARN, "alsa_midi_evt_finish: could not drain alsa sequencer output: %s\n");
 }
 
-static void alsa_midi_writeevent (unsigned long when, int evtype, int channel, int v1, int v2)
+static void alsa_midi_write_control (unsigned long when, int channel, int v1, int v2)
 {
   // ported from portmidiplayer.c (no pun intended!)
   alsa_midi_evt_start(when);
 
   // set event value fields
-  seq_ev.type = evtype;
-
-  seq_ev.data.control.channel = channel;
-  seq_ev.data.control.param   = v1;
-  seq_ev.data.control.value   = v2;
+  snd_seq_ev_set_controller(&seq_ev, channel, v1, v2);
 
   alsa_midi_evt_finish();
 }
 
-static void alsa_midi_writeevent_now (int evtype, int channel, int v1, int v2)
+static void alsa_midi_write_control_now (int channel, int v1, int v2)
 {
   // send event now, disregarding 'when'
-  alsa_midi_writeevent(0, evtype, channel, v1, v2);
+  alsa_midi_write_control(0, channel, v1, v2);
 }
 
 static void alsa_midi_all_notes_off_chan (int channel)
 {
-  alsa_midi_writeevent_now(SND_SEQ_EVENT_CONTROLLER, channel, 123, 0);
+  alsa_midi_write_control_now(channel, 123, 0);
   alsa_midi_evt_flush();
 }
 
@@ -313,7 +309,7 @@ static int channelvol[16];
 static void alsa_setchvolume (int ch, int v, unsigned long when)
 {
   channelvol[ch] = v;
-  alsa_midi_writeevent(when, SND_SEQ_EVENT_CONTROLLER, ch, 7, channelvol[ch] * alsa_volume / 15);
+  alsa_midi_write_control(when, ch, 7, channelvol[ch] * alsa_volume / 15);
   alsa_midi_evt_flush();
 }
 
@@ -322,7 +318,7 @@ static void alsa_refreshvolume (void)
   int i;
 
   for (i = 0; i < 16; i ++)
-    alsa_midi_writeevent_now(SND_SEQ_EVENT_CONTROLLER, i, 7, channelvol[i] * alsa_volume / 15);
+    alsa_midi_write_control_now(i, 7, channelvol[i] * alsa_volume / 15);
 
   alsa_midi_evt_flush();
 }
@@ -439,18 +435,18 @@ static void alsa_stop (void)
   // songs can be stopped at any time, so reset everything
   for (i = 0; i < 16; i++)
   {
-    alsa_midi_writeevent_now(SND_SEQ_EVENT_CONTROLLER, i, 123, 0); // all notes off
-    alsa_midi_writeevent_now(SND_SEQ_EVENT_CONTROLLER, i, 121, 0); // reset all parameters
+    alsa_midi_write_control_now(i, 123, 0); // all notes off
+    alsa_midi_write_control_now(i, 121, 0); // reset all parameters
 
     // RPN sequence to adjust pitch bend range (RPN value 0x0000)
-    alsa_midi_writeevent_now(SND_SEQ_EVENT_CONTROLLER, i, 0x65, 0x00);
-    alsa_midi_writeevent_now(SND_SEQ_EVENT_CONTROLLER, i, 0x64, 0x00);
+    alsa_midi_write_control_now(i, 0x65, 0x00);
+    alsa_midi_write_control_now(i, 0x64, 0x00);
     // reset pitch bend range to central tuning +/- 2 semitones and 0 cents
-    alsa_midi_writeevent_now(SND_SEQ_EVENT_CONTROLLER, i, 0x06, 0x02);
-    alsa_midi_writeevent_now(SND_SEQ_EVENT_CONTROLLER, i, 0x26, 0x00);
+    alsa_midi_write_control_now(i, 0x06, 0x02);
+    alsa_midi_write_control_now(i, 0x26, 0x00);
     // end of RPN sequence
-    alsa_midi_writeevent_now(SND_SEQ_EVENT_CONTROLLER, i, 0x64, 0x7f);
-    alsa_midi_writeevent_now(SND_SEQ_EVENT_CONTROLLER, i, 0x65, 0x7f);
+    alsa_midi_write_control_now(i, 0x64, 0x7f);
+    alsa_midi_write_control_now(i, 0x65, 0x7f);
   }
   alsa_midi_evt_flush();
   // abort any partial sysex
@@ -526,7 +522,7 @@ static void alsa_render (void *vdest, unsigned bufflen)
             // fix buggy songs that forget to terminate notes held over loop point
             // sdl_mixer does this as well
             for (i = 0; i < 16; i++)
-              alsa_midi_writeevent (when, SND_SEQ_EVENT_CONTROLLER, i, 123, 0); // all notes off
+              alsa_midi_write_control(when, i, 123, 0); // all notes off
             alsa_midi_evt_flush();
             continue;
           }
