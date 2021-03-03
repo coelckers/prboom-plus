@@ -113,7 +113,7 @@ static snd_seq_queue_status_t *queue_status;
 
 static const char *alsa_midi_open (void)
 {
-  CHK_RET(snd_seq_open(&seq_handle, "PrBoom-Plus", SND_SEQ_OPEN_OUTPUT, 0),
+  CHK_RET(snd_seq_open(&seq_handle, "default", SND_SEQ_OPEN_OUTPUT, 0),
     "could not open sequencer")
 
   CHK_RET(snd_seq_set_client_name(seq_handle, "PrBoom+ music"),
@@ -235,6 +235,7 @@ static int alsa_init (int samplerate)
   }
 
   lprintf(LO_WARN, "alsa_init: alsa_midi_open() failed: %s\n", msg);
+  return 0;
 }
 
 static void alsa_shutdown (void)
