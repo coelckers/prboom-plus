@@ -178,6 +178,32 @@ static int pm_init (int samplerate)
   return 1;
 }
 
+#ifndef MIDI_EVENT_CHANNEL_MODE
+
+// channel mode events in MIDI, low nibble is channel value as usual
+#define MIDI_EVENT_CHANNEL_MODE 0xB0
+
+#endif
+
+static void pm_killnotes (unsigned long when = 0)
+{
+  /*
+  workaround to hanging notes with portmidi; send "All Sound Off"
+  events to all channels when the game exits
+
+  see: http://personal.kent.edu/~sbirch/Music_Production/MP-II/MIDI/midi_channel_mode_messages.htm
+
+  the event would be Bn 78 00, where 'n' is a MIDI channel; eg. the
+  MIDI message B1 78 00 stops all sound in channel 2 (of 1-16)
+  */
+
+  when = when | (Pt_Time() * !when); // set when to Pt_Time() if when is zero
+
+  for (int ch = 0; ch < 16; ch++) {
+    writeevent (when, MIDI_EVENT_CHANNEL_MODE, ch, 0x78, 0x00);
+  }
+}
+
 static void pm_shutdown (void)
 {
   if (pm_stream)
@@ -206,6 +232,9 @@ static void pm_shutdown (void)
     #ifdef _WIN32
     Pt_Sleep (DRIVER_LATENCY * 2);
     #endif
+
+	// stop all sound, in case of hanging notes
+    pm_killnotes();
 
     Pm_Close (pm_stream);
     Pm_Terminate ();
