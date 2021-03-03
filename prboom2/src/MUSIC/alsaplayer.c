@@ -441,6 +441,16 @@ static void alsa_resume (void)
 }
 static void alsa_play (const void *handle, int looping)
 {
+  // reinit queue
+  if (out_queue) {
+    snd_seq_free_queue(seq_handle, out_queue);
+    snd_seq_queue_status_free(queue_status);
+  }
+
+  out_queue = snd_seq_alloc_named_queue(seq_handle, "prboom music queue");
+  
+  snd_seq_queue_status_malloc(&queue_status);
+
   eventpos = 0;
   alsa_looping = looping;
   alsa_playing = 1;
