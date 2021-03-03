@@ -178,35 +178,13 @@ static int pm_init (int samplerate)
   return 1;
 }
 
-// forward declaration, good enough for the time being
-static void writeevent (unsigned long when, int eve, int channel, int v1, int v2);
-
-static void pm_killnotes (unsigned long when)
-{
-  /*
-  workaround to hanging notes with portmidi; send "All Notes Off"
-  events to all channels when the game exits
-
-  see: http://personal.kent.edu/~sbirch/Music_Production/MP-II/MIDI/midi_channel_mode_messages.htm
-
-  the event would be Bn 7B 00, where 'n' is a MIDI channel; eg. the
-  MIDI message B1 7B 00 sends All Notes Off in channel 2 (of 1-16)
-
-  'when' is a midi timestamp value. if in doubt, pass 0, to stop all
-  notes right now·
-  */
-
-  when = when | (Pt_Time() * !when); // set when to Pt_Time() if when is zero
-
-  for (int ch = 0; ch < 0xF; ch++) {
-    writeevent (when, 0xB0, ch, 0x7B, 0x00);
-  }
-}
-
 static void pm_shutdown (void)
 {
   if (pm_stream)
   {
+    // stop all sound, in case of hanging notes
+    pm_stop();
+
     /* ugly deadlock in portmidi win32 implementation:
 
     main thread gets stuck in Pm_Close
@@ -231,9 +209,6 @@ static void pm_shutdown (void)
     #ifdef _WIN32
     Pt_Sleep (DRIVER_LATENCY * 2);
     #endif
-
-	// stop all sound, in case of hanging notes
-    pm_killnotes(0);
 
     Pm_Close (pm_stream);
     Pm_Terminate ();
