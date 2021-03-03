@@ -136,7 +136,7 @@ cheatseq_t cheat[] = {
   CHEAT("idbeholdl",  "Lite-Amp Goggles", not_dm, cheat_pw, pw_infrared),
   CHEAT("idbehold",   "BEHOLD menu",      not_dm, cheat_behold, 0),
   CHEAT("idclev",     "Level Warp",       cht_never | not_menu, cheat_clev, -2),
-  CHEAT("idclev",     NULL,               cht_never | not_menu, cheat_clev0, 0),
+  CHEAT("idclev",     "Level Warp",       cht_never | not_menu, cheat_clev0, 0),
   CHEAT("idmypos",    "Player Position",  not_dm, cheat_mypos, 0),
   CHEAT("idrate",     "Frame rate",       always, cheat_rate, 0),
   // phares
