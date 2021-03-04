@@ -321,12 +321,12 @@ char buf[3];
     case 0: // success
       if (name == NULL)
       {
-        ALSAMESSAGE("succesfully connected to output %d", alsaout_num);
+        ALSAMESSAGE("alsa connected to out #%d", alsaout_num);
       }
 
       else
       {
-        ALSAMESSAGE("succesfully connected to output %d: %s", alsaout_num, name);
+        ALSAMESSAGE("alsa connected to out #%d: %s", alsaout_num, name);
       }
 
       break;
