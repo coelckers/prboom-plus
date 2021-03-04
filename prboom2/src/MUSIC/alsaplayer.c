@@ -28,8 +28,8 @@
  *---------------------------------------------------------------------
  */
 
-// TODO: some duplicated code with this and the fluidplayer should be
-// split off or something
+// TODO: some duplicated code with this and the fluidsynth and portmidi
+// players should be split off or something
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
