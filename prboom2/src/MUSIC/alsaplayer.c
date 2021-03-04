@@ -156,11 +156,13 @@ static unsigned long alsa_now (void)
 {
   // get current position in millisecs
 
+  const snd_seq_real_time_t *time;
+
   // update queue status
   CHK_LPRINT_ERR_RET(snd_seq_get_queue_status(seq_handle, out_queue, queue_status), 0,
     LO_WARN, "alsaplayer: alsa_now(): error getting queue status: %s\n");
 
-  const snd_seq_real_time_t *time = snd_seq_queue_status_get_real_time(queue_status);
+  time = snd_seq_queue_status_get_real_time(queue_status);
 
   if (time == 0) {
     lprintf (LO_WARN, "alsaplayer: alsa_now(): error getting realtime position from queue status\n");
@@ -174,11 +176,13 @@ static const snd_seq_real_time_t *alsa_now_realtime (void)
 {
   // get current position in millisecs
 
+  const snd_seq_real_time_t *time;
+
   // update queue status
   CHK_LPRINT_ERR_RET(snd_seq_get_queue_status(seq_handle, out_queue, queue_status), 0,
     LO_WARN, "alsaplayer: alsa_now(): error getting queue status: %s\n");
 
-  const snd_seq_real_time_t *time = snd_seq_queue_status_get_real_time(queue_status);
+  time = snd_seq_queue_status_get_real_time(queue_status);
 
   if (time == 0) {
     lprintf (LO_WARN, "alsaplayer: alsa_now(): error getting realtime position from queue status\n");
@@ -304,8 +308,10 @@ static const char *alsa_name (void)
 
 static int alsa_init (int samplerate)
 {
+  char *const msg;
+
   lprintf (LO_INFO, "alsaplayer: Trying to open ALSA output port\n");
-  const char *msg = alsa_midi_open();
+  *msg = alsa_midi_open();
 
   if (msg == NULL) {
     // success
@@ -335,7 +341,7 @@ static void alsa_shutdown (void)
   alsa_open = 0;
 }
 
-static const void *alsa_registersong (const void *data, unsigned len)
+static const void *alsa_registersong (void *const data, unsigned len)
 {
   midimem_t mf;
 
