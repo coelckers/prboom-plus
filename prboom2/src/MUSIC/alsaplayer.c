@@ -308,10 +308,9 @@ static const char *alsa_name (void)
 
 static int alsa_init (int samplerate)
 {
-  char *const msg;
-
   lprintf (LO_INFO, "alsaplayer: Trying to open ALSA output port\n");
-  *msg = alsa_midi_open();
+
+  const char *msg = alsa_midi_open();
 
   if (msg == NULL) {
     // success
