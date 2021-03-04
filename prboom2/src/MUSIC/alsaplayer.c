@@ -169,6 +169,15 @@ static const char *alsa_midi_open (void)
 
 void alsa_midi_set_dest (int client, int port)
 {
+  static int last_client = -1, last_port = 0;
+
+  if (last_client != 0) {
+    snd_seq_disconnect_to(seq_handle, out_port, last_client, last_port);
+
+    last_client = client;
+    last_port = port;
+  }
+
   // connects to a destination alsa-midi client and port
 
   if (!seq_handle) {
