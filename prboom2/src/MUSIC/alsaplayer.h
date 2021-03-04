@@ -41,9 +41,9 @@ extern const music_player_t alsa_player;
 
 // available outputs
 typedef struct {
-    int client,
-    int port,
-    char name[120] // 120 + two 32-bit (4-byte) ints = 128, nice alignment
+    int client;
+    int port;
+    char name[120]; // 120 + two 32-bit (4-byte) ints = 128, nice alignment
 } alsaplay_output_t;
 
 extern alsaplay_output_t alsaplayer_outputs[64];
