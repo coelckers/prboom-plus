@@ -140,6 +140,7 @@ void alsaplay_refresh_outputs(void) {
   if (!seq_handle)
   {
     lprintf(LO_WARN, "alsaplay_refresh_outputs: Can't list ALSA output ports: seq_handle is not initialized\n");
+    return;
   }
 
   alsaplay_clear_outputs();
@@ -204,6 +205,11 @@ int alsaplay_connect_output(int which) {
 }
 
 const char *alsaplay_get_output_name(int which) {
+  if (seq_handle == NULL)
+  {
+    return NULL;
+  }
+
   if (which >= alsaplayer_num_outs)
   {
     return NULL;
