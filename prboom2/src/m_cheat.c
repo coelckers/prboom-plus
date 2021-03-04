@@ -230,6 +230,9 @@ cheatseq_t cheat[] = {
 // alsa commands
 #ifdef HAVE_ALSA
 
+#include "MUSIC/alsaplayer.h"
+
+
 static char alsmsg[128];
 
 #define ALSAMESSAGE(str, ...) { sprintf(alsmsg, str, __VA_ARGS__); plyr->message = alsmsg; }
