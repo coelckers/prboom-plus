@@ -130,9 +130,12 @@ void alsaplay_clear_outputs(void) {
   alsaplayer_num_outs = 0;
 }
 
+static snd_seq_client_info_t *cinfo;
+static snd_seq_port_info_t   *pinfo;
+
 void alsaplay_refresh_outputs(void) {
-  static snd_seq_client_info_t cinfo;
-  static snd_seq_port_info_t   pinfo;
+  snd_seq_client_info_malloc(&cinfo);
+  snd_seq_port_info_malloc  (&pinfo);
 
   // port type and capabilities required from valid MIDI output
   const int OUT_CAPS_DESIRED = (SND_SEQ_PORT_CAP_SUBS_WRITE);
@@ -192,6 +195,9 @@ void alsaplay_refresh_outputs(void) {
       sprintf(&alsaplayer_outputs[out_ind].name, "%.*s (%d:%d)", 100, snd_seq_client_info_get_name(&cinfo), client_num, port_num);
     }
   }
+
+  snd_seq_client_info_free(cinfo);
+  snd_seq_port_info_free  (pinfo);
 }
 
 int alsaplay_connect_output(int which) {
