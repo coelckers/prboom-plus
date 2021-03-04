@@ -116,9 +116,9 @@ static int sysexbufflen;
 
 static snd_seq_queue_status_t *queue_status;
 
-////////////
+////////////////////
 
-// list alsa clients
+// alsa output list functionality
 
 int num_outputs;
 snd_seq_port_subscribe_t available_outputs[64];
@@ -138,7 +138,9 @@ void alsaplay_connect_output(int which) {
   
 }
 
-////////////
+////////////////////
+
+// alsa utility functions
 
 static const char *alsa_midi_open (void)
 {
@@ -324,6 +326,10 @@ static void alsa_midi_all_notes_off (void)
     alsa_midi_all_notes_off_chan(i);
   }
 }
+
+////////////////////
+
+// alsa player callbacks
 
 static const char *alsa_name (void)
 {
