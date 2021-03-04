@@ -271,7 +271,7 @@ int alsa_midi_set_dest (int client, int port)
   }
 
   CHK_LPRINT_ERR_RET(snd_seq_connect_to(seq_handle, out_port, client, port), -3,
-    "alsa_midi_set_dest: error connecting to (%d:%d): %s", last_client, last_port);
+    LO_WARN, "alsa_midi_set_dest: error connecting to (%d:%d): %s", last_client, last_port);
 
   return 0;
 }
