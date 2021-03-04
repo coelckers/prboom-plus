@@ -60,7 +60,6 @@ static int boom_cheat_route[MAX_COMPATIBILITY_LEVEL];
 //
 //-----------------------------------------------------------------------------
 
-static void cheat_alsasub();
 static void cheat_mus();
 static void cheat_choppers();
 static void cheat_god();
@@ -199,37 +198,11 @@ cheatseq_t cheat[] = {
   // Enable/disable shorttics in-game
   CHEAT("tntshort",   NULL,               cht_never, cheat_shorttics, 0),
 
-  // subscribe to dest alsa port manually
-  #ifdef HAVE_ALSA
-  CHEAT("alsasub",    NULL,               always, cheat_alsasub, -4), // 3 digits, 1 digit (total 4)
-  #endif // HAVE_ALSA
-
   // end-of-list marker
   {NULL}
 };
 
 //-----------------------------------------------------------------------------
-
-#ifdef HAVE_ALSA
-
-static void cheat_alsasub(buf)
-char buf[5];
-{
-  int clidnum, portnum;
-
-  // sanity check digits
-  if (!isdigit(buf[0]) || !isdigit(buf[1]) || !isdigit(buf[2]) || !isdigit(buf[3]))
-    return;
-
-  // parse digits
-  clidnum = (buf[0]-'0')*100 + (buf[1]-'0') * 10 + (buf[2]-'0');
-  portnum = buf[3]-'0';
-
-  // subscribe to port
-  alsa_midi_set_dest(clidnum, portnum);
-}
-
-#endif //HAVE_ALSA
 
 static void cheat_mus(buf)
 char buf[3];
