@@ -256,6 +256,13 @@ static void cheat_alsnum()
 }
 
 static int check_alsanum(const char *where, int alsanum) {
+  if (alsanum < 0)
+  {
+    ALSAMESSAGE("%s: outputs begin at 1; pick between 1 and %d", where, alsaplayer_num_outs);
+
+    return 1;
+  }
+
   if (alsanum >= alsaplayer_num_outs)
   {
     ALSAMESSAGE("%s: output #%d does not exist, pick between 1 and %d", where, alsanum + 1, alsaplayer_num_outs);
