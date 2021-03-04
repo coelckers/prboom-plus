@@ -221,7 +221,7 @@ const char *alsaplay_get_output_name(int which) {
     return NULL;
   }
 
-  return &alsaplayer_outputs[which].name;
+  return alsaplayer_outputs[which].name;
 }
 
 ////////////////////
