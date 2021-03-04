@@ -318,6 +318,17 @@ char buf[3];
 
   switch (status) {
     case 0: // success
+      const char *name = alsaplay_get_output_name(alsaout_num);
+
+      if (name == NULL)
+      {
+        ALSAMESSAGE("succesfully connected to output %d", alsaout_num);
+      }
+
+      else
+      {
+        ALSAMESSAGE("succesfully connected to output %d: %s", alsaout_num, name);
+      }
 
       break;
 
