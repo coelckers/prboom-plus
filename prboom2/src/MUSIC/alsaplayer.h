@@ -50,11 +50,11 @@ extern alsaplay_output_t alsaplayer_outputs[64];
 extern int alsaplayer_num_outs;
 extern int alsaplayer_err;
 
-void alsa_midi_set_dest (int client, int port);
 void alsaplay_clear_outputs(void);
 void alsaplay_refresh_outputs(void);
 const char *alsaplay_get_output_name(int which);
 int alsaplay_connect_output(int which);
+int alsa_midi_set_dest (int client, int port);
 
 #endif // HAVE_ALSA
 
