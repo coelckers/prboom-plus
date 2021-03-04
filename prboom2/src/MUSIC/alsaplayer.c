@@ -149,13 +149,13 @@ void alsaplay_refresh_outputs(void) {
   alsaplay_clear_outputs();
 
   // clear client info
-  snd_seq_client_info_set_client(&cinfo, -1);
+  snd_seq_client_info_set_client(cinfo, -1);
 
-  while (snd_seq_query_next_client(seq_handle, &cinfo) == 0)
+  while (snd_seq_query_next_client(seq_handle, cinfo) == 0)
   {
     // list ports of each client
 
-    int client_num = snd_seq_client_info_get_client(&cinfo);
+    int client_num = snd_seq_client_info_get_client(cinfo);
 
     if (client_num == out_id)
     {
@@ -163,23 +163,23 @@ void alsaplay_refresh_outputs(void) {
       continue;
     }
 
-    if (!snd_seq_client_info_get_num_ports(&cinfo))
+    if (!snd_seq_client_info_get_num_ports(cinfo))
     {
       // skip clients without ports
       continue;
     }
 
     // clear port info
-    snd_seq_port_info_set_client(&pinfo, client_num);
-    snd_seq_port_info_set_port(&pinfo, -1);
+    snd_seq_port_info_set_client(pinfo, client_num);
+    snd_seq_port_info_set_port(pinfo, -1);
 
-    while (snd_seq_query_next_port(seq_handle, &pinfo) == 0)
+    while (snd_seq_query_next_port(seq_handle, pinfo) == 0)
     {
-      int port_num = snd_seq_port_info_get_port(&pinfo);
+      int port_num = snd_seq_port_info_get_port(pinfo);
 
       // check if port is valid midi output
 
-      if (!(snd_seq_port_info_get_capability(&pinfo) & OUT_CAPS_DESIRED))
+      if (!(snd_seq_port_info_get_capability(pinfo) & OUT_CAPS_DESIRED))
       {
         continue;
       }
@@ -192,7 +192,7 @@ void alsaplay_refresh_outputs(void) {
       alsaplayer_outputs[out_ind].port = port_num;
 
       // client name only up to 100 chars, so it always fits within a 120 byte buffer
-      sprintf(&alsaplayer_outputs[out_ind].name, "%.*s (%d:%d)", 100, snd_seq_client_info_get_name(&cinfo), client_num, port_num);
+      sprintf(&alsaplayer_outputs[out_ind].name, "%.*s (%d:%d)", 100, snd_seq_client_info_get_name(cinfo), client_num, port_num);
     }
   }
 
