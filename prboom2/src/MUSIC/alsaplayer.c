@@ -121,7 +121,7 @@ static snd_seq_queue_status_t *queue_status;
 // alsa output list functionality
 
 int num_outputs;
-snd_seq_port_subscribe_t available_outputs[64];
+alsaplay_output_t available_outputs[64];
 
 void alsaplay_clear_outputs(void) {
   // clear output list
@@ -129,13 +129,73 @@ void alsaplay_clear_outputs(void) {
 }
 
 void alsaplay_refresh_outputs(void) {
+  static snd_seq_client_info_t cinfo;
+  static snd_seq_port_info_t   pinfo;
+
+  // port type and capabilities required from valid MIDI output
+  const int OUT_CAPS_DESIRED = (SND_SEQ_PORT_CAP_SUBS_WRITE);
+
+  if (!seq_handle)
+  {
+    lprintf(LO_WARN, "alsaplay_refresh_outputs: Can't list ALSA output ports: seq_handle is not initialized\n");
+  }
+
   alsaplay_clear_outputs();
 
-  
+  // clear client info
+  snd_seq_client_info_set_client(&cinfo, -1);
+
+  while (snd_seq_query_next_client(seq_handle, &cinfo) == 0)
+  {
+    // list ports of each client
+
+    int client_num = snd_seq_client_info_get_client(&cinfo);
+
+    // clear port info
+    snd_seq_port_info_set_client(&pinfo, client_num);
+    snd_seq_port_info_set_port(&pinfo, -1);
+
+    while (snd_seq_query_next_port(seq_handle, &pinfo) == 0)
+    {
+      int port_num = snd_seq_port_info_get_port(&pinfo);
+
+      // check if port is valid midi output
+
+      if (!(snd_seq_port_info_get_capability(&pinfo) & OUT_CAPS_DESIRED))
+      {
+        continue;
+      }
+
+      // add to outputs list
+
+      int out_ind = num_outputs++;
+
+      available_outputs[out_ind].client = client_num;
+      available_outputs[out_ind].port = port_num;
+
+      // client name only up to 100 chars, so it always fits within a 120 byte buffer
+      sprintf(&available_outputs[out_ind].name, "%.*s (%d:%d)", 100, snd_seq_client_info_get_name(&cinfo), client_num, port_num);
+    }
+  }
 }
 
 void alsaplay_connect_output(int which) {
-  
+  if (which >= num_outputs)
+  {
+    lprintf(LO_WARN, "alsaplay_connect_output: tried to connect to output listing at index out of bounds: %d\n", which);
+    return;
+  }
+
+  alsa_midi_set_dest(outputs[which].client, outputs[which].port);
+}
+
+const char *alsaplay_get_output_name(int which) {
+  if (which >= num_outputs)
+  {
+    return NULL;
+  }
+
+  return &outputs[which].name;
 }
 
 ////////////////////
@@ -206,6 +266,11 @@ static unsigned long alsa_now (void)
 
   return time->tv_sec * 1000 + (time->tv_nsec / 1000000); // (s,ns) to ms
 }
+
+////////////////////
+
+// alsa player callbacks
+
 
 static const snd_seq_real_time_t *alsa_now_realtime (void)
 {
@@ -304,7 +369,7 @@ static void alsa_midi_write_event (unsigned long when, midi_event_type_t type, i
 
     default:
       // unknown type
-      lprintf(LO_WARN, "alsa_midi_write_event: unknown midi event type: %i\n", type);
+      lprintf(LO_WARN, "alsa_midi_write_event: unknown midi event type: %d\n", type);
       return;
   }
 
@@ -353,7 +418,7 @@ static int alsa_init (int samplerate)
 
   if (msg == NULL) {
     // success
-    lprintf (LO_INFO, "alsaplayer: Successfully opened port: %i\n", out_port);
+    lprintf (LO_INFO, "alsaplayer: Successfully opened port: %d\n", out_port);
     return 1;
   }
 

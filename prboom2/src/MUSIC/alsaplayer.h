@@ -40,12 +40,19 @@ extern const music_player_t alsa_player;
 #include <alsa/asoundlib.h>
 
 // available outputs
-extern snd_seq_port_subscribe_t available_outputs[64];
+typedef struct {
+    int client,
+    int port,
+    char name[120] // 120 + two 32-bit (4-byte) ints = 128, nice alignment
+} alsaplay_output_t;
+
+extern alsaplay_output_t available_outputs[64];
 extern int num_outputs;
 
 void alsa_midi_set_dest (int client, int port);
 void alsaplay_clear_outputs(void);
 void alsaplay_refresh_outputs(void);
+const char *alsaplay_get_output_name(int which);
 void alsaplay_connect_output(int which);
 
 #endif // HAVE_ALSA
