@@ -207,7 +207,7 @@ int alsaplay_connect_output(int which) {
     return -1;
   }
 
-  return alsa_midi_set_dest(outputs[which].client, outputs[which].port);
+  return alsa_midi_set_dest(alsaplayer_outputs[which].client, alsaplayer_outputs[which].port);
 }
 
 const char *alsaplay_get_output_name(int which) {
@@ -221,7 +221,7 @@ const char *alsaplay_get_output_name(int which) {
     return NULL;
   }
 
-  return &outputs[which].name;
+  return &alsaplayer_outputs[which].name;
 }
 
 ////////////////////
