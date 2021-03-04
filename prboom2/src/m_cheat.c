@@ -231,6 +231,7 @@ cheatseq_t cheat[] = {
 #ifdef HAVE_ALSA
 
 #include "MUSIC/alsaplayer.h"
+#include "lprintf.h"
 
 
 static char alsmsg[128];
