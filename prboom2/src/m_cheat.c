@@ -314,12 +314,11 @@ char buf[3];
     return;
   }
 
+  const char *name = alsaplay_get_output_name(alsaout_num);
   int status = alsaplay_connect_output(alsaout_num);
 
   switch (status) {
     case 0: // success
-      const char *name = alsaplay_get_output_name(alsaout_num);
-
       if (name == NULL)
       {
         ALSAMESSAGE("succesfully connected to output %d", alsaout_num);
