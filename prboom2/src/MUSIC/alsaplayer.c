@@ -108,11 +108,13 @@ static int out_queue;
 static unsigned char sysexbuff[SYSEX_BUFF_SIZE];
 static int sysexbufflen;
 
+int alsaplayer_err;
+
 #define CHK_RET(stmt, msg) if((stmt) < 0) { return (msg); }
 #define CHK_LPRINT(stmt, ltype, ...) if((stmt) < 0) { lprintf(ltype, __VA_ARGS__); }
-#define CHK_LPRINT_ERR(stmt, ltype, ...) { int err = (stmt); if(err < 0) { lprintf(ltype, __VA_ARGS__, snd_strerror(err)); } }
+#define CHK_LPRINT_ERR(stmt, ltype, ...) { alsaplayer_err = (stmt); if(alsaplayer_err < 0) { lprintf(ltype, __VA_ARGS__, snd_strerror(alsaplayer_err)); } }
 #define CHK_LPRINT_RET(stmt, ret, ltype, ...) if((stmt) < 0) { lprintf(ltype, __VA_ARGS__); return (ret); }
-#define CHK_LPRINT_ERR_RET(stmt, ret, ltype, ...) { int err = (stmt); if(err < 0) { lprintf(ltype, __VA_ARGS__, snd_strerror(err)); return ret; } }
+#define CHK_LPRINT_ERR_RET(stmt, ret, ltype, ...) { alsaplayer_err = (stmt); if(alsaplayer_err < 0) { lprintf(ltype, __VA_ARGS__, snd_strerror(alsaplayer_err)); return ret; } }
 
 static snd_seq_queue_status_t *queue_status;
 

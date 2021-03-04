@@ -48,6 +48,7 @@ typedef struct {
 
 extern alsaplay_output_t alsaplayer_outputs[64];
 extern int alsaplayer_num_outs;
+extern int alsaplayer_err;
 
 void alsa_midi_set_dest (int client, int port);
 void alsaplay_clear_outputs(void);
