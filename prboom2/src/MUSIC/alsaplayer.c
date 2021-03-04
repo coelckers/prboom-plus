@@ -68,7 +68,7 @@ const music_player_t alsa_player =
 
 #else // HAVE_ALSA
 
-#include <alsa/asoundlib.h>
+#include "alsaplayer.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -115,6 +115,30 @@ static int sysexbufflen;
 #define CHK_LPRINT_ERR_RET(stmt, ret, ltype, ...) { int err = (stmt); if(err < 0) { lprintf(ltype, __VA_ARGS__, snd_strerror(err)); return ret; } }
 
 static snd_seq_queue_status_t *queue_status;
+
+////////////
+
+// list alsa clients
+
+int num_outputs;
+snd_seq_port_subscribe_t available_outputs[64];
+
+void alsaplay_clear_outputs(void) {
+  // clear output list
+  num_outputs = 0;
+}
+
+void alsaplay_refresh_outputs(void) {
+  alsaplay_clear_outputs();
+
+  
+}
+
+void alsaplay_connect_output(int which) {
+  
+}
+
+////////////
 
 static const char *alsa_midi_open (void)
 {

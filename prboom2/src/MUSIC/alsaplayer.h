@@ -31,8 +31,23 @@
 #ifndef ALSAPLAYER_H
 #define ALSAPLAYER_H
 
+#include "musicplayer.h"
+
 extern const music_player_t alsa_player;
 
+#ifdef HAVE_ALSA
+
+#include <alsa/asoundlib.h>
+
+// available outputs
+extern snd_seq_port_subscribe_t available_outputs[64];
+extern int num_outputs;
+
 void alsa_midi_set_dest (int client, int port);
+void alsaplay_clear_outputs(void);
+void alsaplay_refresh_outputs(void);
+void alsaplay_connect_output(int which);
+
+#endif // HAVE_ALSA
 
 #endif // ALSAPLAYER_H
