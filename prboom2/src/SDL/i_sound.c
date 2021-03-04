@@ -1508,7 +1508,6 @@ static int Exp_RegisterSongEx (const void *data, size_t len, int try_mus2mid)
           }
           else
             lprintf (LO_INFO, "Exp_RegisterSongEx: Music player %s on preferred list but it failed to init\n", music_players[i]-> name ());
-          break;
         }
       }
       if (!found)
