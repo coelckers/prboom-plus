@@ -151,6 +151,18 @@ void alsaplay_refresh_outputs(void) {
 
     int client_num = snd_seq_client_info_get_client(&cinfo);
 
+    if (client_num == out_id)
+    {
+      // skip self
+      continue;
+    }
+
+    if (!snd_seq_client_info_get_num_ports(&cinfo))
+    {
+      // skip clients without ports
+      continue;
+    }
+
     // clear port info
     snd_seq_port_info_set_client(&pinfo, client_num);
     snd_seq_port_info_set_port(&pinfo, -1);
