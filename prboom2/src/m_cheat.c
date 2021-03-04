@@ -315,7 +315,7 @@ char buf[3];
 
     case -1:  // out of bounds, should never happen because we already
               // check_alsanum above
-      loprintf(LO_WARN, "cheat_alsuse: inconsistent alsa output port listing bounds checking detected\n");
+      lprintf(LO_WARN, "cheat_alsuse: inconsistent alsa output port listing bounds checking detected\n");
       plyr->message = "error: inconsistent output port bounds check";
       break;
     
