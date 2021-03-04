@@ -214,9 +214,9 @@ cheatseq_t cheat[] = {
   //  TNTCOMP)
   #ifdef HAVE_ALSA
 
-  CHEAT("ALSNUM",     NULL,               always, cheat_alsnum, 0),
-  CHEAT("ALSGET",     NULL,               always, cheat_alsget, 0),
-  CHEAT("ALSUSE",     NULL,               always, cheat_alsuse, 0),
+  CHEAT("alsnum",     NULL,               always, cheat_alsnum, 0),
+  CHEAT("alsget",     NULL,               always, cheat_alsget, 0),
+  CHEAT("alsuse",     NULL,               always, cheat_alsuse, 0),
 
   #endif // HAVE_ALSA
   // ---
