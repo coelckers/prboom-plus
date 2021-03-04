@@ -53,7 +53,7 @@ void alsa_midi_set_dest (int client, int port);
 void alsaplay_clear_outputs(void);
 void alsaplay_refresh_outputs(void);
 const char *alsaplay_get_output_name(int which);
-void alsaplay_connect_output(int which);
+int alsaplay_connect_output(int which);
 
 #endif // HAVE_ALSA
 

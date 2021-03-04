@@ -191,14 +191,14 @@ void alsaplay_refresh_outputs(void) {
   }
 }
 
-void alsaplay_connect_output(int which) {
+int alsaplay_connect_output(int which) {
   if (which >= alsaplayer_num_outs)
   {
     lprintf(LO_WARN, "alsaplay_connect_output: tried to connect to output listing at index out of bounds: %d\n", which);
-    return;
+    return -1;
   }
 
-  alsa_midi_set_dest(outputs[which].client, outputs[which].port);
+  return alsa_midi_set_dest(outputs[which].client, outputs[which].port);
 }
 
 const char *alsaplay_get_output_name(int which) {
@@ -239,7 +239,7 @@ static const char *alsa_midi_open (void)
   return NULL;
 }
 
-void alsa_midi_set_dest (int client, int port)
+int alsa_midi_set_dest (int client, int port)
 {
   static int last_client = -1, last_port = 0;
 
@@ -253,10 +253,13 @@ void alsa_midi_set_dest (int client, int port)
   // connects to a destination alsa-midi client and port
 
   if (!seq_handle) {
-    return;
+    return -2;
   }
 
-  snd_seq_connect_to(seq_handle, out_port, client, port);
+  CHK_LPRINT_ERR_RET(snd_seq_connect_to(seq_handle, out_port, client, port) < 0), -3,
+    "alsa_midi_set_dest: error connecting to (%d:%d): %s", last_client, last_port);
+
+  return 0;
 }
 
 static unsigned long alsa_now (void)
