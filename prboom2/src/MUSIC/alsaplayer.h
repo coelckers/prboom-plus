@@ -46,8 +46,8 @@ typedef struct {
     char name[120] // 120 + two 32-bit (4-byte) ints = 128, nice alignment
 } alsaplay_output_t;
 
-extern alsaplay_output_t available_outputs[64];
-extern int num_outputs;
+extern alsaplay_output_t alsaplayer_outputs[64];
+extern int alsaplayer_num_outs;
 
 void alsa_midi_set_dest (int client, int port);
 void alsaplay_clear_outputs(void);

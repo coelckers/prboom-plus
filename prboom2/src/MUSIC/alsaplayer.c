@@ -120,12 +120,12 @@ static snd_seq_queue_status_t *queue_status;
 
 // alsa output list functionality
 
-int num_outputs;
-alsaplay_output_t available_outputs[64];
+int alsaplayer_num_outs;
+alsaplay_output_t alsaplayer_outputs[64];
 
 void alsaplay_clear_outputs(void) {
   // clear output list
-  num_outputs = 0;
+  alsaplayer_num_outs = 0;
 }
 
 void alsaplay_refresh_outputs(void) {
@@ -180,19 +180,19 @@ void alsaplay_refresh_outputs(void) {
 
       // add to outputs list
 
-      int out_ind = num_outputs++;
+      int out_ind = alsaplayer_num_outs++;
 
-      available_outputs[out_ind].client = client_num;
-      available_outputs[out_ind].port = port_num;
+      alsaplayer_outputs[out_ind].client = client_num;
+      alsaplayer_outputs[out_ind].port = port_num;
 
       // client name only up to 100 chars, so it always fits within a 120 byte buffer
-      sprintf(&available_outputs[out_ind].name, "%.*s (%d:%d)", 100, snd_seq_client_info_get_name(&cinfo), client_num, port_num);
+      sprintf(&alsaplayer_outputs[out_ind].name, "%.*s (%d:%d)", 100, snd_seq_client_info_get_name(&cinfo), client_num, port_num);
     }
   }
 }
 
 void alsaplay_connect_output(int which) {
-  if (which >= num_outputs)
+  if (which >= alsaplayer_num_outs)
   {
     lprintf(LO_WARN, "alsaplay_connect_output: tried to connect to output listing at index out of bounds: %d\n", which);
     return;
@@ -202,7 +202,7 @@ void alsaplay_connect_output(int which) {
 }
 
 const char *alsaplay_get_output_name(int which) {
-  if (which >= num_outputs)
+  if (which >= alsaplayer_num_outs)
   {
     return NULL;
   }
