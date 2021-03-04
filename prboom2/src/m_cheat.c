@@ -215,8 +215,8 @@ cheatseq_t cheat[] = {
   #ifdef HAVE_ALSA
 
   CHEAT("alsnum",     NULL,               always, cheat_alsnum, 0),
-  CHEAT("alsget",     NULL,               always, cheat_alsget, 0),
-  CHEAT("alsuse",     NULL,               always, cheat_alsuse, 0),
+  CHEAT("alsget",     NULL,               always, cheat_alsget, -2),
+  CHEAT("alsuse",     NULL,               always, cheat_alsuse, -2),
 
   #endif // HAVE_ALSA
   // ---
