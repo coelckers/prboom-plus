@@ -60,6 +60,14 @@ static int boom_cheat_route[MAX_COMPATIBILITY_LEVEL];
 //
 //-----------------------------------------------------------------------------
 
+#ifdef HAVE_ALSA
+
+static void cheat_alsnum();
+static void cheat_alsget();
+static void cheat_alsuse();
+
+#endif // HAVE_ALSA
+
 static void cheat_mus();
 static void cheat_choppers();
 static void cheat_god();
@@ -198,11 +206,132 @@ cheatseq_t cheat[] = {
   // Enable/disable shorttics in-game
   CHEAT("tntshort",   NULL,               cht_never, cheat_shorttics, 0),
 
+  // ---
+  // alsaplayercmd - Simple 'cheat' commands for quick control of alsa backend
+
+  // (feel free to remove once a better config interface is in place,
+  //  although this could be kept as a shortcut of sorts, akin to
+  //  TNTCOMP)
+  #ifdef HAVE_ALSA
+
+  CHEAT("ALSNUM",     NULL,               always, cheat_alsnum, 0),
+  CHEAT("ALSGET",     NULL,               always, cheat_alsget, 0),
+  CHEAT("ALSUSE",     NULL,               always, cheat_alsuse, 0),
+
+  #endif // HAVE_ALSA
+  // ---
+
   // end-of-list marker
   {NULL}
 };
 
 //-----------------------------------------------------------------------------
+
+// alsa commands
+#ifdef HAVE_ALSA
+
+static char alsmsg[128];
+
+#define ALSAMESSAGE(str, ...) { sprintf(alsmsg, str, __VA_ARGS__); plyr->message = alsmsg; }
+
+static void cheat_alsnum()
+{
+  // print # of available alsa outputs
+  
+  alsaplay_refresh_outputs();
+
+  if (alsaplayer_num_outs == 0)
+  {
+    plyr->message = "alsnum: no alsa outputs found";
+  }
+
+  else
+  {
+    ALSAMESSAGE("alsnum: %d alsa outputs available", alsaplayer_num_outs);
+  }
+}
+
+static int check_alsanum(const char *where, int alsanum) {
+  if (alsanum >= alsaplayer_num_outs)
+  {
+    ALSAMESSAGE("%s: output #%d does not exist, pick between 1 and %d", where, alsanum + 1, alsaplayer_num_outs);
+
+    return 1;
+  }
+
+  return 0;
+}
+
+static void cheat_alsget(buf)
+char buf[3];
+{
+  int alsaout_num;
+
+  // print name of alsa output
+
+  alsaplay_refresh_outputs();
+
+  alsaout_num = ((buf[0]-'0') * 10 + (buf[1]-'0')) - 1;
+
+  if (check_alsanum("alsget", alsaout_num))
+  {
+    return;
+  }
+
+  const char *name = alsaplay_get_output_name(alsaout_num);
+
+  if (name == NULL)
+  {
+    plyr->message = "cannot get name of alsa output: player not initialized";
+    return;
+  }
+
+  ALSAMESSAGE("alsa output name: %s", name);
+}
+
+static void cheat_alsuse(buf)
+char buf[3];
+{
+  // connect to alsa output
+
+  alsaplay_refresh_outputs();
+
+  int alsaout_num = ((buf[0]-'0') * 10 + (buf[1]-'0')) - 1;
+
+  if (check_alsanum("alsuse", alsaout_num))
+  {
+    return;
+  }
+
+  int status = alsaplay_connect_output(alsaout_num);
+
+  switch (status) {
+    case 0: // success
+
+      break;
+
+    case -1:  // out of bounds, should never happen because we already
+              // check_alsanum above
+      lprintf(LO_WARN, "cheat_alsuse: inconsistent alsa output port listing bounds checking detected\n");
+      plyr->message = "error: inconsistent output port bounds check";
+      break;
+    
+    case -2: // uninitialized
+      plyr->message = "error: alsa player uninitialized or not used";
+      break;
+    
+    case -3: // alsa error
+      ALSAMESSAGE("error: alsa error trying to connect to output: %s", snd_strerror(alsaplayer_err));
+      break;
+
+    default: // unknown error
+      plyr->message = "error: unknown error trying to connect to midi output";
+      break;
+  }
+}
+
+#endif // HAVE_ALSA
+// end of alsa commands
 
 static void cheat_mus(buf)
 char buf[3];
