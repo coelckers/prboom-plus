@@ -340,7 +340,7 @@ static void alsa_shutdown (void)
   alsa_open = 0;
 }
 
-static const void *alsa_registersong (void *const data, unsigned len)
+static const void *alsa_registersong (const void *data, unsigned len)
 {
   midimem_t mf;
 
