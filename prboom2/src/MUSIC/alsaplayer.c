@@ -182,6 +182,11 @@ void alsaplay_refresh_outputs(void) {
 
       // check if port is valid midi output
 
+      if (!(snd_seq_port_info_get_type(pinfo) & SND_SEQ_PORT_TYPE_MIDI_GENERIC))
+      {
+        continue;
+      }
+
       if (snd_seq_port_info_get_capability(pinfo) & OUT_CAPS_DESIRED != OUT_CAPS_DESIRED)
       {
         continue;
@@ -315,6 +320,11 @@ int alsa_midi_default_dest (void)
       int port_num = snd_seq_port_info_get_port(pinfo);
 
       // check if port is valid midi output
+
+      if (!(snd_seq_port_info_get_type(pinfo) & SND_SEQ_PORT_TYPE_MIDI_GENERIC))
+      {
+        continue;
+      }
 
       if (snd_seq_port_info_get_capability(pinfo) & OUT_CAPS_DESIRED != OUT_CAPS_DESIRED)
       {
