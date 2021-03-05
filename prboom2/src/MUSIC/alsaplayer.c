@@ -581,7 +581,7 @@ static void alsa_midi_all_notes_off (void)
   }
 }
 
-static void alsa_midi_init_connect_default_port (void)
+static int alsa_midi_init_connect_default_port (void)
 {
   // load MIDI device specified in config
 
