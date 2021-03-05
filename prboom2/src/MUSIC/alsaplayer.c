@@ -246,7 +246,7 @@ int alsa_midi_default_dest (void)
   if (!seq_handle)
   {
     lprintf(LO_WARN, "alsa_midi_default_dest: Can't list ALSA output ports: seq_handle is not initialized\n");
-    return;
+    return 0;
   }
 
   alsaplay_clear_outputs();
