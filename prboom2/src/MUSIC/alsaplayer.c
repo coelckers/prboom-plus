@@ -235,7 +235,7 @@ int alsa_midi_default_dest (void)
 
   static const char *loopback_check_name = "MIDI THROUGH"; // uppercase for comparison
   static const signed char upper_diff = 'A' - 'a';
-  static const int loopback_check_len = strlen(loopback_check_name);
+  const int loopback_check_len = strlen(loopback_check_name);
 
   snd_seq_client_info_malloc(&cinfo);
   snd_seq_port_info_malloc  (&pinfo);
