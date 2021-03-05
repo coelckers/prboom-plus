@@ -252,7 +252,7 @@ int alsa_midi_default_dest (void)
   alsaplay_clear_outputs();
 
   int loopback_cl = -1, loopback_prt = 0;
-  char *loopback_name;
+  const char *loopback_name;
 
   // clear client info
   snd_seq_client_info_set_client(cinfo, -1);
