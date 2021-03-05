@@ -281,7 +281,9 @@ int alsa_midi_default_dest (void)
     {
       // check for and skip loopback (eg MIDI Through)
 
-      for (int i = 0; i < loopback_check_len; i++)
+      int i;
+
+      for (i = 0; i < loopback_check_len; i++)
       {
         char a = client_name[i];
         a = (a < 'a') || (a > 'z') ? a : a + upper_diff;
