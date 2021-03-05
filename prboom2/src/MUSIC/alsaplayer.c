@@ -92,6 +92,9 @@ static int alsa_looping;
 static int alsa_volume;
 static int alsa_open = 0;
 
+// if set to 0, can auto-connect to default port
+static int alsa_first_connected = 0;
+
 static double spmc;
 static double alsa_delta;
 
@@ -578,7 +581,6 @@ static void alsa_midi_all_notes_off (void)
   }
 }
 
-static int alsa_first_connected = 0;
 static void alsa_midi_init_connect_default_port (void)
 {
   // load MIDI device specified in config
