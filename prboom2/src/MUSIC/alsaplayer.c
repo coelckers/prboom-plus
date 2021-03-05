@@ -199,6 +199,8 @@ void alsaplay_refresh_outputs(void) {
       alsaplayer_outputs[out_ind].client = client_num;
       alsaplayer_outputs[out_ind].port = port_num;
 
+      lprintf(LO_INFO, "alsaplay_refresh_outputs: output #%d: (%d:%d) %s\n", out_ind, client_num, port_num, client_name);
+
       // client name only up to 100 chars, so it always fits within a 120 byte buffer
       sprintf(alsaplayer_outputs[out_ind].name, "%.*s (%d:%d)", 100, snd_seq_client_info_get_name(cinfo), client_num, port_num);
     }
@@ -635,6 +637,8 @@ static int alsa_init (int samplerate)
   }
 
   lprintf (LO_INFO, "alsaplayer: Successfully opened port: %d\n", out_port);
+
+  alsaplay_refresh_outputs(); // make output list and print it out
 
   return 1;
 }
