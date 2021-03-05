@@ -357,14 +357,14 @@ int alsa_midi_default_dest (void)
       goto cleanup;
     }
 
-    lprintf(LO_INFO, "alsa_midi_default_dest: (fallback) connected to default port %i:%i (%s)\n", loopback_cl, loopback_prt, loopback_name)
+    lprintf(LO_INFO, "alsa_midi_default_dest: (fallback) connected to default port %i:%i (%s)\n", loopback_cl, loopback_prt, loopback_name);
 
     code = 1;
     goto cleanup;
   }
 
   // no default port
-  lprintf(LO_WARN, "alsa_midi_default_dest: no default port found\n")
+  lprintf(LO_WARN, "alsa_midi_default_dest: no default port found\n");
 
   code = 0;
 
