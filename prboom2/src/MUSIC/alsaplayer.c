@@ -445,14 +445,25 @@ static int alsa_init (int samplerate)
 
   const char *msg = alsa_midi_open();
 
-  if (msg == NULL) {
-    // success
-    lprintf (LO_INFO, "alsaplayer: Successfully opened port: %d\n", out_port);
-    return 1;
+  if (msg != NULL) {
+    lprintf(LO_WARN, "alsa_init: alsa_midi_open() failed: %s\n", msg);
+    return 0;
   }
 
-  lprintf(LO_WARN, "alsa_init: alsa_midi_open() failed: %s\n", msg);
-  return 0;
+  lprintf (LO_INFO, "alsaplayer: Successfully opened port: %d\n", out_port);
+
+  // load MIDI device specified in config
+
+  if (snd_mididev && strlen(snd_mididev)) {
+    snd_seq_addr_t seqaddr;
+
+    CHK_LPRINT_ERR(snd_seq_parse_address(seq_handle, &seqaddr, snd_mididev),
+      LO_WARN, "alsa_init: Error connecting to configured MIDI output port \"%s\": %s", snd_mididev)
+
+    return alsa_midi_set_dest(seqaddr.client, seqaddr.port) == 0;
+  }
+
+  return 1;
 }
 
 static void alsa_shutdown (void)
