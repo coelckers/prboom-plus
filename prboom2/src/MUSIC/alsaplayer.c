@@ -318,7 +318,7 @@ int alsa_midi_default_dest (void)
         continue;
       }
 
-      if (loopback_cli == client_num)
+      if (loopback_cl == client_num)
       {
         // save as midi through port
 
