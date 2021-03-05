@@ -228,6 +228,151 @@ const char *alsaplay_get_output_name(int which) {
 
 // alsa utility functions
 
+int alsa_midi_default_dest (void)
+{
+  static int status; // alsa error code
+  static int code;   // *our* error code, for control flow
+
+  static const char *loopback_check_name = "MIDI THROUGH"; // uppercase for comparison
+  static const signed char upper_diff = 'A' - 'a';
+  static const int loopback_check_len = strlen(loopback_check_name);
+
+  snd_seq_client_info_malloc(&cinfo);
+  snd_seq_port_info_malloc  (&pinfo);
+
+  // port type and capabilities required from valid MIDI output
+  const int OUT_CAPS_DESIRED = (SND_SEQ_PORT_CAP_SUBS_WRITE);
+
+  if (!seq_handle)
+  {
+    lprintf(LO_WARN, "alsa_midi_default_dest: Can't list ALSA output ports: seq_handle is not initialized\n");
+    return;
+  }
+
+  alsaplay_clear_outputs();
+
+  int loopback_cl = -1, loopback_prt = 0;
+  char *loopback_name;
+
+  // clear client info
+  snd_seq_client_info_set_client(cinfo, -1);
+
+  while (snd_seq_query_next_client(seq_handle, cinfo) == 0)
+  {
+    // list ports of each client
+
+    int client_num = snd_seq_client_info_get_client(cinfo);
+
+    if (client_num == out_id)
+    {
+      // skip self
+      continue;
+    }
+
+    if (!snd_seq_client_info_get_num_ports(cinfo))
+    {
+      // skip clients without ports
+      continue;
+    }
+
+    const char *client_name = snd_seq_client_info_get_name(cinfo);
+
+    if (strlen(client_name) >= loopback_check_len)
+    {
+      // check for and skip loopback (eg MIDI Through)
+
+      for (int i = 0; i < loopback_check_len; i++)
+      {
+        char a = client_name[i];
+        a = (a < 'a') || (a > 'z') ? a : a + upper_diff;
+
+        if (a != loopback_check_name[i])
+        {
+          break;
+        }
+      }
+
+      if (i == loopback_check_len)
+      {
+        loopback_cl = client_num;
+        loopback_name = client_name;
+
+        continue;
+      }
+    }
+
+    // clear port info
+    snd_seq_port_info_set_client(pinfo, client_num);
+    snd_seq_port_info_set_port(pinfo, -1);
+
+    while (snd_seq_query_next_port(seq_handle, pinfo) == 0)
+    {
+      int port_num = snd_seq_port_info_get_port(pinfo);
+
+      // check if port is valid midi output
+
+      if (!(snd_seq_port_info_get_capability(pinfo) & OUT_CAPS_DESIRED))
+      {
+        continue;
+      }
+
+      if (loopback_cli == client_num)
+      {
+        // save as midi through port
+
+        loopback_prt = port_num;
+        break;
+      }
+
+      else
+      {
+        // connect to this port
+
+        if ((status = alsa_midi_set_dest(client_num, port_num)) != 0)
+        {
+          lprintf(LO_WARN, "alsa_midi_default_dest: error connecting to default port %i:%i (%s): %s\n", client_num, port_num, client_name, snd_strerror(status));
+
+          code = 0;
+          goto cleanup;
+        }
+
+        lprintf(LO_INFO, "alsa_midi_default_dest: error connecting to default port %i:%i (%s): %s\n", client_num, port_num, client_name, snd_strerror(status));
+
+        code = 1;
+        goto cleanup;
+      }
+    }
+  }
+
+  // try midi through as last resort fallback
+
+  if (loopback_cl != -1)
+  {
+    if ((status = alsa_midi_set_dest(loopback_cl, loopback_prt)) != 0)
+    {
+      lprintf(LO_WARN, "alsa_midi_default_dest: (fallback) error connecting to default port %i:%i (%s): %s\n", loopback_cl, loopback_prt, loopback_name, snd_strerror(status));
+      code = 0;
+      goto cleanup;
+    }
+
+    lprintf(LO_INFO, "alsa_midi_default_dest: (fallback) connected to default port %i:%i (%s)\n", loopback_cl, loopback_prt, loopback_name)
+
+    code = 1;
+    goto cleanup;
+  }
+
+  // no default port
+  lprintf(LO_WARN, "alsa_midi_default_dest: no default port found\n")
+
+  code = 0;
+
+cleanup:
+  snd_seq_client_info_free(cinfo);
+  snd_seq_port_info_free  (pinfo);
+
+  return code;
+}
+
 static const char *alsa_midi_open (void)
 {
   CHK_RET(snd_seq_open(&seq_handle, "default", SND_SEQ_OPEN_OUTPUT, 0),
@@ -454,13 +599,20 @@ static int alsa_init (int samplerate)
 
   // load MIDI device specified in config
 
-  if (snd_mididev && strlen(snd_mididev)) {
+  if (snd_mididev && strlen(snd_mididev))
+  {
     snd_seq_addr_t seqaddr;
 
     CHK_LPRINT_ERR(snd_seq_parse_address(seq_handle, &seqaddr, snd_mididev),
       LO_WARN, "alsa_init: Error connecting to configured MIDI output port \"%s\": %s", snd_mididev)
 
     return alsa_midi_set_dest(seqaddr.client, seqaddr.port) == 0;
+  }
+
+  else
+  {
+    // connect to default
+    return alsa_midi_default_dest();
   }
 
   return 1;
