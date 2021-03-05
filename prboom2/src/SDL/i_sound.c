@@ -1308,15 +1308,15 @@ char music_player_order[NUM_MUS_PLAYERS][200] =
   PLAYER_DUMB,
   PLAYER_FLUIDSYNTH,
   PLAYER_OPL2,
-  PLAYER_ALSA,
   PLAYER_PORTMIDI,
+  PLAYER_ALSA,
 };
 
 // prefered MIDI device
 const char *snd_midiplayer;
 
 const char *midiplayers[midi_player_last + 1] = {
-  "sdl", "fluidsynth", "opl2", "alsa", "portmidi", NULL};
+  "sdl", "fluidsynth", "opl2", "portmidi", "alsa", NULL};
 
 static int current_player = -1;
 static const void *music_handle = NULL;
