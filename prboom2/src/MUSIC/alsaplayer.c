@@ -187,7 +187,7 @@ void alsaplay_refresh_outputs(void) {
         continue;
       }
 
-      if (snd_seq_port_info_get_capability(pinfo) & OUT_CAPS_DESIRED != OUT_CAPS_DESIRED)
+      if ((snd_seq_port_info_get_capability(pinfo) & OUT_CAPS_DESIRED) != OUT_CAPS_DESIRED)
       {
         continue;
       }
@@ -328,7 +328,7 @@ int alsa_midi_default_dest (void)
         continue;
       }
 
-      if (snd_seq_port_info_get_capability(pinfo) & OUT_CAPS_DESIRED != OUT_CAPS_DESIRED)
+      if ((snd_seq_port_info_get_capability(pinfo) & OUT_CAPS_DESIRED) != OUT_CAPS_DESIRED)
       {
         continue;
       }
