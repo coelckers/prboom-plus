@@ -192,7 +192,7 @@ void alsaplay_refresh_outputs(void) {
       alsaplayer_outputs[out_ind].port = port_num;
 
       // client name only up to 100 chars, so it always fits within a 120 byte buffer
-      sprintf(&alsaplayer_outputs[out_ind].name, "%.*s (%d:%d)", 100, snd_seq_client_info_get_name(cinfo), client_num, port_num);
+      sprintf(alsaplayer_outputs[out_ind].name, "%.*s (%d:%d)", 100, snd_seq_client_info_get_name(cinfo), client_num, port_num);
     }
   }
 
