@@ -785,7 +785,7 @@ static void alsa_play (const void *handle, int looping)
 
   if (status < 0)
   {
-    lprintf(LO_WARN, "alsa_play: error getting sched queue timer: %s", snd_strerror(status));
+    lprintf(LO_WARN, "alsa_play: error getting sched queue timer: %s\n", snd_strerror(status));
 
     snd_seq_queue_timer_free(timer);
     goto finish;
@@ -797,7 +797,7 @@ static void alsa_play (const void *handle, int looping)
 
   if (status < 0)
   {
-    lprintf(LO_WARN, "alsa_play: error setting sched queue timer with new resolution: %s", snd_strerror(status));
+    lprintf(LO_WARN, "alsa_play: error setting sched queue timer with new resolution: %s\n", snd_strerror(status));
 
     snd_seq_queue_timer_free(timer);
     goto finish;
