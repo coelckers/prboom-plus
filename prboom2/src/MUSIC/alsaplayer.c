@@ -420,6 +420,7 @@ int alsa_midi_set_dest (int client, int port)
   CHK_LPRINT_ERR_RET(snd_seq_connect_to(seq_handle, out_port, client, port), -3,
     LO_WARN, "alsa_midi_set_dest: error connecting to (%d:%d): %s", last_client, last_port);
 
+  alsa_first_connected = 1;
   return 0;
 }
 
@@ -577,6 +578,28 @@ static void alsa_midi_all_notes_off (void)
   }
 }
 
+static int alsa_first_connected = 0;
+static void alsa_midi_init_connect_default_port (void)
+{
+  // load MIDI device specified in config
+
+  if (snd_mididev && strlen(snd_mididev))
+  {
+    snd_seq_addr_t seqaddr;
+
+    CHK_LPRINT_ERR(snd_seq_parse_address(seq_handle, &seqaddr, snd_mididev),
+      LO_WARN, "alsa_init: Error connecting to configured MIDI output port \"%s\": %s", snd_mididev)
+
+    return alsa_midi_set_dest(seqaddr.client, seqaddr.port) == 0;
+  }
+
+  else
+  {
+    // connect to default
+    return alsa_midi_default_dest();
+  }
+}
+
 ////////////////////
 
 // alsa player callbacks
@@ -598,24 +621,6 @@ static int alsa_init (int samplerate)
   }
 
   lprintf (LO_INFO, "alsaplayer: Successfully opened port: %d\n", out_port);
-
-  // load MIDI device specified in config
-
-  if (snd_mididev && strlen(snd_mididev))
-  {
-    snd_seq_addr_t seqaddr;
-
-    CHK_LPRINT_ERR(snd_seq_parse_address(seq_handle, &seqaddr, snd_mididev),
-      LO_WARN, "alsa_init: Error connecting to configured MIDI output port \"%s\": %s", snd_mididev)
-
-    return alsa_midi_set_dest(seqaddr.client, seqaddr.port) == 0;
-  }
-
-  else
-  {
-    // connect to default
-    return alsa_midi_default_dest();
-  }
 
   return 1;
 }
@@ -766,6 +771,13 @@ static void alsa_resume (void)
 static void alsa_play (const void *handle, int looping)
 {
   // reinit queue
+
+  if (!alsa_first_connected)
+  {
+    // connect to default port if haven't connected at least once yet
+    alsa_midi_init_connect_default_port();
+  }
+
   if (out_queue) {
     snd_seq_free_queue(seq_handle, out_queue);
     snd_seq_queue_status_free(queue_status);
