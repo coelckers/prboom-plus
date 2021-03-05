@@ -407,6 +407,12 @@ int alsa_midi_set_dest (int client, int port)
 {
   static int last_client = -1, last_port = 0;
 
+  if (!seq_handle) {
+    return -2;
+  }
+
+  // disconnect if previously connected
+
   if (last_client != 0) {
     snd_seq_disconnect_to(seq_handle, out_port, last_client, last_port);
 
@@ -415,10 +421,6 @@ int alsa_midi_set_dest (int client, int port)
   }
 
   // connects to a destination alsa-midi client and port
-
-  if (!seq_handle) {
-    return -2;
-  }
 
   CHK_LPRINT_ERR_RET(snd_seq_connect_to(seq_handle, out_port, client, port), -3,
     LO_WARN, "alsa_midi_set_dest: error connecting to (%d:%d): %s", last_client, last_port);
