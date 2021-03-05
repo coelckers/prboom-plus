@@ -803,6 +803,8 @@ static void alsa_play (const void *handle, int looping)
     goto finish;
   }
 
+  lprintf(LO_INFO, "alsa_play: success\n");
+
   snd_seq_queue_timer_free(timer);
 
 finish:
