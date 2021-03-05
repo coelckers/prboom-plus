@@ -338,7 +338,7 @@ int alsa_midi_default_dest (void)
           goto cleanup;
         }
 
-        lprintf(LO_INFO, "alsa_midi_default_dest: error connecting to default port %i:%i (%s): %s\n", client_num, port_num, client_name, snd_strerror(status));
+        lprintf(LO_INFO, "alsa_midi_default_dest: connected to default port %i:%i (%s)\n", client_num, port_num, client_name);
 
         code = 1;
         goto cleanup;
