@@ -330,9 +330,9 @@ int alsa_midi_default_dest (void)
       {
         // connect to this port
 
-        if ((status = alsa_midi_set_dest(client_num, port_num)) != 0)
+        if (alsa_midi_set_dest(client_num, port_num) != 0)
         {
-          lprintf(LO_WARN, "alsa_midi_default_dest: error connecting to default port %i:%i (%s): %s\n", client_num, port_num, client_name, snd_strerror(status));
+          lprintf(LO_WARN, "alsa_midi_default_dest: error connecting to default port %i:%i (%s): %s\n", client_num, port_num, client_name, snd_strerror(alsaplayer_err));
 
           code = 0;
           goto cleanup;
