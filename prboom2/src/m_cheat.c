@@ -46,8 +46,6 @@
 #include "d_deh.h"  // Ty 03/27/98 - externalized strings
 /* cph 2006/07/23 - needs direct access to thinkercap */
 #include "p_tick.h"
-#include "e6y.h" // G_GotoNextLevel()
-#include "w_wad.h" // W_GetLumpInfoByNum()
 
 #define plyr (players+consoleplayer)     /* the console player */
 
@@ -60,14 +58,6 @@ static int boom_cheat_route[MAX_COMPATIBILITY_LEVEL];
 //
 //-----------------------------------------------------------------------------
 
-#ifdef HAVE_ALSA
-
-static void cheat_alsnum();
-static void cheat_alsget();
-static void cheat_alsuse();
-
-#endif // HAVE_ALSA
-
 static void cheat_mus();
 static void cheat_choppers();
 static void cheat_god();
@@ -78,7 +68,6 @@ static void cheat_noclip();
 static void cheat_pw();
 static void cheat_behold();
 static void cheat_clev();
-static void cheat_clev0();
 static void cheat_mypos();
 static void cheat_rate();
 static void cheat_comp();
@@ -144,7 +133,6 @@ cheatseq_t cheat[] = {
   CHEAT("idbeholdl",  "Lite-Amp Goggles", not_dm, cheat_pw, pw_infrared),
   CHEAT("idbehold",   "BEHOLD menu",      not_dm, cheat_behold, 0),
   CHEAT("idclev",     "Level Warp",       cht_never | not_menu, cheat_clev, -2),
-  CHEAT("idclev",     "Level Warp",       cht_never | not_menu, cheat_clev0, 0),
   CHEAT("idmypos",    "Player Position",  not_dm, cheat_mypos, 0),
   CHEAT("idrate",     "Frame rate",       always, cheat_rate, 0),
   // phares
@@ -206,153 +194,11 @@ cheatseq_t cheat[] = {
   // Enable/disable shorttics in-game
   CHEAT("tntshort",   NULL,               cht_never, cheat_shorttics, 0),
 
-  // ---
-  // alsaplayercmd - Simple 'cheat' commands for quick control of alsa backend
-
-  // (feel free to remove once a better config interface is in place,
-  //  although this could be kept as a shortcut of sorts, akin to
-  //  TNTCOMP)
-  #ifdef HAVE_ALSA
-
-  CHEAT("alsnum",     NULL,               always, cheat_alsnum, 0),
-  CHEAT("alsget",     NULL,               always, cheat_alsget, -2),
-  CHEAT("alsuse",     NULL,               always, cheat_alsuse, -2),
-
-  #endif // HAVE_ALSA
-  // ---
-
   // end-of-list marker
   {NULL}
 };
 
 //-----------------------------------------------------------------------------
-
-// alsa commands
-#ifdef HAVE_ALSA
-
-#include "MUSIC/alsaplayer.h"
-#include "lprintf.h"
-
-
-static char alsmsg[128];
-
-#define ALSAMESSAGE(str, ...) { sprintf(alsmsg, str, __VA_ARGS__); plyr->message = alsmsg; }
-
-static void cheat_alsnum()
-{
-  // print # of available alsa outputs
-  
-  alsaplay_refresh_outputs();
-
-  if (alsaplayer_num_outs == 0)
-  {
-    plyr->message = "alsnum: no alsa outputs found";
-  }
-
-  else
-  {
-    ALSAMESSAGE("alsnum: %d alsa outputs available", alsaplayer_num_outs);
-  }
-}
-
-static int check_alsanum(const char *where, int alsanum) {
-  if (alsanum < 0)
-  {
-    ALSAMESSAGE("%s: outputs begin at 1; pick between 1 and %d", where, alsaplayer_num_outs);
-
-    return 1;
-  }
-
-  if (alsanum >= alsaplayer_num_outs)
-  {
-    ALSAMESSAGE("%s: output #%d does not exist, pick between 1 and %d", where, alsanum + 1, alsaplayer_num_outs);
-
-    return 1;
-  }
-
-  return 0;
-}
-
-static void cheat_alsget(buf)
-char buf[3];
-{
-  int alsaout_num;
-
-  // print name of alsa output
-
-  alsaplay_refresh_outputs();
-
-  alsaout_num = ((buf[0]-'0') * 10 + (buf[1]-'0')) - 1;
-
-  if (check_alsanum("alsget", alsaout_num))
-  {
-    return;
-  }
-
-  const char *name = alsaplay_get_output_name(alsaout_num);
-
-  if (name == NULL)
-  {
-    plyr->message = "cannot get name of alsa output: player not initialized";
-    return;
-  }
-
-  ALSAMESSAGE("alsa output name: %s", name);
-}
-
-static void cheat_alsuse(buf)
-char buf[3];
-{
-  // connect to alsa output
-
-  alsaplay_refresh_outputs();
-
-  int alsaout_num = ((buf[0]-'0') * 10 + (buf[1]-'0')) - 1;
-
-  if (check_alsanum("alsuse", alsaout_num))
-  {
-    return;
-  }
-
-  const char *name = alsaplay_get_output_name(alsaout_num);
-  int status = alsaplay_connect_output(alsaout_num);
-
-  switch (status) {
-    case 0: // success
-      if (name == NULL)
-      {
-        ALSAMESSAGE("alsa connected to out #%d", alsaout_num);
-      }
-
-      else
-      {
-        ALSAMESSAGE("alsa connected to out #%d: %s", alsaout_num, name);
-      }
-
-      break;
-
-    case -1:  // out of bounds, should never happen because we already
-              // check_alsanum above
-      lprintf(LO_WARN, "cheat_alsuse: inconsistent alsa output port listing bounds checking detected\n");
-      plyr->message = "error: inconsistent output port bounds check";
-      break;
-    
-    case -2: // uninitialized
-      plyr->message = "error: alsa player uninitialized or not used";
-      break;
-    
-    case -3: // alsa error
-      ALSAMESSAGE("error: alsa error trying to connect to output: %s", snd_strerror(alsaplayer_err));
-      break;
-
-    default: // unknown error
-      plyr->message = "error: unknown error trying to connect to midi output";
-      break;
-  }
-}
-
-#endif // HAVE_ALSA
-// end of alsa commands
 
 static void cheat_mus(buf)
 char buf[3];
@@ -534,25 +380,6 @@ extern int EpiCustom;
 struct MapEntry* G_LookupMapinfo(int gameepisode, int gamemap);
 
 // 'clev' change-level cheat
-static void cheat_clev0()
-{
-  char next[9];
-  int epsd, map;
-
-  G_GotoNextLevel(&epsd, &map);
-
-  if (gamemode == commercial)
-  {
-    snprintf(next, 9, "MAP%02d", map);
-  }
-  else
-  {
-    snprintf(next, 9, "E%dM%d", epsd, map);
-  }
-
-  doom_printf("Current: %s, Next: %s",  W_GetLumpInfoByNum(maplumpnum)->name, next);
-}
-
 static void cheat_clev(char buf[3])
 {
   int epsd, map;
@@ -1059,9 +886,9 @@ static void cheat_shorttics()
 {
   shorttics = !shorttics;
   if (shorttics) {
+    doom_printf("Shorttics enabled");
     angle_t angle = plyr->mo->angle;
     plyr->mo->angle = (angle >> 24) << 24;
-    doom_printf("Shorttics enabled");
   } else {
     doom_printf("Shorttics disabled");
   }
