@@ -1648,29 +1648,29 @@ void M_ChangeMIDIPlayer(void)
     {
       strcpy(music_player_order[3], PLAYER_FLUIDSYNTH);
       strcpy(music_player_order[4], PLAYER_OPL2);
-      strcpy(music_player_order[5], PLAYER_ALSA);
       strcpy(music_player_order[6], PLAYER_PORTMIDI);
+      strcpy(music_player_order[5], PLAYER_ALSA);
     }
     else if (!strcasecmp(snd_midiplayer, midiplayers[midi_player_opl2]))
     {
       strcpy(music_player_order[3], PLAYER_OPL2);
+      strcpy(music_player_order[6], PLAYER_PORTMIDI);
       strcpy(music_player_order[4], PLAYER_ALSA);
       strcpy(music_player_order[5], PLAYER_FLUIDSYNTH);
-      strcpy(music_player_order[6], PLAYER_PORTMIDI);
     }
     else if (!strcasecmp(snd_midiplayer, midiplayers[midi_player_alsa]))
     {
       strcpy(music_player_order[3], PLAYER_ALSA);
-      strcpy(music_player_order[4], PLAYER_PORTMIDI);
       strcpy(music_player_order[5], PLAYER_FLUIDSYNTH);
       strcpy(music_player_order[6], PLAYER_OPL2);
+      strcpy(music_player_order[4], PLAYER_PORTMIDI);
     }
     else if (!strcasecmp(snd_midiplayer, midiplayers[midi_player_portmidi]))
     {
       strcpy(music_player_order[3], PLAYER_PORTMIDI);
+      strcpy(music_player_order[6], PLAYER_ALSA);
       strcpy(music_player_order[4], PLAYER_FLUIDSYNTH);
       strcpy(music_player_order[5], PLAYER_OPL2);
-      strcpy(music_player_order[6], PLAYER_ALSA);
     }
   }
 
