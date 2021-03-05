@@ -141,7 +141,7 @@ void alsaplay_refresh_outputs(void) {
   snd_seq_port_info_malloc  (&pinfo);
 
   // port type and capabilities required from valid MIDI output
-  const int OUT_CAPS_DESIRED = (SND_SEQ_PORT_CAP_SUBS_WRITE);
+  const int OUT_CAPS_DESIRED = (SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE);
 
   if (!seq_handle)
   {
@@ -182,7 +182,7 @@ void alsaplay_refresh_outputs(void) {
 
       // check if port is valid midi output
 
-      if (!(snd_seq_port_info_get_capability(pinfo) & OUT_CAPS_DESIRED))
+      if (snd_seq_port_info_get_capability(pinfo) & OUT_CAPS_DESIRED != OUT_CAPS_DESIRED)
       {
         continue;
       }
@@ -244,7 +244,7 @@ int alsa_midi_default_dest (void)
   snd_seq_port_info_malloc  (&pinfo);
 
   // port type and capabilities required from valid MIDI output
-  const int OUT_CAPS_DESIRED = (SND_SEQ_PORT_CAP_SUBS_WRITE);
+  const int OUT_CAPS_DESIRED = (SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE);
 
   if (!seq_handle)
   {
@@ -316,7 +316,7 @@ int alsa_midi_default_dest (void)
 
       // check if port is valid midi output
 
-      if (!(snd_seq_port_info_get_capability(pinfo) & OUT_CAPS_DESIRED))
+      if (snd_seq_port_info_get_capability(pinfo) & OUT_CAPS_DESIRED != OUT_CAPS_DESIRED)
       {
         continue;
       }
