@@ -802,6 +802,38 @@ static void alsa_play (const void *handle, int looping)
   
   snd_seq_queue_status_malloc(&queue_status);
 
+  // set queue resolution
+  snd_seq_queue_timer_t *timer;
+
+  snd_seq_queue_timer_malloc(&timer);
+
+  int status = snd_seq_get_queue_timer(seq_handle, out_queue, timer);
+
+  if (status < 0)
+  {
+    lprintf(LO_WARN, "alsa_play: error getting sched queue timer: %s\n", snd_strerror(status));
+
+    snd_seq_queue_timer_free(timer);
+    goto finish;
+  }
+
+  snd_seq_queue_timer_set_resolution(timer, 1000000 / 32); // 1000000 ns = 1 ms, so this is 1/32 ms
+
+  status = snd_seq_set_queue_timer(seq_handle, out_queue, timer);
+
+  if (status < 0)
+  {
+    lprintf(LO_WARN, "alsa_play: error setting sched queue timer with new resolution: %s\n", snd_strerror(status));
+
+    snd_seq_queue_timer_free(timer);
+    goto finish;
+  }
+
+  lprintf(LO_INFO, "alsa_play: success\n");
+
+  snd_seq_queue_timer_free(timer);
+
+finish:
   // initialize state stuff
   eventpos = 0;
   alsa_looping = looping;
