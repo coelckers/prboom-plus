@@ -496,7 +496,13 @@ static void alsa_midi_evt_start (unsigned long when)
 
   // schedule
   if (when != 0) {
-    snd_seq_ev_schedule_tick(&seq_ev, out_queue, 0, when / spmc / 4 /* 4 because quarter note */);
+    snd_seq_real_time_t rtime;
+
+    // ms into (s,ns)
+    rtime.tv_sec = when / 1000;
+    rtime.tv_nsec = (when % 1000) * 1000000;
+
+    snd_seq_ev_schedule_real(&seq_ev, out_queue, 0, &rtime);
   }
 
   else {
