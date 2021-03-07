@@ -823,7 +823,7 @@ static void alsa_play (const void *handle, int looping)
     goto finish;
   }
 
-  snd_seq_queue_timer_set_resolution(timer, 500000); // 1000000 ns = 1 ms, so 0.5 ms
+  snd_seq_queue_timer_set_resolution(timer, 100000); // 1000000 ns = 1 ms, so this is 0.1 ms
 
   status = snd_seq_set_queue_timer(seq_handle, out_queue, timer);
 
