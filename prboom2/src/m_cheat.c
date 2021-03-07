@@ -423,19 +423,8 @@ static void cheat_clev(char buf[3])
   entry = G_LookupMapinfo(epsd, map);
   if (!entry)
   {
+	  char name[9];
 
-	  // Catch invalid maps.
-	  if (epsd < 1 || map < 1 ||   // Ohmygod - this is not going to work.
-		  //e6y: The fourth episode for pre-ultimate complevels is not allowed.
-		  (compatibility_level < ultdoom_compatibility && (epsd > 3)) ||
-		  (gamemode == retail && (epsd > 4 || map > 9)) ||
-		  (gamemode == registered && (epsd > 3 || map > 9)) ||
-		  (gamemode == shareware && (epsd > 1 || map > 9)) ||
-		  (gamemode == commercial && (epsd > 1 || map > 33)))  //jff no 33 and 34
-		  return;                                                  //8/14/98 allowed
-
-	  if (!bfgedition && map == 33)
-		  return;
 	  if (gamemission == pack_nerve && map > 9)
 		  return;
 
@@ -444,6 +433,15 @@ static void cheat_clev(char buf[3])
 	  {
 		  epsd = 1;
 	  }
+
+	  if (gamemode == commercial)
+		  sprintf(name, "map%02d", map);
+	  else
+		  sprintf(name, "E%dM%d", epsd, map);
+
+	  // Catch invalid maps.
+	  if (W_CheckNumForName(name) == -1)
+		  return;
   }
   // So be it.
 
