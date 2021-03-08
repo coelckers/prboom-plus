@@ -233,6 +233,14 @@ void S_Start(void)
   memset(&musinfo, 0, sizeof(musinfo));
   musinfo.items[0] = -1;
 
+  // prevent music number under- and overflows
+  if (mnum <= mus_None || (gamemode == commercial && mnum <  mus_runnin) ||
+      mnum >= NUMMUSIC || (gamemode != commercial && mnum >= mus_runnin))
+  {
+    S_StopMusic();
+    return;
+  }
+
   S_ChangeMusic(mnum, true);
 }
 
