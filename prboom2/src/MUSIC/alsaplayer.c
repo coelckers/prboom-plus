@@ -701,11 +701,6 @@ portmidi has no overall volume control.  we have two options:
 2. monitor the controller volume events and tweak them to serve our purpose
 */
 
-#ifdef _WIN32
-extern int mus_extend_volume; // from e6y.h
-void I_midiOutSetVolumes (int volume); // from e6y.h
-#endif
-
 static int channelvol[16];
 
 static void alsa_setchvolume (int ch, int v, unsigned long when)
@@ -741,19 +736,8 @@ static void alsa_setvolume (int v)
   firsttime = 0;
 
   alsa_volume = v;
-  
-  // this is a bit of a hack
-  // fix: add non-win32 version
-  // fix: change win32 version to only modify the device we're using?
-  // (portmidi could know what device it's using, but the numbers
-  //  don't match up with the winapi numbers...)
 
-  #ifdef _WIN32
-  if (mus_extend_volume)
-    I_midiOutSetVolumes (alsa_volume);
-  else
-  #endif
-    alsa_refreshvolume ();
+  alsa_refreshvolume ();
 }
 
 
@@ -986,13 +970,8 @@ static void alsa_render (void *vdest, unsigned bufflen)
       case MIDI_EVENT_CONTROLLER:
         if (currevent->data.channel.param1 == 7)
         { // volume event
-          #ifdef _WIN32
-          if (!mus_extend_volume)
-          #endif
-          {
-            alsa_setchvolume (currevent->data.channel.channel, currevent->data.channel.param2, when);
-            break;
-          }
+          alsa_setchvolume (currevent->data.channel.channel, currevent->data.channel.param2, when);
+          break;
         } // fall through
       default:
         alsa_midi_write_event (when, currevent->event_type, currevent->data.channel.channel, currevent->data.channel.param1, currevent->data.channel.param2);
