@@ -5,8 +5,7 @@
  *  PrBoom: a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *
- *  Copyright (C) 2011 by
- *  Nicholai Main
+ *  Copyright (C) 2021 by Gustavo Rehermann
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
