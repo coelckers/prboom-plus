@@ -101,13 +101,6 @@ static double alsa_delta;
 
 static unsigned long trackstart;
 
-// latency: we're generally writing timestamps slightly in the past (from when the last time
-// render was called to this time.  portmidi latency instruction must be larger than that window
-// so the messages appear in the future.  ~46-47ms is the nominal length if i_sound.c gets its way
-#define DRIVER_LATENCY 80 // ms
-// driver event buffer needs to be big enough to hold however many events occur in latency time
-#define DRIVER_BUFFER 100 // events
-
 static snd_seq_t *seq_handle = NULL;
 snd_seq_event_t seq_ev;
 static int out_id;
