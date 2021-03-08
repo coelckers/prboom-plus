@@ -696,12 +696,6 @@ static const void *alsa_registersong (const void *data, unsigned len)
   return data;
 }
 
-/*
-portmidi has no overall volume control.  we have two options:
-1. use a win32-specific hack (only if mus_extend_volume is set)
-2. monitor the controller volume events and tweak them to serve our purpose
-*/
-
 static int channelvol[16];
 
 static void alsa_setchvolume (int ch, int v, unsigned long when)
@@ -848,7 +842,7 @@ static void alsa_midi_writesysex (unsigned long when, int etype, unsigned char *
   // until it hits an 0xf7 terminator)
   if (len + sysexbufflen > SYSEX_BUFF_SIZE)
   {
-    lprintf (LO_WARN, "portmidiplayer: ignoring large or malformed sysex message\n");
+    lprintf (LO_WARN, "alsaplayer: ignoring large or malformed sysex message\n");
     sysexbufflen = 0;
     return;
   }
