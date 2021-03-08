@@ -386,19 +386,11 @@ struct MapEntry* G_LookupMapinfo(int gameepisode, int gamemap);
 // 'clev' change-level cheat
 static void cheat_clev0()
 {
-  char next[9];
+  char *next;
   int epsd, map;
 
   G_GotoNextLevel(&epsd, &map);
-
-  if (gamemode == commercial)
-  {
-    snprintf(next, 9, "MAP%02d", map);
-  }
-  else
-  {
-    snprintf(next, 9, "E%dM%d", epsd, map);
-  }
+  next = MAPNAME(epsd, map);
 
   doom_printf("Current: %s, Next: %s",  W_GetLumpInfoByNum(maplumpnum)->name, next);
 }
@@ -423,7 +415,7 @@ static void cheat_clev(char buf[3])
   entry = G_LookupMapinfo(epsd, map);
   if (!entry)
   {
-	  char name[9];
+	  char *name;
 
 	  if (gamemission == pack_nerve && map > 9)
 		  return;
@@ -434,10 +426,7 @@ static void cheat_clev(char buf[3])
 		  epsd = 1;
 	  }
 
-	  if (gamemode == commercial)
-		  sprintf(name, "map%02d", map);
-	  else
-		  sprintf(name, "E%dM%d", epsd, map);
+	  name = MAPNAME(epsd, map);
 
 	  // Catch invalid maps.
 	  if (W_CheckNumForName(name) == -1)
