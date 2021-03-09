@@ -418,7 +418,7 @@ static void WI_slamBackground(void)
 
   if (state != StatCount && enterpic) strcpy(name, enterpic);
   else if (exitpic) strcpy(name, exitpic);
-  else if (gamemode == commercial || (gamemode == retail && wbs->epsd == 3))
+  else if (gamemode == commercial || (gamemode == retail && wbs->epsd >= 3))
     strcpy(name, "INTERPIC");
   else
     sprintf(name, "WIMAP%d", wbs->epsd);
