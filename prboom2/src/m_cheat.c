@@ -413,6 +413,8 @@ static void cheat_clev(char buf[3])
   entry = G_LookupMapinfo(epsd, map);
   if (!entry)
   {
+	  char *next;
+
 	  if (gamemission == pack_nerve && map > 9)
 		  return;
 
@@ -423,8 +425,12 @@ static void cheat_clev(char buf[3])
 	  }
 
 	  // Catch invalid maps.
-	  if (W_CheckNumForName(MAPNAME(epsd, map)) == -1)
+	  next = MAPNAME(epsd, map);
+	  if (W_CheckNumForName(next) == -1)
+	  {
+		  doom_printf("IDCLEV target not found: %s", next);
 		  return;
+	  }
   }
   // So be it.
 
