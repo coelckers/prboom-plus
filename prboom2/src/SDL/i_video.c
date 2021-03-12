@@ -1429,8 +1429,8 @@ static void I_ReadMouse(void)
     {
       event.type = ev_mouse;
       event.data1 = I_SDLtoDoomMouseState(sdl_mouse_state);
-      event.data2 = x << 1;
-      event.data3 = -y << 1;
+      event.data2 = x << 4;
+      event.data3 = -y << 4;
 
       D_PostEvent(&event);
     }
