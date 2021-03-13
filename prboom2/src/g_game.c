@@ -1028,7 +1028,7 @@ dboolean G_Responder (event_t* ev)
         gamekeydown[ev->data1] = false;
       return false;   // always let key up events filter down
 
-    case ev_mousemotion:
+    case ev_mouse:
       SetMouseButtons(ev->data1);
       /*
        * bmead@surfree.com

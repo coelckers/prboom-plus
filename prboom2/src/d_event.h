@@ -49,7 +49,6 @@ typedef enum
   ev_keydown,
   ev_keyup,
   ev_mouse,
-  ev_mousemotion,
   ev_joystick
 } evtype_t;
 
