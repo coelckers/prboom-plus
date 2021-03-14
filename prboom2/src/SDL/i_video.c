@@ -1426,7 +1426,7 @@ static void I_ReadMouse(void)
     if (x != 0 || y != 0)
     {
       event_t event;
-      event.type = ev_mouse;
+      event.type = ev_mousemotion;
       event.data1 = 0;
       event.data2 = x << 4;
       event.data3 = -y << 4;
