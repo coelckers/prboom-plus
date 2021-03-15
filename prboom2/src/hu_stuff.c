@@ -334,6 +334,11 @@ void HU_Init(void)
       R_SetPatchNum(&hu_font2[i], "DIG45");
       R_SetPatchNum(&hu_font[i], "STCFN045");
     }
+    else if (j=='.')
+    {
+      R_SetPatchNum(&hu_font2[i], "DIG46");
+      R_SetPatchNum(&hu_font[i], "STCFN046");
+    }
     else if (j=='/')
     {
       R_SetPatchNum(&hu_font2[i], "DIG47");
