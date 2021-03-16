@@ -1067,6 +1067,7 @@ void HU_widget_draw_ammo_icon(void);
 void HU_widget_build_gkeys(void);
 void HU_widget_draw_gkeys(void);
 
+// [FG] draw Time/STS widgets above status bar
 static inline dboolean drawTimeSTSwidgets (void)
 {
   return hudadd_timests &&
@@ -1226,6 +1227,7 @@ void HU_MoveHud(int force)
 {
   static int ohud_num = -1;
 
+  // [FG] draw Time/STS widgets above status bar
   if (viewheight < SCREENHEIGHT)
   {
     if (force || ohud_num != -2)
@@ -2547,6 +2549,7 @@ void HU_Drawer(void)
     }
 
   }
+  // [FG] draw Time/STS widgets above status bar
   else if (drawTimeSTSwidgets())
   {
     HU_MoveHud(false);
