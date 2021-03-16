@@ -1067,7 +1067,7 @@ void HU_widget_draw_ammo_icon(void);
 void HU_widget_build_gkeys(void);
 void HU_widget_draw_gkeys(void);
 
-static dboolean HU_DrawTimeSTSWidget (void)
+static inline dboolean drawTimeSTSwidgets (void)
 {
   return hudadd_timests &&
     viewheight < SCREENHEIGHT &&
@@ -2388,7 +2388,7 @@ void HU_Drawer(void)
   // draw the automap widgets if automap is displayed
   if (automapmode & am_active)
   {
-    if ((!(automapmode & am_overlay) || (viewheight != SCREENHEIGHT)) && !HU_DrawTimeSTSWidget())
+    if ((!(automapmode & am_overlay) || (viewheight != SCREENHEIGHT)) && !drawTimeSTSwidgets())
     {
       // map title
       HUlib_drawTextLine(&w_title, false);
@@ -2547,7 +2547,7 @@ void HU_Drawer(void)
     }
 
   }
-  else if (HU_DrawTimeSTSWidget())
+  else if (drawTimeSTSwidgets())
   {
     HU_MoveHud(false);
 
