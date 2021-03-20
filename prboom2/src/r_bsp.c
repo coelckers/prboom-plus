@@ -706,7 +706,7 @@ static void R_Subsector(int num)
 
                 // if the sector has bottomtextures, then the floorheight will be set to the
                 // highest surounding floorheight
-                if ((frontsector->flags & NO_BOTTOMTEXTURES) || (!ceilingplane))
+                if (frontsector->floorheight >= viewz && ((frontsector->flags & NO_BOTTOMTEXTURES) || (!ceilingplane)))
                 {
                     tmpsec = GetBestFake(frontsector, 1, validcount);
 
@@ -720,7 +720,7 @@ static void R_Subsector(int num)
                 }
 
                 // the same for ceilings. they will be set to the lowest ceilingheight
-                if ((frontsector->flags & NO_TOPTEXTURES) || (!floorplane))
+                if (frontsector->ceilingheight <= viewz && ((frontsector->flags & NO_TOPTEXTURES) || (!floorplane)))
                 {
                     tmpsec = GetBestFake(frontsector, 0, validcount);
 
