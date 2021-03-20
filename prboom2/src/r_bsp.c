@@ -664,39 +664,76 @@ static void R_Subsector(int num)
     if (V_GetMode() == VID_MODEGL)
     {
       // check if the sector is faked
-      if (!gl_use_stencil && frontsector == sub->sector)
-      {
-        sector_t *tmpsec;
 
-        // if the sector has bottomtextures, then the floorheight will be set to the
-        // highest surounding floorheight
-        if ((frontsector->flags & NO_BOTTOMTEXTURES) || (!floorplane))
+        if(frontsector == sub->sector)
         {
-          tmpsec = GetBestFake(frontsector, 0, validcount);
+            if (!gl_use_stencil)
+            {
+                sector_t *tmpsec;
 
-          if (tmpsec && frontsector->floorheight != tmpsec->floorheight)
-          {
-            dummyfloorplane.height = tmpsec->floorheight;
-            dummyfloorplane.lightlevel = tmpsec->lightlevel;
-            dummyfloorplane.picnum = tmpsec->floorpic;
-            floorplane = &dummyfloorplane;
-          }
+                // if the sector has bottomtextures, then the floorheight will be set to the
+                // highest surounding floorheight
+                if ((frontsector->flags & NO_BOTTOMTEXTURES) || (!floorplane))
+                {
+                    tmpsec = GetBestFake(frontsector, 0, validcount);
+
+                    if (tmpsec && frontsector->floorheight != tmpsec->floorheight)
+                    {
+                        dummyfloorplane.height = tmpsec->floorheight;
+                        dummyfloorplane.lightlevel = tmpsec->lightlevel;
+                        dummyfloorplane.picnum = tmpsec->floorpic;
+                        floorplane = &dummyfloorplane;
+                    }
+                }
+
+                // the same for ceilings. they will be set to the lowest ceilingheight
+                if ((frontsector->flags & NO_TOPTEXTURES) || (!ceilingplane))
+                {
+                    tmpsec = GetBestFake(frontsector, 1, validcount);
+
+                    if (tmpsec && frontsector->ceilingheight != tmpsec->ceilingheight)
+                    {
+                        dummyceilingplane.height = tmpsec->ceilingheight;
+                        dummyceilingplane.lightlevel = tmpsec->lightlevel;
+                        dummyceilingplane.picnum = tmpsec->ceilingpic;
+                        ceilingplane = &dummyceilingplane;
+                    }
+                }
+            }
+            else
+            {
+                sector_t *tmpsec;
+
+                // if the sector has bottomtextures, then the floorheight will be set to the
+                // highest surounding floorheight
+                if ((frontsector->flags & NO_BOTTOMTEXTURES) || (!ceilingplane))
+                {
+                    tmpsec = GetBestFake(frontsector, 1, validcount);
+
+                    if (tmpsec && frontsector->floorheight != tmpsec->floorheight)
+                    {
+                        dummyfloorplane.height = tmpsec->floorheight;
+                        dummyfloorplane.lightlevel = tmpsec->lightlevel;
+                        dummyfloorplane.picnum = tmpsec->floorpic;
+                        floorplane = &dummyfloorplane;
+                    }
+                }
+
+                // the same for ceilings. they will be set to the lowest ceilingheight
+                if ((frontsector->flags & NO_TOPTEXTURES) || (!floorplane))
+                {
+                    tmpsec = GetBestFake(frontsector, 0, validcount);
+
+                    if (tmpsec && frontsector->ceilingheight != tmpsec->ceilingheight)
+                    {
+                        dummyceilingplane.height = tmpsec->ceilingheight;
+                        dummyceilingplane.lightlevel = tmpsec->lightlevel;
+                        dummyceilingplane.picnum = tmpsec->ceilingpic;
+                        ceilingplane = &dummyceilingplane;
+                    }
+                }
+            }
         }
-
-        // the same for ceilings. they will be set to the lowest ceilingheight
-        if ((frontsector->flags & NO_TOPTEXTURES) || (!ceilingplane))
-        {
-          tmpsec = GetBestFake(frontsector, 1, validcount);
-
-          if (tmpsec && frontsector->ceilingheight != tmpsec->ceilingheight)
-          {
-            dummyceilingplane.height = tmpsec->ceilingheight;
-            dummyceilingplane.lightlevel = tmpsec->lightlevel;
-            dummyceilingplane.picnum = tmpsec->ceilingpic;
-            ceilingplane = &dummyceilingplane;
-          }
-        }
-      }
     }
 #endif
 
