@@ -706,13 +706,13 @@ static void R_Subsector(int num)
 
                 // if the sector has bottomtextures, then the floorheight will be set to the
                 // highest surounding floorheight
-                if (frontsector->floorheight >= viewz && ((frontsector->flags & NO_BOTTOMTEXTURES) || (!ceilingplane)))
+                if (frontsector->floorheight >= viewz && ((frontsector->flags & NO_BOTTOMTEXTURES) || (!floorplane)))
                 {
-                    tmpsec = GetBestFake(frontsector, 1, validcount);
+                    tmpsec = GetBestFake(frontsector, 0, validcount);
 
-                    if (tmpsec && frontsector->floorheight != tmpsec->floorheight)
+                    if (tmpsec)
                     {
-                        dummyfloorplane.height = tmpsec->floorheight;
+                        dummyfloorplane.height = P_FindLowestFloorSurrounding(frontsector);
                         dummyfloorplane.lightlevel = tmpsec->lightlevel;
                         dummyfloorplane.picnum = tmpsec->floorpic;
                         floorplane = &dummyfloorplane;
@@ -720,13 +720,13 @@ static void R_Subsector(int num)
                 }
 
                 // the same for ceilings. they will be set to the lowest ceilingheight
-                if (frontsector->ceilingheight <= viewz && ((frontsector->flags & NO_TOPTEXTURES) || (!floorplane)))
+                if (frontsector->ceilingheight <= viewz && ((frontsector->flags & NO_TOPTEXTURES) || (!ceilingplane)))
                 {
-                    tmpsec = GetBestFake(frontsector, 0, validcount);
+                    tmpsec = GetBestFake(frontsector, 1, validcount);
 
-                    if (tmpsec && frontsector->ceilingheight != tmpsec->ceilingheight)
+                    if (tmpsec)
                     {
-                        dummyceilingplane.height = tmpsec->ceilingheight;
+                        dummyceilingplane.height = P_FindHighestCeilingSurrounding(frontsector);
                         dummyceilingplane.lightlevel = tmpsec->lightlevel;
                         dummyceilingplane.picnum = tmpsec->ceilingpic;
                         ceilingplane = &dummyceilingplane;
