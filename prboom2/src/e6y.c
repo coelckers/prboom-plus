@@ -455,7 +455,7 @@ int G_GotoNextLevel(int *e, int *m)
 		if (gamemode == commercial)
 		{
 			epsd = 1;
-			if (map >= 0 && map <= 32)
+			if (map >= 0 && map <= 31)
 				map = doom2_next[map];
 			else
 				map = gamemap + 1;
