@@ -38,7 +38,7 @@ intertextsecret = clear		; Disables default intermission text for the given map'
 interbackdrop = "graphic"	
 							; Backdrop to be used for intertext and intertextsecret. If it does not specify a valid flat, it will be drawn as a patch instead. If not specified the FLOOR4_8 flat will be used, regardless of which map it is used on.
 intermusic = "song"			; Music to be used for intertext and intertextsecret. If not specified D_VICTOR/D_READ_M will be used, depending on the IWAD.
-episode = clear				; Clears the episode menu of all previous entries. Should be used on the first map if a mod wants to define its own episodes. Doom 2 has no episodes by default.
+episode = clear				; Clears the episode menu of all previous entries. Should be used on the first map if a mod wants to define its own episodes. Doom 2 and Chex Quest have no episodes by default.
 episode = "patch", "name", "key"	
 							; Defines an entry for the episode menu. If all defined episodes define a valid patch, those will be shown, otherwise the names will be used with the HUD font. At most 8 episodes can be defined.
 bossaction = thingtype, linespecial, tag
@@ -216,7 +216,7 @@ UnholyBible
 Revisions:
 
 Rev 1.4 (@rfomin, Mar 23 2021)
- * Clarify the 'episode' field in the case of Doom 2.
+ * Clarify the 'episode' field in the case of Doom 2 and Chex Quest.
 
 Rev 1.3 (@fabiangreffrath, Mar 5 2021)
  * If interbackdrop does not specify a valid flat, draw it as a patch instead.
