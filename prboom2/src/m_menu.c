@@ -573,7 +573,7 @@ void M_AddEpisode(const char *map, char *def)
 		EpiCustom = true;
 		NewDef.prevMenu = &EpiDef;
 
-		if (gamemode == commercial)
+		if (gamemode == commercial || gamemission == chex)
 			EpiDef.numitems = 0;
 	}
 
