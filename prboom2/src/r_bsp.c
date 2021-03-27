@@ -40,6 +40,7 @@
 #include "r_bsp.h" // cph - sanity checking
 #include "v_video.h"
 #include "lprintf.h"
+#include "p_spec.h"
 
 int currentsubsectornum;
 
@@ -700,37 +701,37 @@ static void R_Subsector(int num)
                     }
                 }
             }
-            else
+
+            sector_t *tmpsec = { 0 };
+
+            // if the sector has bottomtextures, then the floorheight will be set to the
+            // highest surounding floorheight
+            if (frontsector->floorheight >= viewz && ((frontsector->flags & NO_BOTTOMTEXTURES) || (!floorplane)))
             {
-                sector_t *tmpsec;
+                fixed_t tgtheight = P_FindLowestFloorSurrounding(frontsector);
+                tmpsec = P_FindModelFloorSector(tgtheight, frontsector->iSectorID);
 
-                // if the sector has bottomtextures, then the floorheight will be set to the
-                // highest surounding floorheight
-                if (frontsector->floorheight >= viewz && ((frontsector->flags & NO_BOTTOMTEXTURES) || (!floorplane)))
+                if (tmpsec)
                 {
-                    tmpsec = GetBestFake(frontsector, 0, validcount);
-
-                    if (tmpsec)
-                    {
-                        dummyfloorplane.height = P_FindLowestFloorSurrounding(frontsector);
-                        dummyfloorplane.lightlevel = tmpsec->lightlevel;
-                        dummyfloorplane.picnum = tmpsec->floorpic;
-                        floorplane = &dummyfloorplane;
-                    }
+                    dummyfloorplane.height = tgtheight;
+                    dummyfloorplane.lightlevel = tmpsec->lightlevel;
+                    dummyfloorplane.picnum = tmpsec->floorpic;
+                    floorplane = &dummyfloorplane;
                 }
+            }
 
-                // the same for ceilings. they will be set to the lowest ceilingheight
-                if (frontsector->ceilingheight <= viewz && ((frontsector->flags & NO_TOPTEXTURES) || (!ceilingplane)))
+            // the same for ceilings. they will be set to the lowest ceilingheight
+            if (frontsector->ceilingheight <= viewz && ((frontsector->flags & NO_TOPTEXTURES) || (!ceilingplane)))
+            {
+                fixed_t tgtheight = P_FindHighestCeilingSurrounding(frontsector);
+                tmpsec = P_FindModelCeilingSector(tgtheight, frontsector->iSectorID);
+
+                if (tmpsec)
                 {
-                    tmpsec = GetBestFake(frontsector, 1, validcount);
-
-                    if (tmpsec)
-                    {
-                        dummyceilingplane.height = P_FindHighestCeilingSurrounding(frontsector);
-                        dummyceilingplane.lightlevel = tmpsec->lightlevel;
-                        dummyceilingplane.picnum = tmpsec->ceilingpic;
-                        ceilingplane = &dummyceilingplane;
-                    }
+                    dummyceilingplane.height = tgtheight;
+                    dummyceilingplane.lightlevel = tmpsec->lightlevel;
+                    dummyceilingplane.picnum = tmpsec->ceilingpic;
+                    ceilingplane = &dummyceilingplane;
                 }
             }
         }

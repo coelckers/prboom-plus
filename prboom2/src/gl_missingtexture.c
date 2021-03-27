@@ -166,6 +166,9 @@ void gld_PreprocessFakeSectors(void)
   int i, j, k, ceiling;
   int groupid;
 
+  if (gl_use_stencil)
+    return;
+
   // free memory
   if (fakeplanes)
   {
