@@ -702,7 +702,7 @@ static void R_Subsector(int num)
                 }
             }
 
-            sector_t *tmpsec = { 0 };
+            sector_t* tmpsec = NULL;
 
             /*
              * Floors higher than the player's viewheight, or ceilings lower
