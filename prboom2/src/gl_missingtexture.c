@@ -167,7 +167,11 @@ void gld_PreprocessFakeSectors(void)
   int groupid;
 
   if (gl_use_stencil)
+  {
+    // precalculate NO_TOPTEXTURES and NO_BOTTOMTEXTURES flags
+    gld_PrepareSectorSpecialEffects();
     return;
+  }
 
   // free memory
   if (fakeplanes)

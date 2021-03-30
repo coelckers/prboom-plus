@@ -723,7 +723,7 @@ static void R_Subsector(int num)
              * a future patch by refactoring this into the renderer and tagging
              * visible candidate sectors during drawing.
              */
-            if (frontsector->floorheight >= viewz && ((frontsector->flags & NO_BOTTOMTEXTURES) || (!floorplane)))
+            if (frontsector->floorheight >= viewz && (frontsector->flags & NO_BOTTOMTEXTURES))
             {
                 fixed_t tgtheight = P_FindLowestFloorSurrounding(frontsector);
                 tmpsec = P_FindModelFloorSector(tgtheight, frontsector->iSectorID);
@@ -737,7 +737,7 @@ static void R_Subsector(int num)
                 }
             }
 
-            if (frontsector->ceilingheight <= viewz && ((frontsector->flags & NO_TOPTEXTURES) || (!ceilingplane)))
+            if (frontsector->ceilingheight <= viewz && (frontsector->flags & NO_TOPTEXTURES))
             {
                 fixed_t tgtheight = P_FindHighestCeilingSurrounding(frontsector);
                 tmpsec = P_FindModelCeilingSector(tgtheight, frontsector->iSectorID);
