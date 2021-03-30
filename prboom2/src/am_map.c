@@ -2142,22 +2142,22 @@ static void AM_drawMarks(void)
               if (am_frame.precise)
               {
                 V_DrawNamePatchPrecise(
-                  (float)p.fx * 320.0f / SCREENWIDTH, (float)p.fy * 200.0f / SCREENHEIGHT,
-                  FB, namebuf, CR_DEFAULT, VPT_STRETCH);
+                  (float)p.fx / patches_scalex, (float)p.fy * 200.0f / SCREENHEIGHT,
+                  FB, namebuf, CR_DEFAULT, VPT_ALIGN_LEFT | VPT_STRETCH);
               }
               else
               {
                 V_DrawNamePatch(
-                  p.x * 320 / SCREENWIDTH, p.y * 200 / SCREENHEIGHT,
-                  FB, namebuf, CR_DEFAULT, VPT_STRETCH);
+                  p.x / patches_scalex, p.y * 200 / SCREENHEIGHT,
+                  FB, namebuf, CR_DEFAULT, VPT_ALIGN_LEFT | VPT_STRETCH);
               }
             }
 
             w += markpoints[i].widths[k] + 1;
-            p.x += w * SCREENWIDTH / 320;
+            p.x += w * patches_scalex;
             if (am_frame.precise)
             {
-              p.fx += (float)w * SCREENWIDTH / 320.0f;
+              p.fx += (float)w * patches_scalex;
             }
           }
         }
