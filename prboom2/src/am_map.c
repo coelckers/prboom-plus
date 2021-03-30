@@ -2185,30 +2185,10 @@ static void AM_drawMarks(void)
           }
 
           w += markpoints[i].widths[k] + 1;
-
-          switch (render_stretch_hud)
+          p.x += w * SCREENWIDTH / 320;
+          if (am_frame.precise)
           {
-            case patch_stretch_16x10:
-              p.x += w * patches_scalex;
-              if (am_frame.precise)
-              {
-                p.fx += (float)w * patches_scalex;
-              }
-              break;
-            case patch_stretch_4x3:
-              p.x += w * WIDE_SCREENWIDTH / 320;
-              if (am_frame.precise)
-              {
-                p.fx += (float)w * WIDE_SCREENWIDTH / 320.0f;
-              }
-              break;
-            case patch_stretch_full:
-              p.x += w * SCREENWIDTH / 320;
-              if (am_frame.precise)
-              {
-                p.fx += (float)w * SCREENWIDTH / 320.0f;
-              }
-              break;
+            p.fx += (float)w * SCREENWIDTH / 320.0f;
           }
         }
       }
