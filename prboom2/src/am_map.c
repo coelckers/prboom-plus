@@ -2157,13 +2157,13 @@ static void AM_drawMarks(void)
                 if (am_frame.precise)
                 {
                   V_DrawNamePatchPrecise(
-                    (float)p.fx * 320.0f / WIDE_SCREENWIDTH, (float)p.fy * 200.0f / SCREENHEIGHT,
+                    (float)p.fx * 320.0f / WIDE_SCREENWIDTH, (float)p.fy * 200.0f / WIDE_SCREENHEIGHT,
                     FB, namebuf, CR_DEFAULT, VPT_ALIGN_LEFT | VPT_STRETCH);
                 }
                 else
                 {
                   V_DrawNamePatch(
-                    p.x * 320 / WIDE_SCREENWIDTH, p.y * 200 / SCREENHEIGHT,
+                    p.x * 320 / WIDE_SCREENWIDTH, p.y * 200 / WIDE_SCREENHEIGHT,
                     FB, namebuf, CR_DEFAULT, VPT_ALIGN_LEFT | VPT_STRETCH);
                 }
                 break;
