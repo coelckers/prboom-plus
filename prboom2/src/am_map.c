@@ -2117,138 +2117,98 @@ static void AM_drawMarks(void)
       else
         AM_SetMPointFloatValue(&p);
 
-      if (render_stretch_hud == 0)
+      p.x = CXMTOF(p.x) - markpoints[i].w * SCREENWIDTH / 320 / 2;
+      p.y = CYMTOF(p.y) - markpoints[i].h * SCREENHEIGHT / 200 / 2;
+      if (am_frame.precise)
       {
-        p.x = CXMTOF(p.x) - markpoints[i].w * SCREENWIDTH / 320 / 2;
-        p.y = CYMTOF(p.y) - markpoints[i].h * SCREENHEIGHT / 200 / 2;
-        if (am_frame.precise)
-        {
-          p.fx = CXMTOF_F(p.fx) - (float)markpoints[i].w * SCREENWIDTH / 320.0f / 2.0f;
-          p.fy = CYMTOF_F(p.fy) - (float)markpoints[i].h * SCREENHEIGHT / 200.0f / 2.0f;
-        }
+        p.fx = CXMTOF_F(p.fx) - (float)markpoints[i].w * SCREENWIDTH / 320.0f / 2.0f;
+        p.fy = CYMTOF_F(p.fy) - (float)markpoints[i].h * SCREENHEIGHT / 200.0f / 2.0f;
+      }
 
-        if (V_GetMode() == VID_MODEGL ? 
-            p.y < f_y + f_h && p.y + markpoints[i].h * SCREENHEIGHT / 200 >= f_y :
-            p.y < f_y + f_h && p.y >= f_y)
+      if (V_GetMode() == VID_MODEGL ? 
+          p.y < f_y + f_h && p.y + markpoints[i].h * SCREENHEIGHT / 200 >= f_y :
+          p.y < f_y + f_h && p.y >= f_y)
+      {
+        w = 0;
+        for (k = 0; k < (int)strlen(markpoints[i].label); k++)
         {
-          w = 0;
-          for (k = 0; k < (int)strlen(markpoints[i].label); k++)
+          namebuf[6] = markpoints[i].label[k];
+
+          if (p.x < f_x + f_w &&
+              p.x + markpoints[i].widths[k] * SCREENWIDTH / 320 >= f_x)
           {
-            namebuf[6] = markpoints[i].label[k];
-
-            if (p.x < f_x + f_w &&
-                p.x + markpoints[i].widths[k] * SCREENWIDTH / 320 >= f_x)
+            switch (render_stretch_hud)
             {
-              if (am_frame.precise)
-              {
-                V_DrawNamePatchPrecise(
-                  (float)p.fx / patches_scalex, (float)p.fy * 200.0f / SCREENHEIGHT,
-                  FB, namebuf, CR_DEFAULT, VPT_ALIGN_LEFT | VPT_STRETCH);
-              }
-              else
-              {
-                V_DrawNamePatch(
-                  p.x / patches_scalex, p.y * 200 / SCREENHEIGHT,
-                  FB, namebuf, CR_DEFAULT, VPT_ALIGN_LEFT | VPT_STRETCH);
-              }
-            }
-
-            w += markpoints[i].widths[k] + 1;
-            p.x += w * patches_scalex;
-            if (am_frame.precise)
-            {
-              p.fx += (float)w * patches_scalex;
+              case patch_stretch_16x10:
+                if (am_frame.precise)
+                {
+                  V_DrawNamePatchPrecise(
+                    (float)p.fx / patches_scalex, (float)p.fy * 200.0f / SCREENHEIGHT,
+                    FB, namebuf, CR_DEFAULT, VPT_ALIGN_LEFT | VPT_STRETCH);
+                }
+                else
+                {
+                  V_DrawNamePatch(
+                    p.x / patches_scalex, p.y * 200 / SCREENHEIGHT,
+                    FB, namebuf, CR_DEFAULT, VPT_ALIGN_LEFT | VPT_STRETCH);
+                }
+                break;
+              case patch_stretch_4x3:
+                if (am_frame.precise)
+                {
+                  V_DrawNamePatchPrecise(
+                    (float)p.fx * 320.0f / WIDE_SCREENWIDTH, (float)p.fy * 200.0f / SCREENHEIGHT,
+                    FB, namebuf, CR_DEFAULT, VPT_ALIGN_LEFT | VPT_STRETCH);
+                }
+                else
+                {
+                  V_DrawNamePatch(
+                    p.x * 320 / WIDE_SCREENWIDTH, p.y * 200 / SCREENHEIGHT,
+                    FB, namebuf, CR_DEFAULT, VPT_ALIGN_LEFT | VPT_STRETCH);
+                }
+                break;
+              case patch_stretch_full:
+                if (am_frame.precise)
+                {
+                  V_DrawNamePatchPrecise(
+                    (float)p.fx * 320.0f / SCREENWIDTH, (float)p.fy * 200.0f / SCREENHEIGHT,
+                    FB, namebuf, CR_DEFAULT, VPT_ALIGN_WIDE | VPT_STRETCH);
+                }
+                else
+                {
+                  V_DrawNamePatch(
+                    p.x * 320 / SCREENWIDTH, p.y * 200 / SCREENHEIGHT,
+                    FB, namebuf, CR_DEFAULT, VPT_ALIGN_WIDE | VPT_STRETCH);
+                }
+                break;
             }
           }
-        }
-      }
-      else if (render_stretch_hud == 1)
-      {
-        p.x = CXMTOF(p.x) - markpoints[i].w * WIDE_SCREENWIDTH / 320 / 2;
-        p.y = CYMTOF(p.y) - markpoints[i].h * WIDE_SCREENHEIGHT / 200 / 2;
-        if (am_frame.precise)
-        {
-          p.fx = CXMTOF_F(p.fx) - (float)markpoints[i].w * WIDE_SCREENWIDTH / 320.0f / 2.0f;
-          p.fy = CYMTOF_F(p.fy) - (float)markpoints[i].h * WIDE_SCREENHEIGHT / 200.0f / 2.0f;
-        }
 
-        if (V_GetMode() == VID_MODEGL ? 
-            p.y < f_y + f_h && p.y + markpoints[i].h * WIDE_SCREENHEIGHT / 200 >= f_y :
-            p.y < f_y + f_h && p.y >= f_y)
-        {
-          w = 0;
-          for (k = 0; k < (int)strlen(markpoints[i].label); k++)
+          w += markpoints[i].widths[k] + 1;
+
+          switch (render_stretch_hud)
           {
-            namebuf[6] = markpoints[i].label[k];
-
-            if (p.x < f_x + f_w &&
-                p.x + markpoints[i].widths[k] * WIDE_SCREENWIDTH / 320 >= f_x)
-            {
+            case patch_stretch_16x10:
+              p.x += w * patches_scalex;
               if (am_frame.precise)
               {
-                V_DrawNamePatchPrecise(
-                  (float)p.fx * 320.0f / WIDE_SCREENWIDTH, (float)p.fy * 200.0f / WIDE_SCREENHEIGHT,
-                  FB, namebuf, CR_DEFAULT, VPT_ALIGN_LEFT | VPT_STRETCH);
+                p.fx += (float)w * patches_scalex;
               }
-              else
-              {
-                V_DrawNamePatch(
-                  p.x * 320 / WIDE_SCREENWIDTH, p.y * 200 / WIDE_SCREENHEIGHT,
-                  FB, namebuf, CR_DEFAULT, VPT_ALIGN_LEFT | VPT_STRETCH);
-              }
-            }
-
-            w += markpoints[i].widths[k] + 1;
-            p.x += w * WIDE_SCREENWIDTH / 320;
-            if (am_frame.precise)
-            {
-              p.fx += (float)w * WIDE_SCREENWIDTH / 320.0f;
-            }
-          }
-        }
-      }
-      else if (render_stretch_hud == 2)
-      {
-        p.x = CXMTOF(p.x) - markpoints[i].w * SCREENWIDTH / 320 / 2;
-        p.y = CYMTOF(p.y) - markpoints[i].h * SCREENHEIGHT / 200 / 2;
-        if (am_frame.precise)
-        {
-          p.fx = CXMTOF_F(p.fx) - (float)markpoints[i].w * SCREENWIDTH / 320.0f / 2.0f;
-          p.fy = CYMTOF_F(p.fy) - (float)markpoints[i].h * SCREENHEIGHT / 200.0f / 2.0f;
-        }
-
-        if (V_GetMode() == VID_MODEGL ? 
-            p.y < f_y + f_h && p.y + markpoints[i].h * SCREENHEIGHT / 200 >= f_y :
-            p.y < f_y + f_h && p.y >= f_y)
-        {
-          w = 0;
-          for (k = 0; k < (int)strlen(markpoints[i].label); k++)
-          {
-            namebuf[6] = markpoints[i].label[k];
-
-            if (p.x < f_x + f_w &&
-                p.x + markpoints[i].widths[k] * SCREENWIDTH / 320 >= f_x)
-            {
+              break;
+            case patch_stretch_4x3:
+              p.x += w * WIDE_SCREENWIDTH / 320;
               if (am_frame.precise)
               {
-                V_DrawNamePatchPrecise(
-                  (float)p.fx * 320.0f / SCREENWIDTH, (float)p.fy * 200.0f / SCREENHEIGHT,
-                  FB, namebuf, CR_DEFAULT, VPT_ALIGN_WIDE | VPT_STRETCH);
+                p.fx += (float)w * WIDE_SCREENWIDTH / 320.0f;
               }
-              else
+              break;
+            case patch_stretch_full:
+              p.x += w * SCREENWIDTH / 320;
+              if (am_frame.precise)
               {
-                V_DrawNamePatch(
-                  p.x * 320 / SCREENWIDTH, p.y * 200 / SCREENHEIGHT,
-                  FB, namebuf, CR_DEFAULT, VPT_ALIGN_WIDE | VPT_STRETCH);
+                p.fx += (float)w * SCREENWIDTH / 320.0f;
               }
-            }
-
-            w += markpoints[i].widths[k] + 1;
-            p.x += w * SCREENWIDTH / 320;
-            if (am_frame.precise)
-            {
-              p.fx += (float)w * SCREENWIDTH / 320.0f;
-            }
+              break;
           }
         }
       }
