@@ -82,6 +82,14 @@ static void gld_PrepareSectorSpecialEffects(void)
 {
   int i, num;
 
+  /* free memory if allocated by previous maps */
+  if (bleedsectors) {
+      free(bleedsectors);
+      numbleedsectors = 0;
+      bleedsectors = NULL;
+  }
+
+
   for (num = 0; num < numsectors; num++)
   {
     // the following is for specialeffects. see r_bsp.c in R_Subsector
@@ -196,7 +204,9 @@ static void gld_RegisterBleedthroughSector(sector_t* source, sector_t* target, i
      * and register it instead */
 
     if ((bleedsectors[source_idx].target == NULL) ||
-             (bleedsectors[source_idx].target && ((ceiling && bleedsectors[source_idx].target->ceilingheight > target->ceilingheight) || (bleedsectors[source_idx].target->floorheight < target->floorheight))))
+        (bleedsectors[source_idx].target &&
+        ((ceiling && bleedsectors[source_idx].target->ceilingheight > target->ceilingheight) ||
+        (bleedsectors[source_idx].target->floorheight < target->floorheight))))
         bleedsectors[source_idx].target = target;
 }
 

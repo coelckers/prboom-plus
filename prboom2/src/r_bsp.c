@@ -40,7 +40,6 @@
 #include "r_bsp.h" // cph - sanity checking
 #include "v_video.h"
 #include "lprintf.h"
-#include "p_spec.h"
 
 int currentsubsectornum;
 
@@ -665,12 +664,12 @@ static void R_Subsector(int num)
     if (V_GetMode() == VID_MODEGL)
     {
       // check if the sector is faked
+      sector_t *tmpsec = NULL;
 
         if(frontsector == sub->sector)
         {
             if (!gl_use_stencil)
             {
-                sector_t *tmpsec;
 
                 // if the sector has bottomtextures, then the floorheight will be set to the
                 // highest surounding floorheight
@@ -701,8 +700,6 @@ static void R_Subsector(int num)
                     }
                 }
             }
-
-            sector_t* tmpsec = NULL;
 
             /*
              * Floors higher than the player's viewheight, or ceilings lower
