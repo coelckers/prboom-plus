@@ -725,12 +725,11 @@ static void R_Subsector(int num)
              */
             if (frontsector->floorheight >= viewz && (frontsector->flags & MISSING_BOTTOMTEXTURES))
             {
-                fixed_t tgtheight = P_FindLowestFloorSurrounding(frontsector);
-                tmpsec = P_FindModelFloorSector(tgtheight, frontsector->iSectorID);
+                tmpsec = GetBestBleedSector(frontsector, 0);
 
                 if (tmpsec)
                 {
-                    dummyfloorplane.height = tgtheight;
+                    dummyfloorplane.height = tmpsec->floorheight;
                     dummyfloorplane.lightlevel = tmpsec->lightlevel;
                     dummyfloorplane.picnum = tmpsec->floorpic;
                     floorplane = &dummyfloorplane;
@@ -739,12 +738,11 @@ static void R_Subsector(int num)
 
             if (frontsector->ceilingheight <= viewz && (frontsector->flags & MISSING_TOPTEXTURES))
             {
-                fixed_t tgtheight = P_FindHighestCeilingSurrounding(frontsector);
-                tmpsec = P_FindModelCeilingSector(tgtheight, frontsector->iSectorID);
+                tmpsec = GetBestBleedSector(frontsector, 1);
 
                 if (tmpsec)
                 {
-                    dummyceilingplane.height = tgtheight;
+                    dummyceilingplane.height = tmpsec->ceilingheight;
                     dummyceilingplane.lightlevel = tmpsec->lightlevel;
                     dummyceilingplane.picnum = tmpsec->ceilingpic;
                     ceilingplane = &dummyceilingplane;
