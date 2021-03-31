@@ -75,7 +75,7 @@ static void gld_PrepareSectorSpecialEffects(void)
   for (num = 0; num < numsectors; num++)
   {
     // the following is for specialeffects. see r_bsp.c in R_Subsector
-    sectors[num].flags = (NO_TOPTEXTURES | NO_BOTTOMTEXTURES);
+    sectors[num].flags |= (NO_TOPTEXTURES | NO_BOTTOMTEXTURES);
 
     for (i=0; i<sectors[num].linecount; i++)
     {
@@ -95,6 +95,36 @@ static void gld_PrepareSectorSpecialEffects(void)
           sectors[num].flags &= ~NO_TOPTEXTURES;
         if (side1->bottomtexture != NO_TEXTURE)
           sectors[num].flags &= ~NO_BOTTOMTEXTURES;
+
+        /* sides should not have null sectors, but we check anyway */
+        if (side0->sector && side1->sector)
+        {
+            dboolean front_floor_is_sky = (side0->sector->floorpic == skyflatnum);
+            dboolean front_ceil_is_sky = (side0->sector->ceilingpic == skyflatnum);
+
+            dboolean back_floor_is_sky = (side1->sector->floorpic == skyflatnum);
+            dboolean back_ceil_is_sky = (side1->sector->ceilingpic == skyflatnum);
+
+            dboolean needs_back_lower = !(front_floor_is_sky) && (side0->sector->floorheight > side1->sector->floorheight);
+            dboolean needs_front_lower = !(back_floor_is_sky) && (side0->sector->floorheight < side1->sector->floorheight);
+
+            dboolean needs_front_upper = !(back_ceil_is_sky) && (side0->sector->ceilingheight > side1->sector->ceilingheight);
+            dboolean needs_back_upper = !(front_ceil_is_sky) && (side0->sector->ceilingheight < side1->sector->ceilingheight);
+
+            /* now mark the sectors that may require HOM bleed-through */
+            /* TODO: mark "bleed height" here */
+            if (needs_front_upper && side0->toptexture == NO_TEXTURE)
+                side1->sector->flags |= MISSING_TOPTEXTURES;
+            if (needs_back_upper && side1->toptexture == NO_TEXTURE)
+                side0->sector->flags |= MISSING_TOPTEXTURES;
+
+            if (needs_back_lower && side1->bottomtexture == NO_TEXTURE)
+                side0->sector->flags |= MISSING_BOTTOMTEXTURES;
+            if (needs_front_lower && side0->bottomtexture == NO_TEXTURE)
+                side1->sector->flags |= MISSING_BOTTOMTEXTURES;
+
+        }
+
       }
       else
       {
