@@ -83,12 +83,12 @@ static void gld_PrepareSectorSpecialEffects(void)
   int i, num;
 
   /* free memory if allocated by previous maps */
-  if (bleedsectors) {
+  if (bleedsectors)
+  {
       free(bleedsectors);
       numbleedsectors = 0;
       bleedsectors = NULL;
   }
-
 
   for (num = 0; num < numsectors; num++)
   {
@@ -150,7 +150,6 @@ static void gld_PrepareSectorSpecialEffects(void)
                 gld_RegisterBleedthroughSector(side1->sector,side0->sector,0);
             }
         }
-
       }
       else
       {
@@ -179,19 +178,13 @@ static void gld_RegisterBleedthroughSector(sector_t* source, sector_t* target, i
         if (bleedsectors[i].source == source && bleedsectors[i].ceiling == ceiling)
             source_idx = i;
     
-    if (source_idx == -1) {
+    if (source_idx == -1)
+    {
         /* allocate memory for new sector */
-        if (!bleedsectors) {
-            numbleedsectors = 1;
-            bleedsectors = (bleedthrough_t*) malloc(sizeof(bleedthrough_t));
-            memset(&bleedsectors[0], 0, sizeof(bleedthrough_t));
-        } else {
-            bleedsectors = (bleedthrough_t*) realloc(bleedsectors, (numbleedsectors + 1) * sizeof(bleedthrough_t));
-            memset(&bleedsectors[numbleedsectors], 0, sizeof(bleedthrough_t));
-            numbleedsectors++;
-        }
-
+        bleedsectors = (bleedthrough_t*) realloc(bleedsectors, (numbleedsectors + 1) * sizeof(bleedthrough_t));
         if(!bleedsectors) I_Error("gld_RegisterBleedthroughSector: Out of memory");
+        memset(&bleedsectors[numbleedsectors], 0, sizeof(bleedthrough_t));
+        numbleedsectors++;
 
         source_idx = numbleedsectors - 1;
     }
@@ -202,12 +195,18 @@ static void gld_RegisterBleedthroughSector(sector_t* source, sector_t* target, i
     /* either register the proposed target since it is first,
      * or check if the new proposed target is a better option
      * and register it instead */
-
     if ((bleedsectors[source_idx].target == NULL) ||
         (bleedsectors[source_idx].target &&
-        ((ceiling && bleedsectors[source_idx].target->ceilingheight > target->ceilingheight) ||
-        (bleedsectors[source_idx].target->floorheight < target->floorheight))))
+         (
+          (ceiling && bleedsectors[source_idx].target->ceilingheight > target->ceilingheight)
+           ||
+          (bleedsectors[source_idx].target->floorheight < target->floorheight)
+         )
+        )
+       )
+    {
         bleedsectors[source_idx].target = target;
+    }
 }
 
 sector_t* GetBestBleedSector(sector_t* source, int ceiling)
