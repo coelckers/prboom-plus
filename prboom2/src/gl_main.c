@@ -3232,41 +3232,44 @@ void gld_DrawScene(player_t *player)
 
   if (gld_drawinfo.num_items[GLDIT_TWALL] > 0 || gld_drawinfo.num_items[GLDIT_TSPRITE] > 0)
   {
-    if (gld_drawinfo.num_items[GLDIT_TWALL] > 0)
-    {
-      // if translucency percentage is less than 50,
-      // then all translucent textures and sprites disappear completely
-      // without this line
-      glAlphaFunc(GL_GREATER, 0.0f);
+      int twall_idx   = gld_drawinfo.num_items[GLDIT_TWALL] - 1;
+      int tsprite_idx = gld_drawinfo.num_items[GLDIT_TSPRITE] - 1;
 
-      // transparent walls
-      for (i = gld_drawinfo.num_items[GLDIT_TWALL] - 1; i >= 0; i--)
+      if (tsprite_idx > 0)
+          gld_DrawItemsSortSprites(GLDIT_TSPRITE);
+
+      while (twall_idx >= 0 || tsprite_idx >= 0 )
       {
-        gld_SetFog(gld_drawinfo.items[GLDIT_TWALL][i].item.wall->fogdensity);
-        gld_ProcessWall(gld_drawinfo.items[GLDIT_TWALL][i].item.wall);
+          /* find out which is next to draw */
+          GLTexture *tw = (twall_idx >= 0) ? gld_drawinfo.items[GLDIT_TWALL][twall_idx].item.wall->gltexture : NULL;
+          GLTexture *ts = (tsprite_idx >= 0) ? gld_drawinfo.items[GLDIT_TSPRITE][tsprite_idx].item.sprite->gltexture : NULL;
+
+          if (((tw && ts) && (ts >= tw)) || (ts && !tw))
+          {
+              /* transparent sprite is farther, draw it */
+              glAlphaFunc(GL_GEQUAL, gl_mask_sprite_threshold_f);
+              glDepthMask(GL_FALSE);
+              gld_SetFog(gld_drawinfo.items[GLDIT_TSPRITE][tsprite_idx].item.sprite->fogdensity);
+              gld_DrawSprite(gld_drawinfo.items[GLDIT_TSPRITE][tsprite_idx].item.sprite);
+              tsprite_idx--;
+              glDepthMask(GL_TRUE);
+              glAlphaFunc(GL_GEQUAL, 0.5f);
+          }
+          else if (((tw && ts) && (tw >= ts)) || (tw && !ts))
+          {
+              /* transparent wall is farther, draw it */
+              glAlphaFunc(GL_GREATER, 0.0f);
+              gld_SetFog(gld_drawinfo.items[GLDIT_TWALL][twall_idx].item.wall->fogdensity);
+              gld_ProcessWall(gld_drawinfo.items[GLDIT_TWALL][twall_idx].item.wall);
+              twall_idx--;
+              glEnable(GL_ALPHA_TEST);
+          }
+          else
+          {
+              /* break on draw error condition */
+              break;
+          }
       }
-    }
-
-    glEnable(GL_ALPHA_TEST);
-
-    // transparent sprites
-    // sorting is necessary only for transparent sprites.
-    // from back to front
-    if (gld_drawinfo.num_items[GLDIT_TSPRITE] > 0)
-    {
-      glAlphaFunc(GL_GEQUAL, gl_mask_sprite_threshold_f);
-      glDepthMask(GL_FALSE);
-      gld_DrawItemsSortSprites(GLDIT_TSPRITE);
-      for (i = gld_drawinfo.num_items[GLDIT_TSPRITE] - 1; i >= 0; i--)
-      {
-        gld_SetFog(gld_drawinfo.items[GLDIT_TSPRITE][i].item.sprite->fogdensity);
-        gld_DrawSprite(gld_drawinfo.items[GLDIT_TSPRITE][i].item.sprite);
-      }
-      glDepthMask(GL_TRUE);
-    }
-
-    // restoring
-    glAlphaFunc(GL_GEQUAL, 0.5f);
   }
 
   // e6y: detail
