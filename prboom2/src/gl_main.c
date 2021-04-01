@@ -3240,11 +3240,31 @@ void gld_DrawScene(player_t *player)
 
       while (twall_idx >= 0 || tsprite_idx >= 0 )
       {
-          /* find out which is next to draw */
-          GLTexture *tw = (twall_idx >= 0) ? gld_drawinfo.items[GLDIT_TWALL][twall_idx].item.wall->gltexture : NULL;
-          GLTexture *ts = (tsprite_idx >= 0) ? gld_drawinfo.items[GLDIT_TSPRITE][tsprite_idx].item.sprite->gltexture : NULL;
+          dboolean draw_tsprite = true;
 
-          if (((tw && ts) && (ts >= tw)) || (ts && !tw))
+          /* find out which is next to draw */
+          if (twall_idx >= 0 && tsprite_idx >= 0)
+          {
+              /* both are left to draw, determine
+               * which is farther */
+              seg_t *twseg = gld_drawinfo.items[GLDIT_TWALL][twall_idx].item.wall->seg;
+              /* reconstruct the sprite xy */
+              fixed_t tsx = gld_drawinfo.items[GLDIT_TSPRITE][tsprite_idx].item.sprite->xy & 0xFFFF0000;
+              fixed_t tsy = (gld_drawinfo.items[GLDIT_TSPRITE][tsprite_idx].item.sprite->xy & 0x0000FFFF) << 16;
+
+              if (R_PointOnSegSide(tsx, tsy, twseg))
+              {
+                  draw_tsprite = true;
+              }
+          }
+          else if (twall_idx >= 0)
+          {
+              /* no transparent sprites left, draw a wall */
+              draw_tsprite = false;
+          }
+          /* fall-through case is draw sprite */
+
+          if (draw_tsprite)
           {
               /* transparent sprite is farther, draw it */
               glAlphaFunc(GL_GEQUAL, gl_mask_sprite_threshold_f);
@@ -3255,7 +3275,7 @@ void gld_DrawScene(player_t *player)
               glDepthMask(GL_TRUE);
               glAlphaFunc(GL_GEQUAL, 0.5f);
           }
-          else if (((tw && ts) && (tw >= ts)) || (tw && !ts))
+          else
           {
               /* transparent wall is farther, draw it */
               glAlphaFunc(GL_GREATER, 0.0f);
@@ -3263,11 +3283,6 @@ void gld_DrawScene(player_t *player)
               gld_ProcessWall(gld_drawinfo.items[GLDIT_TWALL][twall_idx].item.wall);
               twall_idx--;
               glEnable(GL_ALPHA_TEST);
-          }
-          else
-          {
-              /* break on draw error condition */
-              break;
           }
       }
   }
