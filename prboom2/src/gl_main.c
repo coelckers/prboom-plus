@@ -3252,9 +3252,9 @@ void gld_DrawScene(player_t *player)
               fixed_t tsx = gld_drawinfo.items[GLDIT_TSPRITE][tsprite_idx].item.sprite->xy & 0xFFFF0000;
               fixed_t tsy = (gld_drawinfo.items[GLDIT_TSPRITE][tsprite_idx].item.sprite->xy & 0x0000FFFF) << 16;
 
-              if (R_PointOnSegSide(tsx, tsy, twseg))
+              if (!R_PointOnSegSide(tsx, tsy, twseg))
               {
-                  draw_tsprite = true;
+                  draw_tsprite = false;
               }
           }
           else if (twall_idx >= 0)
