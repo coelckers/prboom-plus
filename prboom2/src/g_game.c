@@ -4346,32 +4346,24 @@ void P_WalkTicker()
 
   if (strafe)
     {
-      if (gamekeydown[key_right])
+      if (gamekeydown[key_right] || mousebuttons[mousebturnright])
         side += sidemove[speed];
-      if (gamekeydown[key_left])
+      if (gamekeydown[key_left] || mousebuttons[mousebturnleft])
         side -= sidemove[speed];
       if (joyxmove > 0)
         side += sidemove[speed];
       if (joyxmove < 0)
-        side -= sidemove[speed];
-      if (mousebuttons[mousebturnright])
-        side += sidemove[speed];
-      if (mousebuttons[mousebturnleft])
         side -= sidemove[speed];
     }
   else
     {
-      if (gamekeydown[key_right])
+      if (gamekeydown[key_right] || mousebuttons[mousebturnright])
         angturn -= angleturn[tspeed];
-      if (gamekeydown[key_left])
+      if (gamekeydown[key_left] || mousebuttons[mousebturnleft])
         angturn += angleturn[tspeed];
       if (joyxmove > 0)
         angturn -= angleturn[tspeed];
       if (joyxmove < 0)
-        angturn += angleturn[tspeed];
-      if (mousebuttons[mousebturnright])
-        angturn -= angleturn[tspeed];
-      if (mousebuttons[mousebturnleft])
         angturn += angleturn[tspeed];
     }
 
