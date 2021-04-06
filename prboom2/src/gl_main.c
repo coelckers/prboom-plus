@@ -3230,6 +3230,14 @@ void gld_DrawScene(player_t *player)
   gld_RenderShadows();
   glsl_SetActiveShader(sh_main);
 
+  /* Transparent sprites and transparent things must be rendered
+   * in far-to-near order. The approach used here is to sort in-
+   * place by comparing the next farthest items in the queue.
+   * There are known limitations to this approach, but it is
+   * a trade-off of accuracy for speed.
+   * Refer to the discussion below for more detail.
+   * https://github.com/coelckers/prboom-plus/pull/262
+   */
   if (gld_drawinfo.num_items[GLDIT_TWALL] > 0 || gld_drawinfo.num_items[GLDIT_TSPRITE] > 0)
   {
       int twall_idx   = gld_drawinfo.num_items[GLDIT_TWALL] - 1;
@@ -3238,42 +3246,46 @@ void gld_DrawScene(player_t *player)
       if (tsprite_idx > 0)
           gld_DrawItemsSortSprites(GLDIT_TSPRITE);
 
+      glDepthMask(GL_FALSE);
       while (twall_idx >= 0 || tsprite_idx >= 0 )
       {
-          dboolean draw_tsprite = true;
+          dboolean draw_tsprite = false;
 
-          /* find out which is next to draw */
+          /* find out what is next to draw */
           if (twall_idx >= 0 && tsprite_idx >= 0)
           {
               /* both are left to draw, determine
                * which is farther */
               seg_t *twseg = gld_drawinfo.items[GLDIT_TWALL][twall_idx].item.wall->seg;
-              /* reconstruct the sprite xy */
-              fixed_t tsx = gld_drawinfo.items[GLDIT_TSPRITE][tsprite_idx].item.sprite->xy & 0xFFFF0000;
-              fixed_t tsy = (gld_drawinfo.items[GLDIT_TSPRITE][tsprite_idx].item.sprite->xy & 0x0000FFFF) << 16;
+              int ti;
+              for (ti = tsprite_idx; ti >= 0; ti--) {
+                  /* reconstruct the sprite xy */
+                  fixed_t tsx = gld_drawinfo.items[GLDIT_TSPRITE][ti].item.sprite->xy & 0xFFFF0000;
+                  fixed_t tsy = (gld_drawinfo.items[GLDIT_TSPRITE][ti].item.sprite->xy & 0x0000FFFF) << 16;
 
-              if (!R_PointOnSegSide(tsx, tsy, twseg))
-              {
-                  draw_tsprite = false;
+                  if (R_PointOnSegSide(tsx, tsy, twseg))
+                  {
+                      /* a thing is behind the seg */
+                      /* do not draw the seg yet */
+                      draw_tsprite = true;
+                      break;
+                  }
               }
           }
-          else if (twall_idx >= 0)
+          else if (tsprite_idx >= 0)
           {
               /* no transparent sprites left, draw a wall */
-              draw_tsprite = false;
+              draw_tsprite = true;
           }
-          /* fall-through case is draw sprite */
+          /* fall-through case is draw seg */
 
           if (draw_tsprite)
           {
               /* transparent sprite is farther, draw it */
               glAlphaFunc(GL_GEQUAL, gl_mask_sprite_threshold_f);
-              glDepthMask(GL_FALSE);
               gld_SetFog(gld_drawinfo.items[GLDIT_TSPRITE][tsprite_idx].item.sprite->fogdensity);
               gld_DrawSprite(gld_drawinfo.items[GLDIT_TSPRITE][tsprite_idx].item.sprite);
               tsprite_idx--;
-              glDepthMask(GL_TRUE);
-              glAlphaFunc(GL_GEQUAL, 0.5f);
           }
           else
           {
@@ -3282,9 +3294,11 @@ void gld_DrawScene(player_t *player)
               gld_SetFog(gld_drawinfo.items[GLDIT_TWALL][twall_idx].item.wall->fogdensity);
               gld_ProcessWall(gld_drawinfo.items[GLDIT_TWALL][twall_idx].item.wall);
               twall_idx--;
-              glEnable(GL_ALPHA_TEST);
           }
       }
+      glAlphaFunc(GL_GEQUAL, 0.5f);
+      glEnable(GL_ALPHA_TEST);
+      glDepthMask(GL_TRUE);
   }
 
   // e6y: detail
