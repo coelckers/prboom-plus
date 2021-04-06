@@ -3246,7 +3246,6 @@ void gld_DrawScene(player_t *player)
       if (tsprite_idx > 0)
           gld_DrawItemsSortSprites(GLDIT_TSPRITE);
 
-      glDepthMask(GL_FALSE);
       while (twall_idx >= 0 || tsprite_idx >= 0 )
       {
           dboolean draw_tsprite = false;
@@ -3289,16 +3288,17 @@ void gld_DrawScene(player_t *player)
           }
           else
           {
+              glDepthMask(GL_FALSE);
               /* transparent wall is farther, draw it */
               glAlphaFunc(GL_GREATER, 0.0f);
               gld_SetFog(gld_drawinfo.items[GLDIT_TWALL][twall_idx].item.wall->fogdensity);
               gld_ProcessWall(gld_drawinfo.items[GLDIT_TWALL][twall_idx].item.wall);
+              glDepthMask(GL_TRUE);
               twall_idx--;
           }
       }
       glAlphaFunc(GL_GEQUAL, 0.5f);
       glEnable(GL_ALPHA_TEST);
-      glDepthMask(GL_TRUE);
   }
 
   // e6y: detail
