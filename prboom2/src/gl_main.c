@@ -2624,6 +2624,8 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
 
   sprite.index = gl_spriteindex++;
   sprite.xy = thing->x + (thing->y >> 16); 
+  sprite.fx = thing->x;
+  sprite.fy = thing->y;
 
   sprite.vt = 0.0f;
   sprite.vb = sprite.gltexture->scaleyfac;
@@ -3259,8 +3261,8 @@ void gld_DrawScene(player_t *player)
               int ti;
               for (ti = tsprite_idx; ti >= 0; ti--) {
                   /* reconstruct the sprite xy */
-                  fixed_t tsx = gld_drawinfo.items[GLDIT_TSPRITE][ti].item.sprite->xy & ~(0x0000FFFF);
-                  fixed_t tsy = (gld_drawinfo.items[GLDIT_TSPRITE][ti].item.sprite->xy & ~(0xFFFF0000)) << FRACBITS;
+                  fixed_t tsx = gld_drawinfo.items[GLDIT_TSPRITE][ti].item.sprite->fx;
+                  fixed_t tsy = gld_drawinfo.items[GLDIT_TSPRITE][ti].item.sprite->fy;
 
                   if (R_PointOnSegSide(tsx, tsy, twseg))
                   {
