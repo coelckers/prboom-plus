@@ -3259,8 +3259,8 @@ void gld_DrawScene(player_t *player)
               int ti;
               for (ti = tsprite_idx; ti >= 0; ti--) {
                   /* reconstruct the sprite xy */
-                  fixed_t tsx = gld_drawinfo.items[GLDIT_TSPRITE][ti].item.sprite->xy & 0xFFFF0000;
-                  fixed_t tsy = (gld_drawinfo.items[GLDIT_TSPRITE][ti].item.sprite->xy & 0x0000FFFF) << 16;
+                  fixed_t tsx = gld_drawinfo.items[GLDIT_TSPRITE][ti].item.sprite->xy & ~(0x0000FFFF);
+                  fixed_t tsy = (gld_drawinfo.items[GLDIT_TSPRITE][ti].item.sprite->xy & ~(0xFFFF0000)) << FRACBITS;
 
                   if (R_PointOnSegSide(tsx, tsy, twseg))
                   {
@@ -3273,10 +3273,10 @@ void gld_DrawScene(player_t *player)
           }
           else if (tsprite_idx >= 0)
           {
-              /* no transparent sprites left, draw a wall */
+              /* no transparent walls left, draw a sprite */
               draw_tsprite = true;
           }
-          /* fall-through case is draw seg */
+          /* fall-through case is draw wall */
 
           if (draw_tsprite)
           {
