@@ -2,6 +2,8 @@
 #include "winresrc.h"
 #include "config.h"
 
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "manifest.xml"
+
 /* IDC_STATIC is documented in winuser.h, but not defined. */
 #ifndef IDC_STATIC
 #define IDC_STATIC (-1)
