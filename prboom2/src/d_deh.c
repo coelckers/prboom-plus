@@ -1478,7 +1478,7 @@ void deh_changeCompTranslucency(void)
   {
     if (!DEH_mobjinfo_bits[predefined_translucency[i]])
     {
-      if (comp[comp_translucency]) 
+      if (default_comp[comp_translucency])
         mobjinfo[predefined_translucency[i]].flags &= ~MF_TRANSLUCENT;
       else 
         mobjinfo[predefined_translucency[i]].flags |= MF_TRANSLUCENT;
