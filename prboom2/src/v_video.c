@@ -427,7 +427,7 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
 
   // [FG] automatically center wide patches without horizontal offset
   if (patch->width > 320 && patch->leftoffset == 0)
-    x = (320 - patch->width) / 2;
+    x -= (patch->width - 320) / 2;
 
   if (V_GetMode() == VID_MODE8 && !(flags & VPT_STRETCH_MASK)) {
     int             col;
