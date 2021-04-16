@@ -193,11 +193,11 @@ static const char * const ActorNames[] =
 	"UnholyBible",
 	// Crispy/Retro
 	"MusicChanger",
-	"Deh_Actor_145", // MT_GIBDTH
-	"Deh_Actor_146", // MT_BLUEBLOOD
-	"Deh_Actor_147", // MT_GREENBLOOD
-	"Deh_Actor_148", // MT_FUZZYBLOOD
-	"Deh_Actor_149", // MT_TRAIL
+	"Deh_Actor_145", // Skull pop gib - not used
+	"Deh_Actor_146", // Blue blood - not used
+	"Deh_Actor_147", // Green blood - not used
+	"Deh_Actor_148", // Fuzzy blood - not used
+	"Deh_Actor_149", // Rocket trail - not used
 	// DEHEXTRA Actors start here
 	"Deh_Actor_150", // Extra thing 0
 	"Deh_Actor_151", // Extra thing 1
@@ -299,7 +299,6 @@ static const char * const ActorNames[] =
 	"Deh_Actor_247", // Extra thing 97
 	"Deh_Actor_248", // Extra thing 98
 	"Deh_Actor_249", // Extra thing 99
-	"Deh_Actor_250", // GZDoom defines this but IDK what it is
 	NULL
 };
 
