@@ -421,6 +421,8 @@ void ST_SetScaledWidth(void)
       break;
   }
 
+  ST_SCALED_WIDTH = (ST_SCALED_WIDTH + 3) & (int)~3;
+
   if (ST_SCALED_WIDTH > SCREENWIDTH)
       ST_SCALED_WIDTH = SCREENWIDTH;
 
