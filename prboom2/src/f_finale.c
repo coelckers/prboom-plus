@@ -623,7 +623,7 @@ static void F_BunnyScroll (void)
   char        name[10];
   int         stage;
   static int  laststage;
-  static int  p1offset;
+  static int  p1offset, p2width;
 
   if (finalecount == 0)
   {
@@ -631,10 +631,11 @@ static void F_BunnyScroll (void)
     p1 = R_CachePatchName(pfub1);
     p2 = R_CachePatchName(pfub2);
 
+    p2width = p2->width;
     if (p1->width == 320)
     {
       // Unity or original PFUBs.
-      p1offset = (p2->width - 320) / 2;
+      p1offset = (p2width - 320) / 2;
     }
     else
     {
@@ -658,6 +659,8 @@ static void F_BunnyScroll (void)
       V_DrawNamePatch(p1offset+320-scrolled, 0, 0, pfub1, CR_DEFAULT, VPT_STRETCH);
       V_DrawNamePatch(-scrolled, 0, 0, pfub2, CR_DEFAULT, VPT_STRETCH);
     }
+    if (p2width == 320)
+      V_FillBorder(-1, 0);
   }
 
   if (finalecount < 1130)
