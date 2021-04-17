@@ -191,13 +191,12 @@ static const char * const ActorNames[] =
 	"PlasmaBall2",
 	"EvilSceptre",
 	"UnholyBible",
-	// Crispy/Retro
 	"MusicChanger",
-	"Deh_Actor_145", // Skull pop gib - not used
-	"Deh_Actor_146", // Blue blood - not used
-	"Deh_Actor_147", // Green blood - not used
-	"Deh_Actor_148", // Fuzzy blood - not used
-	"Deh_Actor_149", // Rocket trail - not used
+	"Deh_Actor_145",
+	"Deh_Actor_146",
+	"Deh_Actor_147",
+	"Deh_Actor_148",
+	"Deh_Actor_149",
 	// DEHEXTRA Actors start here
 	"Deh_Actor_150", // Extra thing 0
 	"Deh_Actor_151", // Extra thing 1
