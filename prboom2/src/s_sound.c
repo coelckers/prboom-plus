@@ -533,6 +533,7 @@ void S_ChangeMusic(int musicnum, int looping)
   // current music which should play
   musicnum_current = musicnum;
   musinfo.current_item = -1;
+  S_music[NUMMUSIC].lumpnum = -1;
 
   //jff 1/22/98 return if music is not enabled
   if (!mus_card || nomusicparm)
