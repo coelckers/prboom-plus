@@ -1630,7 +1630,7 @@ void G_DoCompleted (void)
   if (gamemapinfo)
   {
 	  const char *next = "";
-	  if (gamemapinfo->endpic[0] && (strcmp(gamemapinfo->endpic, "-") != 0) && gamemapinfo->nointermission)
+	  if (gamemapinfo->endpic[0] && (strcmp(gamemapinfo->endpic, "-") != 0) && !gamemapinfo->nointermission)
 	  {
 		  gameaction = ga_victory;
 		  return;
