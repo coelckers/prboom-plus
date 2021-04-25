@@ -156,6 +156,23 @@ GLfloat cm2RGB[CR_LIMIT + 1][4] =
   {1.00f ,1.00f, 1.00f, 1.00f}, //CR_LIMIT
 };
 
+static void gld_SetSpriteFuzzBlendFunc(spritefuzzmode_t fuzzmode)
+{
+    switch (fuzzmode)
+    {
+        default:
+        case fuzz_darken:
+            glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
+            break;
+        case fuzz_shadow:
+            glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
+            break;
+        case fuzz_transparent:
+            glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+            break;
+    }
+}
+
 void SetFrameTextureMode(void)
 {
 #ifdef USE_FBO_TECHNIQUE
@@ -892,19 +909,7 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
   // when invisibility is about to go
   if (/*(viewplayer->mo->flags & MF_SHADOW) && */!vis->colormap)
   {
-    switch (gl_weaponspritefuzzmode)
-    {
-        default:
-        case fuzz_darken:
-            glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
-            break;
-        case fuzz_shadow:
-            glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
-            break;
-        case fuzz_transparent:
-            glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-            break;
-    }
+    gld_SetSpriteFuzzBlendFunc(gl_weaponspritefuzzmode);
     glAlphaFunc(GL_GEQUAL,0.1f);
     //glColor4f(0.2f,0.2f,0.2f,(float)tran_filter_pct/100.0f);
     glColor4f(0.2f,0.2f,0.2f,0.33f);
@@ -2268,19 +2273,7 @@ static void gld_DrawSprite(GLSprite *sprite)
     {
       glGetIntegerv(GL_BLEND_SRC, &blend_src);
       glGetIntegerv(GL_BLEND_DST, &blend_dst);
-      switch (gl_thingspritefuzzmode)
-      {
-          default:
-          case fuzz_darken:
-              glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
-              break;
-          case fuzz_shadow:
-              glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
-              break;
-          case fuzz_transparent:
-              glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-              break;
-      }
+      gld_SetSpriteFuzzBlendFunc(gl_thingspritefuzzmode);
       //glColor4f(0.2f,0.2f,0.2f,(float)tran_filter_pct/100.0f);
       glAlphaFunc(GL_GEQUAL,0.1f);
       glColor4f(0.2f,0.2f,0.2f,0.33f);
