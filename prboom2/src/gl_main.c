@@ -894,6 +894,7 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
   {
     switch (gl_weaponspritefuzzmode)
     {
+        default:
         case fuzz_darken:
             glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
             break;
@@ -902,11 +903,6 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
             break;
         case fuzz_transparent:
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-            break;
-        default:
-            /* default back to PrBoom original mode */
-            glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
-            lprintf(LO_WARN,"Invalid weapon sprite fuzz mode %d.\n", gl_weaponspritefuzzmode);
             break;
     }
     glAlphaFunc(GL_GEQUAL,0.1f);
@@ -2274,6 +2270,7 @@ static void gld_DrawSprite(GLSprite *sprite)
       glGetIntegerv(GL_BLEND_DST, &blend_dst);
       switch (gl_thingspritefuzzmode)
       {
+          default:
           case fuzz_darken:
               glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
               break;
@@ -2282,11 +2279,6 @@ static void gld_DrawSprite(GLSprite *sprite)
               break;
           case fuzz_transparent:
               glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-              break;
-          default:
-              /* default back to PrBoom original mode */
-              glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
-              lprintf(LO_WARN,"Invalid thing sprite fuzz mode %d.\n", gl_thingspritefuzzmode);
               break;
       }
       //glColor4f(0.2f,0.2f,0.2f,(float)tran_filter_pct/100.0f);
