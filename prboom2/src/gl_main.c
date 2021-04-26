@@ -127,9 +127,14 @@ float gl_sprite_offset;       // precalcilated float value for gl_sprite_offset_
 int gl_sprite_blend;  // e6y: smooth sprite edges
 int gl_mask_sprite_threshold;
 float gl_mask_sprite_threshold_f;
+/* Note: These must be identically-indexed,
+ * including the spritefuzzmode enum */
 spritefuzzmode_t gl_thingspritefuzzmode;
 spritefuzzmode_t gl_weaponspritefuzzmode;
-const char *gl_spritefuzzmodes[] = {"darken", "shadow", "transparent"};
+const char *gl_spritefuzzmodes[] = {"darken", "shadow", "transparent", "ghostly"};
+GLenum gl_fuzzsfactors[] = {GL_DST_COLOR, GL_ZERO, GL_ONE, GL_SRC_ALPHA};
+GLenum gl_fuzzdfactors[] = {GL_ONE_MINUS_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
+    GL_ONE_MINUS_SRC_ALPHA, GL_ONE};
 
 GLuint gld_DisplayList=0;
 int fog_density=200;
@@ -156,22 +161,6 @@ GLfloat cm2RGB[CR_LIMIT + 1][4] =
   {1.00f ,1.00f, 1.00f, 1.00f}, //CR_LIMIT
 };
 
-static void gld_SetSpriteFuzzBlendFunc(spritefuzzmode_t fuzzmode)
-{
-    switch (fuzzmode)
-    {
-        default:
-        case fuzz_darken:
-            glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
-            break;
-        case fuzz_shadow:
-            glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
-            break;
-        case fuzz_transparent:
-            glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-            break;
-    }
-}
 
 void SetFrameTextureMode(void)
 {
@@ -909,7 +898,8 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
   // when invisibility is about to go
   if (/*(viewplayer->mo->flags & MF_SHADOW) && */!vis->colormap)
   {
-    gld_SetSpriteFuzzBlendFunc(gl_weaponspritefuzzmode);
+    glBlendFunc(gl_fuzzsfactors[gl_weaponspritefuzzmode],
+            gl_fuzzdfactors[gl_weaponspritefuzzmode]);
     glAlphaFunc(GL_GEQUAL,0.1f);
     //glColor4f(0.2f,0.2f,0.2f,(float)tran_filter_pct/100.0f);
     glColor4f(0.2f,0.2f,0.2f,0.33f);
@@ -2273,7 +2263,8 @@ static void gld_DrawSprite(GLSprite *sprite)
     {
       glGetIntegerv(GL_BLEND_SRC, &blend_src);
       glGetIntegerv(GL_BLEND_DST, &blend_dst);
-      gld_SetSpriteFuzzBlendFunc(gl_thingspritefuzzmode);
+      glBlendFunc(gl_fuzzsfactors[gl_thingspritefuzzmode],
+            gl_fuzzdfactors[gl_thingspritefuzzmode]);
       //glColor4f(0.2f,0.2f,0.2f,(float)tran_filter_pct/100.0f);
       glAlphaFunc(GL_GEQUAL,0.1f);
       glColor4f(0.2f,0.2f,0.2f,0.33f);
