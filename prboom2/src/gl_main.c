@@ -2613,15 +2613,19 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
     sprite.fogdensity = gld_CalcFogDensity(thing->subsector->sector, lightlevel, GLDIT_SPRITE);
   }
   sprite.cm = CR_LIMIT + (int)((thing->flags & MF_TRANSLATION) >> (MF_TRANSSHIFT));
-  // [FG] colored blood and gibs
-  if (thing->flags & MF_COLOREDBLOOD)
-  {
-    sprite.cm = (thing->flags & MF_TRANSLATION1) ? CR_BLUE2 : CR_GREEN;
-  }
   sprite.gltexture = gld_RegisterPatch(lump, sprite.cm, true);
   if (!sprite.gltexture)
     goto unlock_patch;
   sprite.flags = thing->flags;
+
+  // [FG] colored blood and gibs
+  if (thing->flags & MF_COLOREDBLOOD)
+  {
+    if ((thing->flags & (MF_TRANSLATION1 | MF_TRANSLATION2)) == (MF_TRANSLATION1 | MF_TRANSLATION2))
+      sprite.flags |= MF_SHADOW;
+    else
+      sprite.cm = (thing->flags & MF_TRANSLATION1) ? CR_BLUE2 : CR_GREEN;
+  }
 
   if (thing->flags & MF_FOREGROUND)
     scene_has_overlapped_sprites = true;
