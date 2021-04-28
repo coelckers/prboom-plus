@@ -1102,7 +1102,7 @@ static const char *deh_mobjinfo[DEH_MOBJINFOMAX] =
   "Bits2",               // .flags
   "Respawn frame",       // .raisestate
   "Dropped item",        // .droppeditem
-  "Blood",               // .blood
+  "Blood color",         // .bloodcolor
 };
 
 // Strings that are used to indicate flags ("Bits" in mobjinfo)
@@ -1459,14 +1459,14 @@ void D_BuildBEXTables(void)
     switch (i)
     {
       case MT_HEAD:
-      mobjinfo[i].blood = MT_BLUEBLOOD;
+      mobjinfo[i].bloodcolor = 3; // Blue
       break;
       case MT_BRUISER:
       case MT_KNIGHT:
-      mobjinfo[i].blood = MT_GREENBLOOD;
+      mobjinfo[i].bloodcolor = 2; // Green
       break;
       default:
-      mobjinfo[i].blood = MT_BLOOD;
+      mobjinfo[i].bloodcolor = 0; // Red (normal)
     }
   }
 }
@@ -1865,7 +1865,7 @@ static void setMobjInfoValue(int mobjInfoIndex, int keyIndex, uint_64_t value) {
       }
       break;
     case 24: mi->droppeditem = (int)(value-1); return; // make it base zero (deh is 1-based)
-    case 25: mi->blood = (int)(value-1); return;
+    case 25: mi->bloodcolor = (int)value; return;
     default: return;
   }
 }

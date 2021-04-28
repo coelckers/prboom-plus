@@ -1464,11 +1464,6 @@ typedef enum {
   MT_STEALTHSHOTGUY,
   MT_STEALTHZOMBIE,
 
-  // DOOM Retro mobjs
-  MT_BLUEBLOOD = MT_GIBDTH + 1,
-  MT_GREENBLOOD,
-  MT_FUZZYBLOOD,
-
   // 100 extra mobjs to use in dehacked patches
   MT_EXTRA00 = 150, MT_EXTRA01, MT_EXTRA02, MT_EXTRA03, MT_EXTRA04,
   MT_EXTRA05, MT_EXTRA06, MT_EXTRA07, MT_EXTRA08, MT_EXTRA09,
@@ -1548,7 +1543,7 @@ typedef struct
            resurrection.  Zero means it won't come
            back to life. */
   mobjtype_t droppeditem; /* ferk: Mobj to drop after death */
-  mobjtype_t blood; /* colored blood and gibs */
+  int bloodcolor; /* [FG] colored blood and gibs */
 } mobjinfo_t;
 
 /* See p_mobj_h for addition more technical info */
