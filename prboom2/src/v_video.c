@@ -120,6 +120,9 @@ static const crdef_t crdefs[] = {
   {"CRORANGE", &colrngs[CR_ORANGE]},
   {"CRYELLOW", &colrngs[CR_YELLOW]},
   {"CRBLUE2",  &colrngs[CR_BLUE2]},
+  {"CRBLACK",  &colrngs[CR_BLACK]},
+  {"CRPURPLE", &colrngs[CR_PURPLE]},
+  {"CRWHITE",  &colrngs[CR_WHITE]},
   {NULL}
 };
 
@@ -131,9 +134,9 @@ static const int bloodcolor[] = {
   CR_GREEN,  // 2 - Green
   CR_BLUE2,  // 3 - Blue
   CR_YELLOW, // 4 - Yellow
-  CR_GRAY,   // 5 - Black (?)
-  CR_RED,    // 6 - Purple (?)
-  CR_GRAY,   // 7 - White (?)
+  CR_BLACK,  // 5 - Black
+  CR_PURPLE, // 6 - Purple
+  CR_WHITE,  // 7 - White
   CR_ORANGE, // 8 - Orange
 };
 
