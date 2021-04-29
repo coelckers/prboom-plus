@@ -372,7 +372,7 @@ typedef struct mobj_s
 
     int iden_nums;		// hi word stores thing num, low word identifier num
 
-    fixed_t             pad; // cph - needed so I can get the size unambiguously on amd64
+    fixed_t             bloodcolor; // [FG] renamed from "pad", now used to track the thing's blood color
 
     // SEE WARNING ABOVE ABOUT POINTER FIELDS!!!
 } mobj_t;

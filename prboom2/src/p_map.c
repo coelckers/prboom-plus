@@ -1974,7 +1974,7 @@ dboolean PIT_ChangeSector (mobj_t* thing)
     if (colored_blood)
     {
       thing->flags |= MF_COLOREDBLOOD;
-      thing->pad = V_BloodColor(thing->info->bloodcolor);
+      thing->bloodcolor = V_BloodColor(thing->info->bloodcolor);
     }
     return true; // keep checking
     }
@@ -2016,7 +2016,7 @@ dboolean PIT_ChangeSector (mobj_t* thing)
     if (colored_blood)
     {
       mo->flags |= MF_COLOREDBLOOD;
-      mo->pad = V_BloodColor(thing->info->bloodcolor);
+      mo->bloodcolor = V_BloodColor(thing->info->bloodcolor);
     }
 
     /* killough 8/10/98: remove dependence on order of evaluation */

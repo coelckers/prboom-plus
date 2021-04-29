@@ -809,7 +809,7 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   vis->x1 = x1 < 0 ? 0 : x1;
   vis->x2 = x2 >= viewwidth ? viewwidth-1 : x2;
   iscale = FixedDiv (FRACUNIT, xscale);
-  vis->color = thing->pad;
+  vis->color = thing->bloodcolor;
 
   if (flip)
     {

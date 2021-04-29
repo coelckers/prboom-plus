@@ -1521,7 +1521,7 @@ void P_SpawnBlood(fixed_t x,fixed_t y,fixed_t z,int damage, mobj_t* bleeder)
   if (colored_blood)
   {
     th->flags |= MF_COLOREDBLOOD;
-    th->pad = V_BloodColor(bleeder->info->bloodcolor);
+    th->bloodcolor = V_BloodColor(bleeder->info->bloodcolor);
   }
 
   if (th->tics < 1)

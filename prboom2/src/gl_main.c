@@ -2616,7 +2616,7 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
   // [FG] colored blood and gibs
   if (thing->flags & MF_COLOREDBLOOD)
   {
-    sprite.cm = thing->pad;
+    sprite.cm = thing->bloodcolor;
   }
   sprite.gltexture = gld_RegisterPatch(lump, sprite.cm, true);
   if (!sprite.gltexture)
