@@ -126,10 +126,11 @@ static const crdef_t crdefs[] = {
   {NULL}
 };
 
-// [FG] colored blood and gibs
+// [FG] translate between blood color value as per EE spec
+//      and actual color translation table index
 
 static const int bloodcolor[] = {
-  CR_RED,    // 0 - Red (normal)
+  CR_DEFAULT,// 0 - Red (normal)
   CR_GRAY,   // 1 - Grey
   CR_GREEN,  // 2 - Green
   CR_BLUE2,  // 3 - Blue
@@ -142,10 +143,15 @@ static const int bloodcolor[] = {
 
 int V_BloodColor(int blood)
 {
-  if (blood < 0 || blood > 8)
-    blood = 0;
+  if (colored_blood)
+  {
+    if (blood < 0 || blood > 8)
+      blood = 0;
 
-  return bloodcolor[blood];
+    return bloodcolor[blood];
+  }
+
+  return 0;
 }
 
 // haleyjd: DOSDoom-style single translucency lookup-up table

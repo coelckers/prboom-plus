@@ -2617,7 +2617,7 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
   }
   sprite.cm = CR_LIMIT + (int)((thing->flags & MF_TRANSLATION) >> (MF_TRANSSHIFT));
   // [FG] colored blood and gibs
-  if (thing->flags & MF_COLOREDBLOOD)
+  if (thing->bloodcolor > 0)
   {
     sprite.cm = thing->bloodcolor;
   }

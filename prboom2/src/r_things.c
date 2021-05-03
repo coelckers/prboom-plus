@@ -539,7 +539,7 @@ static void R_DrawVisSprite(vissprite_t *vis)
     colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_FUZZ, filter, filterz);    // killough 3/14/98
   else
     // [FG] colored blood and gibs
-    if (vis->mobjflags & MF_COLOREDBLOOD)
+    if (vis->color > 0)
       {
         colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLATED, filter, filterz);
         dcvars.translation = colrngs[vis->color];
