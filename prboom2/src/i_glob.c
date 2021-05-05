@@ -30,7 +30,7 @@
 
 #if defined(_MSC_VER)
 // For Visual C++, we need to include the win_opendir module.
-#include "../win32/win_opendir.h"
+#include "win_opendir.h"
 #define strcasecmp _stricmp
 #define strncasecmp _strnicmp
 #include <sys/stat.h>

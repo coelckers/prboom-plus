@@ -302,6 +302,13 @@ function(AddGameExecutable TARGET SOURCES)
             e6y_launcher.h
             SDL/SDL_windows_main.c
         )
+        if(MSVC)
+            set(SOURCES
+                ${SOURCES}
+                win_opendir.c
+                win_opendir.h
+            )
+        endif()
     endif()
 
     add_definitions("-DUSE_EXPERIMENTAL_MUSIC")
