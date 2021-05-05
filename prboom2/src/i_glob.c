@@ -34,7 +34,7 @@
 #define strcasecmp _stricmp
 #define strncasecmp _strnicmp
 #include <sys/stat.h>
-#define S_ISDIR(m)      (((m)& S_IFMT) == S_IFDIR)
+#define S_ISDIR(m)  (((m) & S_IFMT) == S_IFDIR)
 #elif defined(HAVE_DIRENT_H)
 #include <dirent.h>
 #include <sys/stat.h>
