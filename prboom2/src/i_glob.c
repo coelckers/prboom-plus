@@ -26,6 +26,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include "lprintf.h"
 
 #if defined(_MSC_VER)
 // For Visual C++, we need to include the win_opendir module.
@@ -64,7 +65,9 @@ static dboolean IsDirectory(char *dir, struct dirent *de)
         struct stat sb;
         int result;
 
-        filename = M_StringJoin(dir, "/", de->d_name, NULL);
+        int len = doom_snprintf(NULL, 0, "%s/%s", dir, de->d_name);
+        filename = malloc(len+1);
+        doom_snprintf(filename, len+1, "%s/%s", dir, de->d_name);
         result = stat(filename, &sb);
         free(filename);
 
@@ -248,6 +251,8 @@ static dboolean MatchesAnyGlob(const char *name, glob_t *glob)
 static char *NextGlob(glob_t *glob)
 {
     struct dirent *de;
+    int len;
+    char *ret;
 
     do
     {
@@ -260,7 +265,10 @@ static char *NextGlob(glob_t *glob)
           || !MatchesAnyGlob(de->d_name, glob));
 
     // Return the fully-qualified path, not just the bare filename.
-    return M_StringJoin(glob->directory, "/", de->d_name, NULL);
+    len = doom_snprintf(NULL, 0, "%s/%s", glob->directory, de->d_name);
+    ret = malloc(len+1);
+    doom_snprintf(ret, len+1, "%s/%s", glob->directory, de->d_name);
+    return ret;
 }
 
 static void ReadAllFilenames(glob_t *glob)
