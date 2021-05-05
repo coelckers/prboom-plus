@@ -591,7 +591,7 @@ static void I_ShutdownSDL(void)
   if (buffer) SDL_FreeSurface(buffer);
   if (sdl_texture) SDL_DestroyTexture(sdl_texture);
   if (sdl_renderer) SDL_DestroyRenderer(sdl_renderer);
-  if (sdl_window) SDL_DestroyWindow(sdl_window);
+  if (SDL_GetWindowFromID(windowid)) SDL_DestroyWindow(sdl_window);
 
   SDL_Quit();
   return;

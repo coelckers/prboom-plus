@@ -52,6 +52,8 @@ set(COMMON_SRC
     info.h
     i_capture.c
     i_capture.h
+    i_glob.c
+    i_glob.h
     i_joy.h
     i_main.h
     i_network.h
