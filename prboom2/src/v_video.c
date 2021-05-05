@@ -126,7 +126,8 @@ static const crdef_t crdefs[] = {
   {NULL}
 };
 
-// [FG] colored blood and gibs
+// [FG] translate between blood color value as per EE spec
+//      and actual color translation table index
 
 static const int bloodcolor[] = {
   CR_RED,    // 0 - Red (normal)
