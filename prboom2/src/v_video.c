@@ -151,7 +151,7 @@ int V_BloodColor(int blood)
     return bloodcolor[blood];
   }
 
-  return CR_DEFAULT;
+  return 0;
 }
 
 // haleyjd: DOSDoom-style single translucency lookup-up table
