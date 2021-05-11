@@ -867,7 +867,8 @@ static void G_DoLoadLevel (void)
     }
 
   // automatic pistol start when advancing from one level to the next
-  if (pistolstart)
+  // added parm check
+  if (pistolstart || pistolstartparm)
   {
       if (singleplayer)
       {

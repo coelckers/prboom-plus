@@ -56,6 +56,8 @@ extern  dboolean respawnparm;  // checkparm of -respawn
 extern  dboolean fastparm; // checkparm of -fast
 extern  dboolean devparm;  // DEBUG: launched with -devparm
 
+extern  dboolean pistolstartparm; //checkparm of -pistolstart 
+
 // -----------------------------------------------------
 // Game Mode - identify IWAD as shareware, retail etc.
 //

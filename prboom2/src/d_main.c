@@ -116,6 +116,8 @@ dboolean nomonsters;     // working -nomonsters
 dboolean respawnparm;    // working -respawn
 dboolean fastparm;       // working -fast
 
+dboolean pistolstartparm;
+
 dboolean singletics = false; // debug flag to cancel adaptiveness
 
 //jff 1/22/98 parms for disabling music and sound
@@ -1566,6 +1568,8 @@ static void D_DoomMainSetup(void)
   respawnparm = clrespawnparm = M_CheckParm ("-respawn");
   fastparm = clfastparm = M_CheckParm ("-fast");
   // jff 1/24/98 end of set to both working and command line value
+  
+  pistolstartparm = M_CheckParm("-pistolstart");
 
   devparm = M_CheckParm ("-devparm");
 
