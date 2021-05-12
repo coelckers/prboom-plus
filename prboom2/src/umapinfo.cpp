@@ -426,6 +426,7 @@ static int ParseStandardProperty(Scanner &scanner, MapEntry *mape)
 		char *lname = ParseMultiString(scanner, 1);
 		if (!lname) return 0;
 		if (mape->label != NULL) free(mape->label);
+		// TODO: require label to be single-line
 		mape->label = lname;
 	}
 	else if (!stricmp(pname, "next"))
