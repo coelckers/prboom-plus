@@ -116,7 +116,7 @@ int idmusnum;
 void S_StopChannel(int cnum);
 
 // Will start a sound at a given volume.
-void S_StartSoundAtVolume(degenmobj_t *origin, int sound_id, int volume);
+static void S_StartSoundAtVolume(degenmobj_t *origin, int sound_id, int volume);
 
 int S_AdjustSoundParams(mobj_t *listener, degenmobj_t *source,
                         int *vol, int *sep, int *pitch);
@@ -255,7 +255,7 @@ void S_Start(void)
   S_ChangeMusic(mnum, true);
 }
 
-void S_StartSoundAtVolume(degenmobj_t *origin, int sfx_id, int volume)
+static void S_StartSoundAtVolume(degenmobj_t *origin, int sfx_id, int volume)
 {
   int sep, pitch, priority, cnum, is_pickup;
   sfxinfo_t *sfx;
