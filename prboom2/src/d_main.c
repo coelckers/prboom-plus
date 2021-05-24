@@ -1412,7 +1412,7 @@ static char *GetAutoloadDir(const char *iwadname, dboolean createdir)
     return result;
 }
 
-const char *BaseName(const char *filename)
+static const char *BaseName(const char *filename)
 {
   char *basename;
 
