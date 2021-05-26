@@ -1458,7 +1458,7 @@ static void AutoLoadWADs(const char *path)
         {
             break;
         }
-        D_AddFile(filename,source_pwad);
+        D_AddFile(filename,source_auto_load);
     }
 
     I_EndGlob(glob);
