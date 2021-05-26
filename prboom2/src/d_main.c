@@ -1466,7 +1466,7 @@ static void AutoLoadWADs(const char *path)
 
 // auto-loading of .wad files.
 
-static void D_AutoloadIWadDir()
+void D_AutoloadIWadDir()
 {
   char *autoload_dir;
 
