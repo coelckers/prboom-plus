@@ -145,7 +145,8 @@ static int dehfseek(DEHFILE *fp, long offset)
   else
   {
     long total = (fp->inp - fp->lump) + fp->size;
-    fp->inp = fp->lump + BETWEEN(0, total, offset);
+    offset = BETWEEN(0, total, offset);
+    fp->inp = fp->lump + offset;
     fp->size = total - offset;
     return 0;
   }
