@@ -305,8 +305,10 @@ function(AddGameExecutable TARGET SOURCES)
         if(MSVC)
             set(SOURCES
                 ${SOURCES}
-                win_opendir.c
-                win_opendir.h
+                WIN/win_fopen.c
+                WIN/win_fopen.h
+                WIN/win_opendir.c
+                WIN/win_opendir.h
             )
         endif()
     endif()
