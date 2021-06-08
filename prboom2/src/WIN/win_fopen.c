@@ -77,6 +77,8 @@ int D_stat(const char *path, struct stat *buf)
   ret = _wstat(wpath, &wbuf);
 
   buf->st_mode = wbuf.st_mode;
+  buf->st_mtime = wbuf.st_mtime;
+  buf->st_size = wbuf.st_size;
 
   if (wpath) free(wpath);
   return ret;
