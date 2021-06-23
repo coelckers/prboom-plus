@@ -323,7 +323,7 @@ Thingtypes:
 Revisions:
 
 Rev 2.1 (@rfomin, June 22 2021)
- * Lookup for default backrop if 'interbackdrop' is not specified.
+ * Lookup for default backdrop if 'interbackdrop' is not specified.
 
 Rev 2 (@fabiangreffrath, May 11 2021)
  * Introduce the new 'label' field to allow for overriding of the string that
