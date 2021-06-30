@@ -75,6 +75,7 @@ extern int sprites_doom_order;
 
 extern int health_bar;
 extern int health_bar_full_length;
+extern int health_bar_shootables;
 extern int health_bar_red;
 extern int health_bar_yellow;
 extern int health_bar_green;
