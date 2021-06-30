@@ -1371,10 +1371,11 @@ static int C_DECL dicmp_sprite_by_pos(const void *a, const void *b)
  * changes like byte order reversals. Take a copy to edit.
  */
 
-static void P_LoadThings (int lump)
+static void P_LoadThings (int lump, int hexen)
 {
-  int  i, numthings = W_LumpLength (lump) / sizeof(mapthing_t);
+  int  i, numthings = W_LumpLength (lump) / (hexen ? sizeof(mapthing_hexen_t) : sizeof(mapthing_t));
   const mapthing_t *data = W_CacheLumpNum (lump);
+  const mapthing_hexen_t *hxdata = (const mapthing_hexen_t *) data;
 
   mobj_t *mobj;
   int mobjcount = 0;
@@ -1386,12 +1387,24 @@ static void P_LoadThings (int lump)
   for (i=0; i<numthings; i++)
     {
       mapthing_t mt = data[i];
+      mapthing_hexen_t mth = hxdata[i];
 
-      mt.x = LittleShort(mt.x);
-      mt.y = LittleShort(mt.y);
-      mt.angle = LittleShort(mt.angle);
-      mt.type = LittleShort(mt.type);
-      mt.options = LittleShort(mt.options);
+      if (hexen)
+      {
+        mt.x = LittleShort(mth.x);
+        mt.y = LittleShort(mth.y);
+        mt.angle = LittleShort(mth.angle);
+        mt.type = LittleShort(mth.type);
+        mt.options = LittleShort(mth.options);
+      }
+      else
+      {
+        mt.x = LittleShort(mt.x);
+        mt.y = LittleShort(mt.y);
+        mt.angle = LittleShort(mt.angle);
+        mt.type = LittleShort(mt.type);
+        mt.options = LittleShort(mt.options);
+      }
 
       if (!P_IsDoomnumAllowed(mt.type))
         continue;
@@ -1459,26 +1472,38 @@ static void P_LoadThings (int lump)
 //
 // killough 5/3/98: reformatted, cleaned up
 
-static void P_LoadLineDefs (int lump)
+static void P_LoadLineDefs (int lump, int hexen)
 {
   const byte *data; // cph - const*
   int  i;
 
-  numlines = W_LumpLength (lump) / sizeof(maplinedef_t);
+  numlines = W_LumpLength (lump) / (hexen ? sizeof(maplinedef_hexen_t) : sizeof(maplinedef_t));
   lines = calloc_IfSameLevel(lines, numlines, sizeof(line_t));
   data = W_CacheLumpNum (lump); // cph - wad lump handling updated
 
   for (i=0; i<numlines; i++)
     {
       const maplinedef_t *mld = (const maplinedef_t *) data + i;
+      const maplinedef_hexen_t *mldh = (const maplinedef_hexen_t *) data + i;
       line_t *ld = lines+i;
       vertex_t *v1, *v2;
 
-      ld->flags = (unsigned short)LittleShort(mld->flags);
-      ld->special = LittleShort(mld->special);
-      ld->tag = LittleShort(mld->tag);
-      v1 = ld->v1 = &vertexes[(unsigned short)LittleShort(mld->v1)];
-      v2 = ld->v2 = &vertexes[(unsigned short)LittleShort(mld->v2)];
+      if (hexen)
+      {
+        ld->flags = (unsigned short)LittleShort(mldh->flags);
+        ld->special = mldh->special;
+        ld->tag = 0;
+        v1 = ld->v1 = &vertexes[(unsigned short)LittleShort(mldh->v1)];
+        v2 = ld->v2 = &vertexes[(unsigned short)LittleShort(mldh->v2)];
+      }
+      else
+      {
+        ld->flags = (unsigned short)LittleShort(mld->flags);
+        ld->special = LittleShort(mld->special);
+        ld->tag = LittleShort(mld->tag);
+        v1 = ld->v1 = &vertexes[(unsigned short)LittleShort(mld->v1)];
+        v2 = ld->v2 = &vertexes[(unsigned short)LittleShort(mld->v2)];
+      }
       ld->dx = v2->x - v1->x;
       ld->dy = v2->y - v1->y;
 #ifdef GL_DOOM
@@ -1522,8 +1547,16 @@ static void P_LoadLineDefs (int lump)
       ld->soundorg.y = ld->bbox[BOXTOP] / 2 + ld->bbox[BOXBOTTOM] / 2;
 
       ld->iLineID=i; // proff 04/05/2000: needed for OpenGL
-      ld->sidenum[0] = LittleShort(mld->sidenum[0]);
-      ld->sidenum[1] = LittleShort(mld->sidenum[1]);
+      if (hexen)
+      {
+        ld->sidenum[0] = LittleShort(mldh->sidenum[0]);
+        ld->sidenum[1] = LittleShort(mldh->sidenum[1]);
+      }
+      else
+      {
+        ld->sidenum[0] = LittleShort(mld->sidenum[0]);
+        ld->sidenum[1] = LittleShort(mld->sidenum[1]);
+      }
 
       { 
         /* cph 2006/09/30 - fix sidedef errors right away.
@@ -2448,7 +2481,7 @@ dboolean P_CheckLumpsForSameSource(int lump1, int lump2)
 // Checking for presence of necessary lumps
 //
 
-void P_CheckLevelWadStructure(const char *mapname)
+int P_CheckLevelWadStructure(const char *mapname)
 {
   int i, lumpnum;
 
@@ -2486,15 +2519,18 @@ void P_CheckLevelWadStructure(const char *mapname)
     }
   }
 
-  // refuse to load Hexen-format maps, avoid segfaults
+  // detect Hexen-format maps, avoid segfaults
   i = lumpnum + ML_BLOCKMAP + 1;
   if (P_CheckLumpsForSameSource(lumpnum, i))
   {
     if (!strncasecmp(lumpinfo[i].name, "BEHAVIOR", 8))
     {
-      I_Error("P_SetupLevel: %s: Hexen format not supported", mapname);
+      lprintf(LO_INFO, "P_SetupLevel: %s: Hexen format detected\n", mapname);
+      return 1;
     }
   }
+
+  return 0;
 }
 
 void P_InitSubsectorsLines(void)
@@ -2606,6 +2642,8 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   char  gl_lumpname[9];
   int   gl_lumpnum;
 
+  int   hexen_format;
+
   //e6y
   totallive = 0;
   transparentpresent = false;
@@ -2656,7 +2694,7 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   // e6y
   // Refuse to load a map with incomplete pwad structure.
   // Avoid segfaults on levels without nodes.
-  P_CheckLevelWadStructure(lumpname);
+  hexen_format = P_CheckLevelWadStructure(lumpname);
 
   leveltime = 0; totallive = 0;
 
@@ -2712,7 +2750,7 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
     P_LoadVertexes  (lumpnum+ML_VERTEXES);
   P_LoadSectors   (lumpnum+ML_SECTORS);
   P_LoadSideDefs  (lumpnum+ML_SIDEDEFS);
-  P_LoadLineDefs  (lumpnum+ML_LINEDEFS);
+  P_LoadLineDefs  (lumpnum+ML_LINEDEFS, hexen_format);
   P_LoadSideDefs2 (lumpnum+ML_SIDEDEFS);
   P_LoadLineDefs2 (lumpnum+ML_LINEDEFS);
 
@@ -2789,7 +2827,7 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
 
   P_MapStart();
 
-  P_LoadThings(lumpnum+ML_THINGS);
+  P_LoadThings(lumpnum+ML_THINGS, hexen_format);
 
   // if deathmatch, randomly spawn the active players
   if (deathmatch)

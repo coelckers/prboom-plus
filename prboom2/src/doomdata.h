@@ -97,6 +97,19 @@ typedef struct {
   unsigned short sidenum[2];
 } PACKEDATTR maplinedef_t;
 
+typedef struct {
+  unsigned short v1;
+  unsigned short v2;
+  unsigned short flags;
+  byte special;
+  byte arg1;
+  byte arg2;
+  byte arg3;
+  byte arg4;
+  byte arg5;
+  unsigned short sidenum[2];
+} PACKEDATTR maplinedef_hexen_t;
+
 #define NO_INDEX ((unsigned short)-1)
 
 //
@@ -244,6 +257,22 @@ typedef struct {
   short type;
   short options;
 } PACKEDATTR mapthing_t;
+
+typedef struct {
+  short tid;
+  short x;
+  short y;
+  short height;
+  short angle;
+  short type;
+  short options;
+  byte special;
+  byte arg1;
+  byte arg2;
+  byte arg3;
+  byte arg4;
+  byte arg5;
+} PACKEDATTR mapthing_hexen_t;
 
 #ifdef _MSC_VER
 #pragma pack(pop)
