@@ -156,6 +156,11 @@ void Scanner::CheckForWhitespace()
 			}
 			scanPos += 2;
 		}
+		else if(cur == ';' && comment == 0)
+		{
+			comment = 1;
+			scanPos += 1;
+		}
 		else
 		{
 			if(comment == 0)
