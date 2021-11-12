@@ -126,8 +126,6 @@ int I_GetTime_RealTime (void)
 }
 
 #ifndef PRBOOM_SERVER
-static unsigned int start_displaytime;
-static unsigned int displaytime;
 static dboolean InDisplay = false;
 static int saved_gametic = -1;
 dboolean realframe = false;
@@ -142,20 +140,15 @@ dboolean I_StartDisplay(void)
   if (realframe)
     saved_gametic = gametic;
 
-  start_displaytime = SDL_GetTicks();
   InDisplay = true;
   return true;
 }
 
 void I_EndDisplay(void)
 {
-  displaytime = SDL_GetTicks() - start_displaytime;
   InDisplay = false;
 }
 
-static int subframe = 0;
-static int prevsubframe = 0;
-int interpolation_method;
 fixed_t I_GetTimeFrac (void)
 {
   unsigned long now;
@@ -163,24 +156,13 @@ fixed_t I_GetTimeFrac (void)
 
   now = SDL_GetTicks();
 
-  subframe++;
-
   if (tic_vars.step == 0)
   {
     frac = FRACUNIT;
   }
   else
   {
-    extern int renderer_fps;
-    if ((interpolation_method == 0) || (prevsubframe <= 0) || (renderer_fps <= 0))
-    {
-      frac = (fixed_t)((now - tic_vars.start + displaytime) * FRACUNIT / tic_vars.step);
-    }
-    else
-    {
-      frac = (fixed_t)((now - tic_vars.start) * FRACUNIT / tic_vars.step);
-      frac = (unsigned int)((float)FRACUNIT * TICRATE * subframe / renderer_fps);
-    }
+    frac = (fixed_t)((now - tic_vars.start) * FRACUNIT / tic_vars.step);
     frac = BETWEEN(0, FRACUNIT, frac);
   }
 
@@ -195,8 +177,6 @@ void I_GetTime_SaveMS(void)
   tic_vars.start = SDL_GetTicks();
   tic_vars.next = (unsigned int) ((tic_vars.start * tic_vars.msec + 1.0f) / tic_vars.msec);
   tic_vars.step = tic_vars.next - tic_vars.start;
-  prevsubframe = subframe;
-  subframe = 0;
 }
 #endif
 

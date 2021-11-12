@@ -53,7 +53,6 @@
 #define    R_OK    4    /* Check for read permission */
 #endif
 
-extern int interpolation_method;
 extern int ms_to_next_tick;
 dboolean I_StartDisplay(void);
 void I_EndDisplay(void);
