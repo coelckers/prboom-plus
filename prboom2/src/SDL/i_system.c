@@ -125,6 +125,16 @@ int I_GetTime_RealTime (void)
   return i;
 }
 
+static int I_GetTime_MS(void)
+{
+    int ticks = SDL_GetTicks();
+
+    if (basetime == 0)
+        basetime = ticks;
+
+    return ticks - basetime;
+}
+
 #ifndef PRBOOM_SERVER
 static dboolean InDisplay = false;
 static int saved_gametic = -1;
@@ -156,27 +166,16 @@ fixed_t I_GetTimeFrac (void)
 
   now = SDL_GetTicks();
 
-  if (tic_vars.step == 0)
+  if (!movement_smooth)
   {
     frac = FRACUNIT;
   }
   else
   {
-    frac = (fixed_t)((now - tic_vars.start) * FRACUNIT / tic_vars.step);
-    frac = BETWEEN(0, FRACUNIT, frac);
+    frac = I_GetTime_MS() * TICRATE % 1000 * FRACUNIT / 1000;
   }
 
   return frac;
-}
-
-void I_GetTime_SaveMS(void)
-{
-  if (!movement_smooth)
-    return;
-
-  tic_vars.start = SDL_GetTicks();
-  tic_vars.next = (unsigned int) ((tic_vars.start * tic_vars.msec + 1.0f) / tic_vars.msec);
-  tic_vars.step = tic_vars.next - tic_vars.start;
 }
 #endif
 

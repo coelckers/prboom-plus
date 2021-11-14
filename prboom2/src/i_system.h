@@ -60,7 +60,6 @@ int I_GetTime_RealTime(void);     /* killough */
 #ifndef PRBOOM_SERVER
 fixed_t I_GetTimeFrac (void);
 #endif
-void I_GetTime_SaveMS(void);
 
 unsigned long I_GetRandomTimeSeed(void); /* cphipps */
 
