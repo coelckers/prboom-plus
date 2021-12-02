@@ -61,6 +61,9 @@ int I_GetTime_RealTime(void);     /* killough */
 fixed_t I_GetTimeFrac (void);
 #endif
 
+extern int I_GetTime_MS(void);
+extern int (*I_TickElapsedTime)(void);
+
 unsigned long I_GetRandomTimeSeed(void); /* cphipps */
 
 void I_uSleep(unsigned long usecs);

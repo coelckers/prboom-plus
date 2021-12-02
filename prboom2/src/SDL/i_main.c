@@ -112,19 +112,46 @@ static int I_GetTime_Error(void)
 
 int (*I_GetTime)(void) = I_GetTime_Error;
 
+// During a fast demo, no time elapses in between ticks
+static int I_TickElapsedTime_FastDemo(void)
+{
+  return 0;
+}
+
+static int I_TickElapsedTime_RealTime(void)
+{
+  return I_GetTime_MS() - I_GetTime() * 1000 / TICRATE;
+}
+
+static int I_TickElapsedTime_Scaled(void)
+{
+  int scaled_time = I_GetTime_MS() * realtic_clock_rate / 100;
+
+  return scaled_time - I_GetTime() * 1000 / TICRATE;
+}
+
+int (*I_TickElapsedTime)(void) = I_TickElapsedTime_RealTime;
+
 void I_Init(void)
 {
   /* killough 4/14/98: Adjustable speedup based on realtic_clock_rate */
   if (fastdemo)
+  {
     I_GetTime = I_GetTime_FastDemo;
+    I_TickElapsedTime = I_TickElapsedTime_FastDemo;
+  }
   else
     if (realtic_clock_rate != 100)
       {
         I_GetTime_Scale = ((int_64_t) realtic_clock_rate << 24) / 100;
         I_GetTime = I_GetTime_Scaled;
+        I_TickElapsedTime = I_TickElapsedTime_Scaled;
       }
     else
+    {
       I_GetTime = I_GetTime_RealTime;
+      I_TickElapsedTime = I_TickElapsedTime_RealTime;
+    }
 
   {
     /* killough 2/21/98: avoid sound initialization if no sound & no music */
@@ -139,16 +166,23 @@ void I_Init(void)
 void I_Init2(void)
 {
   if (fastdemo)
+  {
     I_GetTime = I_GetTime_FastDemo;
+    I_TickElapsedTime = I_TickElapsedTime_FastDemo;
+  }
   else
   {
     if (realtic_clock_rate != 100)
       {
         I_GetTime_Scale = ((int_64_t) realtic_clock_rate << 24) / 100;
         I_GetTime = I_GetTime_Scaled;
+        I_TickElapsedTime = I_TickElapsedTime_Scaled;
       }
     else
+    {
       I_GetTime = I_GetTime_RealTime;
+      I_TickElapsedTime = I_TickElapsedTime_RealTime;
+    }
   }
   R_InitInterpolation();
   force_singletics_to = gametic + BACKUPTICS;

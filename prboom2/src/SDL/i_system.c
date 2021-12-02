@@ -125,7 +125,7 @@ int I_GetTime_RealTime (void)
   return i;
 }
 
-static int I_GetTime_MS(void)
+int I_GetTime_MS(void)
 {
     int ticks = SDL_GetTicks();
 
@@ -169,7 +169,10 @@ fixed_t I_GetTimeFrac (void)
   }
   else
   {
-    frac = I_GetTime_MS() * TICRATE % 1000 * FRACUNIT / 1000;
+    int tic_time = I_TickElapsedTime();
+
+    frac = tic_time * FRACUNIT * TICRATE / 1000;
+    frac = BETWEEN(0, FRACUNIT, frac);
   }
 
   return frac;
