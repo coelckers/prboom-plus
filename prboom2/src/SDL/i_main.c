@@ -112,8 +112,7 @@ int I_GetTime_RealTime (void)
   i = t * TICRATE / 1000;
 
   ms_to_next_tick = (i + 1) * 1000 / TICRATE - t;
-  if (ms_to_next_tick > 1000 / TICRATE) ms_to_next_tick = 1;
-  if (ms_to_next_tick < 1) ms_to_next_tick = 0;
+  ms_to_next_tick = BETWEEN(0, 1000 / TICRATE, ms_to_next_tick);
 
   return i;
 }
@@ -133,8 +132,7 @@ static int I_GetTime_Scaled(void)
   i = t * TICRATE * realtic_clock_rate / 100000;
 
   ms_to_next_tick = (i + 1) * 100000 / realtic_clock_rate / TICRATE - t;
-  if (ms_to_next_tick > 100000 / realtic_clock_rate / TICRATE) ms_to_next_tick = 1;
-  if (ms_to_next_tick < 1) ms_to_next_tick = 0;
+  ms_to_next_tick = BETWEEN(0, 100000 / realtic_clock_rate / TICRATE, ms_to_next_tick);
 
   return i;
 }
