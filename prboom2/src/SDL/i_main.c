@@ -84,12 +84,59 @@ typedef BOOL (WINAPI *SetAffinityFunc)(HANDLE hProcess, DWORD mask);
  * cphipps - much made static
  */
 
+static int basetime = 0;
+
+static int I_GetTime_MS(void)
+{
+    int ticks = SDL_GetTicks();
+
+    if (basetime == 0)
+        basetime = ticks;
+
+    return ticks - basetime;
+}
+
+int ms_to_next_tick;
+
+int I_GetTime_RealTime (void)
+{
+  int i;
+  int t = SDL_GetTicks();
+
+  //e6y: removing startup delay
+  if (basetime == 0)
+    basetime = t;
+
+  t -= basetime;
+
+  i = t * TICRATE / 1000;
+
+  ms_to_next_tick = (i + 1) * 1000 / TICRATE - t;
+  if (ms_to_next_tick > 1000 / TICRATE) ms_to_next_tick = 1;
+  if (ms_to_next_tick < 1) ms_to_next_tick = 0;
+
+  return i;
+}
+
 int realtic_clock_rate = 100;
-static int_64_t I_GetTime_Scale = 1<<24;
 
 static int I_GetTime_Scaled(void)
 {
-  return (int)( (int_64_t) I_GetTime_RealTime() * I_GetTime_Scale >> 24);
+  int i;
+  int t = SDL_GetTicks();
+
+  if (basetime == 0)
+    basetime = t;
+
+  t -= basetime;
+
+  i = t * TICRATE * realtic_clock_rate / 100000;
+
+  ms_to_next_tick = (i + 1) * 100000 / realtic_clock_rate / TICRATE - t;
+  if (ms_to_next_tick > 100000 / realtic_clock_rate / TICRATE) ms_to_next_tick = 1;
+  if (ms_to_next_tick < 1) ms_to_next_tick = 0;
+
+  return i;
 }
 
 
@@ -97,6 +144,9 @@ static int I_GetTime_Scaled(void)
 static int  I_GetTime_FastDemo(void)
 {
   static int fasttic;
+
+  ms_to_next_tick = 0;
+
   return fasttic++;
 }
 
@@ -143,7 +193,6 @@ void I_Init(void)
   else
     if (realtic_clock_rate != 100)
       {
-        I_GetTime_Scale = ((int_64_t) realtic_clock_rate << 24) / 100;
         I_GetTime = I_GetTime_Scaled;
         I_TickElapsedTime = I_TickElapsedTime_Scaled;
       }
@@ -174,7 +223,6 @@ void I_Init2(void)
   {
     if (realtic_clock_rate != 100)
       {
-        I_GetTime_Scale = ((int_64_t) realtic_clock_rate << 24) / 100;
         I_GetTime = I_GetTime_Scaled;
         I_TickElapsedTime = I_TickElapsedTime_Scaled;
       }
