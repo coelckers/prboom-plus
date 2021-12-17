@@ -1,4 +1,4 @@
-# UMAPINFO Specification Rev 2.1
+# UMAPINFO Specification Rev 2.2
 Contents:
 - [Map Entry](#map-entry)
 - [Keys](#keys)
@@ -46,6 +46,10 @@ character (e.g. "E1M1: ").
 `label = clear`  
 Only print the levelname on the automap.
 
+### Author
+`author = "name"`  
+Specifies the level author's name.
+
 ### LevelPic
 `levelpic = "graphic"`  
 Specifies the patch that is used on the status screen for 'entering'
@@ -67,6 +71,14 @@ Specifies the sky texture to be used for this map.
 ### Music
 `music = "song"`  
 Specifies the music to be played on this map.
+
+### MusicTitle
+`musictitle = "title"`  
+Specifies the title of the music.
+
+### MusicComposer
+`musiccomposer = "name"`  
+Specifies the name of the composer.
 
 ### ExitPic
 `exitpic = "graphic"`  
@@ -343,6 +355,9 @@ MAP E1M7
     Deh_Actor_249
 ```
 ## Revisions
+
+Rev 2.2 (@rfomin, December 17 2021)
+ * Introduce the new `author`, `musictitle` and `musiccomposer` fields.
 
 Rev 2.1 (@rfomin, June 22 2021)
  * Lookup for default backdrop if `interbackdrop` is not specified.
