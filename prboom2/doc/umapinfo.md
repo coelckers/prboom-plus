@@ -72,14 +72,6 @@ Specifies the sky texture to be used for this map.
 `music = "song"`  
 Specifies the music to be played on this map.
 
-### MusicTitle
-`musictitle = "title"`  
-Specifies the title of the music.
-
-### MusicComposer
-`musiccomposer = "name"`  
-Specifies the name of the composer.
-
 ### ExitPic
 `exitpic = "graphic"`  
 Specifies the background for the 'level finished' screen. This can override
@@ -357,7 +349,7 @@ MAP E1M7
 ## Revisions
 
 Rev 2.2 (@rfomin, December 17 2021)
- * Introduce the new `author`, `musictitle` and `musiccomposer` fields.
+ * Introduce the new `author` field.
 
 Rev 2.1 (@rfomin, June 22 2021)
  * Lookup for default backdrop if `interbackdrop` is not specified.
