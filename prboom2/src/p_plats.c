@@ -118,8 +118,6 @@ void T_PlatRaise(plat_t* plat)
             case raiseAndChange:
             case raiseToNearestAndChange:
             case genLift:
-		    // SmileTheory: in versions <= v1.2 (at least), platform types besides
-		    // downWaitUpStay always remain active.
 		    if (compatibility_level > doom_12_compatibility)
               P_RemoveActivePlat(plat);     // killough
             default:
@@ -159,11 +157,8 @@ void T_PlatRaise(plat_t* plat)
           {
             case raiseAndChange:
             case raiseToNearestAndChange:
-		    // SmileTheory: in versions <= v1.2 (at least), platform types besides
-		    // downWaitUpStay always remain active.
-		    if (compatibility_level > doom_12_compatibility)
-                P_RemoveActivePlat(plat);
-            break;
+              P_RemoveActivePlat(plat);
+
             default:
               break;
           }
