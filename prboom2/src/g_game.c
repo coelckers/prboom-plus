@@ -873,6 +873,8 @@ static void G_DoLoadLevel (void)
       memset (players[i].frags,0,sizeof(players[i].frags));
     }
 
+  e6y_G_DoWorldDone();//e6y
+
   // automatic pistol start when advancing from one level to the next
   if (pistolstart)
   {
@@ -1882,7 +1884,6 @@ void G_DoWorldDone (void)
   G_DoLoadLevel();
   gameaction = ga_nothing;
   AM_clearMarks();           //jff 4/12/98 clear any marks on the automap
-  e6y_G_DoWorldDone();//e6y
 }
 
 // killough 2/28/98: A ridiculously large number
