@@ -93,6 +93,9 @@ int hud_num;
 #define HU_MAP_TIME_Y      (4 + 4*hu_font['A'-HU_FONTSTART].height + HU_MAP_STAT_Y)
 #define HU_MAP_TOTALTIME_Y (5 + 5*hu_font['A'-HU_FONTSTART].height + HU_MAP_STAT_Y)
 
+#define HU_SKILLX (0)
+#define HU_SKILLY (6 + 6*hu_font['A'-HU_FONTSTART].height + (1 * hu_font['A'-HU_FONTSTART].height + 1))
+
 //jff 2/16/98 add ammo, health, armor widgets, 2/22/98 less gap
 #define HU_GAPY 8
 
@@ -166,6 +169,7 @@ static hu_textline_t  w_map_secrets;   //e6y secrets widgets automap
 static hu_textline_t  w_map_items;     //e6y items widgets automap
 static hu_textline_t  w_map_time;      //e6y level time widgets automap
 static hu_textline_t  w_map_totaltime; //e6y total time widgets automap
+static hu_textline_t  w_map_skill;
 
 static hu_textline_t  w_health_big;
 static hu_textline_t  w_medict_icon_big;
@@ -198,6 +202,7 @@ int hudcolor_xyco;  // color range of new coords on automap
 int hudcolor_mapstat_title;
 int hudcolor_mapstat_value;
 int hudcolor_mapstat_time;
+int hudcolor_skill;
 //jff 2/16/98 hud text colors, controls added
 int hudcolor_mesg;  // color range of scrolling messages
 int hudcolor_chat;  // color range of chat lines
@@ -232,6 +237,7 @@ extern char **mapnamest[];
 
 extern int map_point_coordinates;
 extern int map_level_stat;
+extern int map_skill;
 
 // key tables
 // jff 5/10/98 french support removed,
@@ -491,6 +497,17 @@ void HU_Start(void)
     HU_FONTSTART,
     hudcolor_titl,
     VPT_ALIGN_LEFT_BOTTOM
+  );
+
+  HUlib_initTextLine
+  (
+    &w_map_skill,
+    HU_SKILLX,
+    HU_SKILLY,
+    hu_font,
+    HU_FONTSTART,
+    hudcolor_skill,
+    VPT_ALIGN_LEFT
   );
 
   // create the hud health widget
@@ -2447,6 +2464,21 @@ void HU_Drawer(void)
           HUlib_addCharToTextLine(&w_coordz, *(s++));
         HUlib_drawTextLine(&w_coordz, false);
       }
+    }
+
+    if (map_skill)
+    {
+      static char str[24];
+      static const char *skillstrings[] = {
+        "", "I'm too young to die", "Hey, not too rough", "Hurt me plenty", "Ultra-Violence", "Nightmare!", NULL
+      };
+
+      sprintf(str, "%s", skillstrings[gameskill+1]);
+      HUlib_clearTextLine(&w_map_skill);
+      s = str;
+      while (*s)
+        HUlib_addCharToTextLine(&w_map_skill, *(s++));
+      HUlib_drawTextLine(&w_map_skill, false);
     }
 
     if (map_level_stat)

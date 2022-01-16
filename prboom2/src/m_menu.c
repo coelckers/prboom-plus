@@ -204,6 +204,7 @@ int mapcolor_me;    // cph
 
 extern int map_point_coordinates; // killough 10/98
 extern int map_level_stat;
+extern int map_skill;
 
 extern char* chat_macros[];  // chat macros
 extern const char* shiftxform;
@@ -2940,19 +2941,20 @@ setup_menu_t auto_settings1[] =  // 1st AutoMap Settings screen
 {
   {"Show Kills/Secrts/Items statistics",      S_YESNO,m_null,AU_X,AU_Y+0*8, {"map_level_stat"}},
   {"Show coordinates of automap pointer",     S_YESNO,m_null,AU_X,AU_Y+1*8, {"map_point_coord"}},  // killough 10/98
-  {"Show Secrets only after entering",        S_YESNO,m_null,AU_X,AU_Y+2*8, {"map_secret_after"}},
-  {"Update unexplored parts in automap mode", S_YESNO,m_null,AU_X,AU_Y+3*8, {"map_always_updates"}},
-  {"Grid cell size 8..256, -1 for autosize",  S_NUM,  m_null,AU_X,AU_Y+4*8, {"map_grid_size"}, 0, 0, M_ChangeMapGridSize},
-  {"Scroll / Zoom speed  (1..32)",            S_NUM,  m_null,AU_X,AU_Y+5*8, {"map_scroll_speed"}},
-  {"Use mouse wheel for zooming",             S_YESNO,m_null,AU_X,AU_Y+6*8, {"map_wheel_zoom"}},
-  {"Apply multisampling",                     S_YESNO,m_null,AU_X,AU_Y+7*8, {"map_use_multisamling"}, 0, 0, M_ChangeMapMultisamling},
+  {"Show current skill level",                S_YESNO,m_null,AU_X,AU_Y+2*8, {"map_skill"}},
+  {"Show Secrets only after entering",        S_YESNO,m_null,AU_X,AU_Y+3*8, {"map_secret_after"}},
+  {"Update unexplored parts in automap mode", S_YESNO,m_null,AU_X,AU_Y+4*8, {"map_always_updates"}},
+  {"Grid cell size 8..256, -1 for autosize",  S_NUM,  m_null,AU_X,AU_Y+5*8, {"map_grid_size"}, 0, 0, M_ChangeMapGridSize},
+  {"Scroll / Zoom speed  (1..32)",            S_NUM,  m_null,AU_X,AU_Y+6*8, {"map_scroll_speed"}},
+  {"Use mouse wheel for zooming",             S_YESNO,m_null,AU_X,AU_Y+7*8, {"map_wheel_zoom"}},
+  {"Apply multisampling",                     S_YESNO,m_null,AU_X,AU_Y+8*8, {"map_use_multisamling"}, 0, 0, M_ChangeMapMultisamling},
 #ifdef GL_DOOM
-  {"Enable textured display",                 S_YESNO,m_null,AU_X,AU_Y+8*8, {"map_textured"}, 0, 0, M_ChangeMapTextured},
-  {"Things appearance",                       S_CHOICE,m_null,AU_X,AU_Y+9*8, {"map_things_appearance"}, 0, 0, NULL, map_things_appearance_list},
-  {"Translucency percentage",                 S_SKIP|S_TITLE,m_null,AU_X,AU_Y+10*8},
-  {"Textured automap",                        S_NUM,  m_null,AU_X,AU_Y+11*8, {"map_textured_trans"}},
-  {"Textured automap in overlay mode",        S_NUM,  m_null,AU_X,AU_Y+12*8, {"map_textured_overlay_trans"}},
-  {"Lines in overlay mode",                   S_NUM,  m_null,AU_X,AU_Y+13*8, {"map_lines_overlay_trans"}},
+  {"Enable textured display",                 S_YESNO,m_null,AU_X,AU_Y+9*8, {"map_textured"}, 0, 0, M_ChangeMapTextured},
+  {"Things appearance",                       S_CHOICE,m_null,AU_X,AU_Y+10*8, {"map_things_appearance"}, 0, 0, NULL, map_things_appearance_list},
+  {"Translucency percentage",                 S_SKIP|S_TITLE,m_null,AU_X,AU_Y+11*8},
+  {"Textured automap",                        S_NUM,  m_null,AU_X,AU_Y+12*8, {"map_textured_trans"}},
+  {"Textured automap in overlay mode",        S_NUM,  m_null,AU_X,AU_Y+13*8, {"map_textured_overlay_trans"}},
+  {"Lines in overlay mode",                   S_NUM,  m_null,AU_X,AU_Y+14*8, {"map_lines_overlay_trans"}},
 #endif
 
   // Button for resetting to defaults
@@ -2981,10 +2983,11 @@ setup_menu_t auto_settings2[] =  // 2st AutoMap Settings screen
 
   {"AUTOMAP LEVEL TITLE COLOR"      ,S_CRITEM,m_null,AU_X,AU_Y+12*8, {"hudcolor_titl"}},
   {"AUTOMAP COORDINATES COLOR"      ,S_CRITEM,m_null,AU_X,AU_Y+13*8, {"hudcolor_xyco"}},
+  {"AUTOMAP SKILL LEVEL COLOR"      ,S_CRITEM,m_null,AU_X,AU_Y+14*8, {"hudcolor_skill"}},
 
-  {"Automap Statistics Titles Color",S_CRITEM,m_null,AU_X,AU_Y+14*8, {"hudcolor_mapstat_title"}},
-  {"Automap Statistics Values Color",S_CRITEM,m_null,AU_X,AU_Y+15*8, {"hudcolor_mapstat_value"}},
-  {"Automap Statistics Time Color"  ,S_CRITEM,m_null,AU_X,AU_Y+16*8, {"hudcolor_mapstat_time"}},
+  {"Automap Statistics Titles Color",S_CRITEM,m_null,AU_X,AU_Y+15*8, {"hudcolor_mapstat_title"}},
+  {"Automap Statistics Values Color",S_CRITEM,m_null,AU_X,AU_Y+16*8, {"hudcolor_mapstat_value"}},
+  {"Automap Statistics Time Color"  ,S_CRITEM,m_null,AU_X,AU_Y+17*8, {"hudcolor_mapstat_time"}},
 
   // Button for resetting to defaults
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},

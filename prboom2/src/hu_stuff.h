@@ -82,6 +82,7 @@ extern int hudcolor_xyco;   /* color range of new coords on automap */
 extern int hudcolor_mapstat_title;
 extern int hudcolor_mapstat_value;
 extern int hudcolor_mapstat_time;
+extern int hudcolor_skill;
 /* jff 2/16/98 hud text colors, controls added */
 extern int hudcolor_mesg;   /* color range of scrolling messages    */
 extern int hudcolor_chat;   /* color range of chat lines            */

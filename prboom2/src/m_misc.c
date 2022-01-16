@@ -298,6 +298,7 @@ extern const char* S_music_files[]; // cournia
  */
 int map_point_coordinates;
 int map_level_stat;
+int map_skill;
 
 default_t defaults[] =
 {
@@ -870,6 +871,8 @@ default_t defaults[] =
    def_bool,ss_auto},
   {"map_level_stat", {&map_level_stat}, {1},0,1,
    def_bool,ss_auto},
+  {"map_skill", {&map_skill}, {0},0,1,
+   def_bool,ss_auto},
   //jff 1/7/98 end additions for automap
   {"automapmode", {(int*)&automapmode}, {am_follow}, 0, 31, // CPhipps - remember automap mode
    def_hex,ss_none}, // automap mode
@@ -914,6 +917,8 @@ default_t defaults[] =
    def_int,ss_auto}, // color range used for automap statistics for data
   {"hudcolor_mapstat_time", {&hudcolor_mapstat_time}, {2},0,9,    // gray range
    def_int,ss_auto}, // color range used for automap statistics for level time and total time
+  {"hudcolor_skill", {&hudcolor_skill}, {6},0,9,  // red range
+   def_int,ss_auto}, // color range used for automap skill level
   {"hudcolor_mesg", {&hudcolor_mesg}, {6},0,9,  // red range
    def_int,ss_mess}, // color range used for messages during play
   {"hudcolor_chat", {&hudcolor_chat}, {5},0,9,  // gold range
