@@ -638,6 +638,8 @@ manual_floor://e6y
         floor->floordestheight = P_FindLowestFloorSurrounding(sec);
         floor->texture = sec->floorpic;
 
+        if (!comp_floors)
+        {
         // jff 1/24/98 make sure floor->newspecial gets initialized
         // in case no surrounding sector is at floordestheight
         // --> should not affect compatibility <--
@@ -653,6 +655,48 @@ manual_floor://e6y
           floor->newspecial = sec->special;
           //jff 3/14/98 transfer both old and new special
           floor->oldspecial = sec->oldspecial;
+        }
+        }
+        else
+        {
+	    for (i = 0; i < sec->linecount; i++)
+	    {
+		if ( twoSided(secnum, i) )
+		{
+		    if (getSide(secnum,i,0)->sector-sectors == secnum)
+		    {
+			sec = getSector(secnum,i,1);
+
+			// Versions pre v1.25 don't check the floor height here
+			// and just use the texture and special of the sector
+			// attached to the first two sided linedef found.
+			// https://tcrf.net/Doom_(PC,_1993)/Revisional_Differences#v1.25
+			// FIXME: use gameversion < exe_doom_1_25 check
+			if (compatibility_level < doom_1666_compatibility || sec->floorheight == floor->floordestheight)
+			{
+			    floor->texture = sec->floorpic;
+			    floor->newspecial = sec->special;
+			    break;
+			}
+		    }
+		    else
+		    {
+			sec = getSector(secnum,i,0);
+
+			// Versions pre v1.25 don't check the floor height here
+			// and just use the texture and special of the sector
+			// attached to the first two sided linedef found.
+			// https://tcrf.net/Doom_(PC,_1993)/Revisional_Differences#v1.25
+			// FIXME: use gameversion < exe_doom_1_25 check
+			if (compatibility_level < doom_1666_compatibility || sec->floorheight == floor->floordestheight)
+			{
+			    floor->texture = sec->floorpic;
+			    floor->newspecial = sec->special;
+			    break;
+			}
+		    }
+		}
+	    }
         }
         break;
       default:
