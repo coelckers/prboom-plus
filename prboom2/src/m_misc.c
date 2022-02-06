@@ -591,6 +591,8 @@ default_t defaults[] =
    def_int,ss_keys}, // mouse button number to use for turning left
   {"mouseb_use", {&mousebuse},{-1},-1,MAX_MOUSEB,
    def_int,ss_keys}, // mouse button number to use for using doors/switches
+  {"mouseb_speed", {&mousebspeed},{-1},-1,MAX_MOUSEB,
+   def_int,ss_keys},
   //jff 3/8/98 end of lower range change for -1 allowed in mouse binding
 
   {"mb_weapon1",{&mb_weapon1},{-1},-1,MAX_MOUSEB,
