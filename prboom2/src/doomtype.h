@@ -75,14 +75,17 @@ typedef __int64 int_64_t;
 typedef unsigned __int64 uint_64_t;
 // define compiled-specific long-long contstant notation here
 #define LONGLONG(num) (uint_64_t)num
-#undef PATH_MAX
 #define strcasecmp _stricmp
 #define strncasecmp _strnicmp
 #define S_ISDIR(m)  (((m) & S_IFMT) == S_IFDIR)
 #endif
 
 #ifndef PATH_MAX
-#define PATH_MAX 1024
+  #ifdef MAX_PATH
+    #define PATH_MAX MAX_PATH
+  #else
+    #define PATH_MAX 1024
+  #endif
 #endif
 
 #ifdef __GNUC__
