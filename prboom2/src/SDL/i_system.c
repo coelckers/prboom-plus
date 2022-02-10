@@ -140,10 +140,7 @@ fixed_t I_GetTimeFrac (void)
   }
   else
   {
-    int tic_time = I_TickElapsedTime();
-
-    frac = tic_time * FRACUNIT * TICRATE / 1000;
-    frac = BETWEEN(0, FRACUNIT, frac);
+    frac = I_TickElapsedTime();
   }
 
   return frac;
