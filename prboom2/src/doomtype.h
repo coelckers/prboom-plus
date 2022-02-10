@@ -61,6 +61,7 @@ typedef unsigned char byte;
 #define BETWEEN(l,u,x) ((l)>(x)?(l):(x)>(u)?(u):(x))
 #endif
 
+#include <limits.h>
 
 /* cph - Wrapper for the long long type, as Win32 used a different name.
  * Except I don't know what to test as it's compiler specific
@@ -120,9 +121,6 @@ typedef unsigned __int64 uint_64_t;
 #else
   #define INLINE inline        /* use standard inline */
 #endif
-
-/* CPhipps - use limits.h instead of depreciated values.h */
-#include <limits.h>
 
 /* cph - move compatibility levels here so we can use them in d_server.c */
 typedef enum {
