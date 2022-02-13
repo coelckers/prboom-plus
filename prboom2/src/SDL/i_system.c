@@ -374,6 +374,7 @@ const char *I_DoomExeDir(void)
           char *prefpath = SDL_GetPrefPath("", prboom_dir);
           size_t prefsize = strlen(prefpath);
 
+          free(base);
           base = malloc(prefsize);
           strcpy(base, prefpath);
           // SDL_GetPrefPath always returns with trailing slash
