@@ -2335,22 +2335,39 @@ static void gld_DrawSprite(GLSprite *sprite)
   }
 }
 
+static int gld_EvaluateShowBar(mobj_t* thing)
+{
+  if (health_bar_shootables)
+    return thing->flags & MF_SHOOTABLE;
+  return (thing->flags & (MF_COUNTKILL | MF_CORPSE)) == MF_COUNTKILL;
+}
+
 static void gld_AddHealthBar(mobj_t* thing, GLSprite *sprite)
 {
-  if (((thing->flags & (MF_COUNTKILL | MF_CORPSE)) == MF_COUNTKILL) && (thing->health > 0))
+  if (thing->info->spawnhealth > 0 && thing->health > 0 &&
+      gld_EvaluateShowBar(thing))
   {
     GLHealthBar hbar;
     int health_percent = thing->health * 100 / thing->info->spawnhealth;
 
-    hbar.cm = -1;
-    if (health_percent <= health_bar_red)
-      hbar.cm = CR_RED;
-    else if (health_percent <= health_bar_yellow)
-      hbar.cm = CR_YELLOW;
-    else if (health_percent <= health_bar_green)
-      hbar.cm = CR_GREEN;
+    hbar.r = hbar.g = -1.0f;
+    if (health_percent <= 0) {
+      hbar.r = 1.0f;
+      hbar.g = 0.0f;
+    } else if (health_percent <= health_bar_red) {
+      hbar.r = 1.0f;
+      hbar.g = health_bar_red == 0 ? 0 : (float)health_percent / health_bar_red;
+    } else if (health_percent <= health_bar_yellow) {
+      float yr = health_bar_yellow - health_bar_red;
 
-    if (hbar.cm >= 0)
+      hbar.r = yr == 0 ? 1 : (health_bar_yellow - health_percent) / yr;
+      hbar.g = 1.0f;
+    } else if (health_percent <= health_bar_green) {
+      hbar.r = 0.0f;
+      hbar.g = 1.0f;
+    }
+
+    if (hbar.r >= 0 && hbar.g >= 0)
     {
       float sx2 = (float)thing->radius / 2.0f / MAP_SCALE;
       float sx1 = sx2 - (float)health_percent * (float)thing->radius / 100.0f / MAP_SCALE;
@@ -2374,7 +2391,6 @@ static void gld_AddHealthBar(mobj_t* thing, GLSprite *sprite)
 static void gld_DrawHealthBars(void)
 {
   int i, count;
-  int cm = -1;
 
   count = gld_drawinfo.num_items[GLDIT_HBAR];
   if (count > 0)
@@ -2385,11 +2401,7 @@ static void gld_DrawHealthBars(void)
     for (i = count - 1; i >= 0; i--)
     {
       GLHealthBar *hbar = gld_drawinfo.items[GLDIT_HBAR][i].item.hbar;
-      if (hbar->cm != cm)
-      {
-        cm = hbar->cm;
-        glColor4f(cm2RGB[cm][0], cm2RGB[cm][1], cm2RGB[cm][2], 1.0f);
-      }
+      glColor4f(hbar->r, hbar->g, 0.0f, 1.0f);
 
       glVertex3f(hbar->x1, hbar->y, hbar->z1);
       glVertex3f(hbar->x2, hbar->y, hbar->z2);

@@ -219,7 +219,7 @@ typedef struct
 
 typedef struct
 {
-  int cm;
+  float r,g;
 
   float x1, x2, x3;
   float z1, z2, z3;
