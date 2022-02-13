@@ -46,7 +46,6 @@
 #include <time.h>
 #include <signal.h>
 #include <string.h>
-#include <dirent.h>
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
 #define    W_OK    2    /* Check for write permission */
@@ -351,7 +350,7 @@ static const char prboom_dir[] = {"prboom-plus"};
 const char *I_DoomExeDir(void)
 {
   static char *base;
-  DIR *data_dir;
+  struct stat data_dir;
 
   if (!base)        // cache multiple requests
     {
@@ -365,10 +364,10 @@ const char *I_DoomExeDir(void)
       base = malloc(p_len);
       snprintf(base, p_len, "%s/.%s", home, prboom_dir);
 
-      data_dir = opendir(base);
-      if (data_dir)
+      stat(base, &data_dir);
+      if (S_ISDIR(data_dir.st_mode))
         {
-          closedir(data_dir);
+          return base;
         }
       else
         {
