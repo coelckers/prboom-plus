@@ -344,7 +344,6 @@ const char* I_GetTempDir(void)
 // cph - V.Aguilar (5/30/99) suggested return ~/.lxdoom/, creating
 //  if non-existant
 // cph 2006/07/23 - give prboom+ its own dir
-// static const char prboom_dir[] = {"/.prboom-plus"}; // Mead rem extra slash 8/21/03
 static const char prboom_dir[] = {"prboom-plus"};
 
 const char *I_DoomExeDir(void)
@@ -365,11 +364,7 @@ const char *I_DoomExeDir(void)
       snprintf(base, p_len, "%s/.%s", home, prboom_dir);
 
       stat(base, &data_dir);
-      if (S_ISDIR(data_dir.st_mode))
-        {
-          return base;
-        }
-      else
+      if (!S_ISDIR(data_dir.st_mode))
         {
           char *prefpath = SDL_GetPrefPath("", prboom_dir);
           size_t prefsize = strlen(prefpath);
@@ -381,7 +376,6 @@ const char *I_DoomExeDir(void)
           if (base[prefsize-1] == '/') base[prefsize-1] = 0;
           SDL_free(prefpath);
         }
-      mkdir(base, S_IRUSR | S_IWUSR | S_IXUSR); // Make sure it exists
     }
   return base;
 }
