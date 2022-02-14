@@ -344,22 +344,43 @@ const char* I_GetTempDir(void)
 // cph - V.Aguilar (5/30/99) suggested return ~/.lxdoom/, creating
 //  if non-existant
 // cph 2006/07/23 - give prboom+ its own dir
-static const char prboom_dir[] = {"/.prboom-plus"}; // Mead rem extra slash 8/21/03
+static const char prboom_dir[] = {"prboom-plus"};
 
 const char *I_DoomExeDir(void)
 {
   static char *base;
+  struct stat data_dir;
+
   if (!base)        // cache multiple requests
     {
       char *home = getenv("HOME");
+      char *p_home = strdup(home);
       size_t len = strlen(home);
+      size_t p_len = (len + strlen(prboom_dir) + 3);
 
-      base = malloc(len + strlen(prboom_dir) + 1);
-      strcpy(base, home);
       // I've had trouble with trailing slashes before...
-      if (base[len-1] == '/') base[len-1] = 0;
-      strcat(base, prboom_dir);
-      mkdir(base, S_IRUSR | S_IWUSR | S_IXUSR); // Make sure it exists
+      if (p_home[len-1] == '/') p_home[len-1] = 0;
+
+      base = malloc(p_len);
+      snprintf(base, p_len, "%s/.%s", p_home, prboom_dir);
+      free(p_home);
+
+      // if ~/.$prboom_dir doesn't exist,
+      // create and use directory in XDG_DATA_HOME
+      stat(base, &data_dir);
+      if (!S_ISDIR(data_dir.st_mode))
+        {
+          // SDL creates this directory if it doesn't exist
+          char *prefpath = SDL_GetPrefPath("", prboom_dir);
+          size_t prefsize = strlen(prefpath);
+
+          free(base);
+          base = strdup(prefpath);
+          // SDL_GetPrefPath always returns with trailing slash
+          if (base[prefsize-1] == '/') base[prefsize-1] = 0;
+          SDL_free(prefpath);
+        }
+//    mkdir(base, S_IRUSR | S_IWUSR | S_IXUSR);
     }
   return base;
 }
