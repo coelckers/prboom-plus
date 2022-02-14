@@ -354,14 +354,16 @@ const char *I_DoomExeDir(void)
   if (!base)        // cache multiple requests
     {
       char *home = getenv("HOME");
+      char *p_home = strdup(home);
       size_t len = strlen(home);
       size_t p_len = (len + strlen(prboom_dir) + 3);
 
       // I've had trouble with trailing slashes before...
-      if (home[len-1] == '/') home[len-1] = 0;
+      if (p_home[len-1] == '/') p_home[len-1] = 0;
 
       base = malloc(p_len);
-      snprintf(base, p_len, "%s/.%s", home, prboom_dir);
+      snprintf(base, p_len, "%s/.%s", p_home, prboom_dir);
+      free(p_home);
 
       stat(base, &data_dir);
       if (!S_ISDIR(data_dir.st_mode))
@@ -370,12 +372,12 @@ const char *I_DoomExeDir(void)
           size_t prefsize = strlen(prefpath);
 
           free(base);
-          base = malloc(prefsize);
-          strcpy(base, prefpath);
+          base = strdup(prefpath);
           // SDL_GetPrefPath always returns with trailing slash
           if (base[prefsize-1] == '/') base[prefsize-1] = 0;
           SDL_free(prefpath);
         }
+//    mkdir(base, S_IRUSR | S_IWUSR | S_IXUSR);
     }
   return base;
 }
