@@ -367,8 +367,7 @@ const char *I_DoomExeDir(void)
 
       // if ~/.$prboom_dir doesn't exist,
       // create and use directory in XDG_DATA_HOME
-      stat(base, &data_dir);
-      if (!S_ISDIR(data_dir.st_mode))
+      if (stat(base, &data_dir) || !S_ISDIR(data_dir.st_mode))
         {
           // SDL creates this directory if it doesn't exist
           char *prefpath = SDL_GetPrefPath("", prboom_dir);
