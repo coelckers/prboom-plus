@@ -738,6 +738,20 @@ static const struct {
 };
 static const int num_canonicals = sizeof(canonicals)/sizeof(*canonicals);
 
+// [FG] sort resolutions by width first and height second
+static int cmp_resolutions (const void *a, const void *b)
+{
+    const char *const *sa = (const char *const *) a;
+    const char *const *sb = (const char *const *) b;
+
+    int wa, wb, ha, hb;
+
+    if (sscanf(*sa, "%dx%d", &wa, &ha) != 2) wa = ha = 0;
+    if (sscanf(*sb, "%dx%d", &wb, &hb) != 2) wb = hb = 0;
+
+    return (wa == wb) ? ha - hb : wa - wb;
+}
+
 //
 // I_FillScreenResolutionsList
 // Get all the supported screen resolutions
@@ -830,6 +844,12 @@ static void I_FillScreenResolutionsList(void)
     screen_resolutions_list[0] = strdup(mode_name);
     current_resolution_index = 0;
     list_size = 1;
+  }
+
+  // [FG] sort resolutions by width first and height second
+  if (list_size > 1)
+  {
+    SDL_qsort(screen_resolutions_list, list_size, sizeof(*screen_resolutions_list), cmp_resolutions);
   }
 
   if (current_resolution_index == -1)
