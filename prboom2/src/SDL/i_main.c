@@ -100,8 +100,8 @@ int ms_to_next_tick;
 
 int I_GetTime_RealTime (void)
 {
-  int t = I_GetTime_MS();
-  int i = t * TICRATE / 1000;
+  int64_t t = I_GetTime_MS();
+  int64_t i = t * TICRATE / 1000;
 
   ms_to_next_tick = (i + 1) * 1000 / TICRATE - t;
   ms_to_next_tick = BETWEEN(0, 1000 / TICRATE, ms_to_next_tick);
@@ -113,8 +113,8 @@ int realtic_clock_rate = 100;
 
 static int I_GetTime_Scaled(void)
 {
-  int t = I_GetTime_MS();
-  int i = t * TICRATE * realtic_clock_rate / 100000;
+  int64_t t = I_GetTime_MS();
+  int64_t i = t * TICRATE * realtic_clock_rate / 100000;
 
   ms_to_next_tick = (i + 1) * 100000 / realtic_clock_rate / TICRATE - t;
   ms_to_next_tick = BETWEEN(0, 100000 / realtic_clock_rate / TICRATE, ms_to_next_tick);
@@ -147,12 +147,12 @@ static int I_TickElapsedTime_FastDemo(void)
 
 static int I_TickElapsedTime_RealTime(void)
 {
-  return I_GetTime_MS() * TICRATE % 1000 * FRACUNIT / 1000;
+  return (int64_t)I_GetTime_MS() * TICRATE % 1000 * FRACUNIT / 1000;
 }
 
 static int I_TickElapsedTime_Scaled(void)
 {
-  return I_GetTime_MS() * realtic_clock_rate * TICRATE / 100 % 1000 * FRACUNIT / 1000;
+  return (int64_t)I_GetTime_MS() * realtic_clock_rate * TICRATE / 100 % 1000 * FRACUNIT / 1000;
 }
 
 int (*I_TickElapsedTime)(void) = I_TickElapsedTime_RealTime;
