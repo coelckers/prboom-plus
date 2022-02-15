@@ -843,7 +843,7 @@ static void I_FillScreenResolutionsList(void)
   }
 
   // [FG] sort resolutions by width first and height second
-  if (list_size > 1)
+  if (list_size >= 1)
   {
     SDL_qsort(screen_resolutions_list, list_size, sizeof(*screen_resolutions_list), cmp_resolutions);
 
