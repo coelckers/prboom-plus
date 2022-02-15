@@ -826,21 +826,17 @@ static void I_FillScreenResolutionsList(void)
       if (!in_list)
       {
         screen_resolutions_list[list_size] = strdup(mode_name);
-
-        if (mode.w == desired_screenwidth && mode.h == desired_screenheight)
-        {
-          current_resolution_index = list_size;
-        }
-
         list_size++;
       }
     }
     screen_resolutions_list[list_size] = NULL;
   }
-  
+
+  // desired screenwidth/screenheight
+  doom_snprintf(mode_name, sizeof(mode_name), "%dx%d", desired_screenwidth, desired_screenheight);
+
   if (list_size == 0)
   {
-    doom_snprintf(mode_name, sizeof(mode_name), "%dx%d", desired_screenwidth, desired_screenheight);
     screen_resolutions_list[0] = strdup(mode_name);
     current_resolution_index = 0;
     list_size = 1;
@@ -850,12 +846,19 @@ static void I_FillScreenResolutionsList(void)
   if (list_size > 1)
   {
     SDL_qsort(screen_resolutions_list, list_size, sizeof(*screen_resolutions_list), cmp_resolutions);
+
+    for (i = 0; i < list_size; i++)
+    {
+      if (!strcmp(screen_resolutions_list[i], mode_name))
+      {
+        current_resolution_index = i;
+        break;
+      }
+    }
   }
 
   if (current_resolution_index == -1)
   {
-    doom_snprintf(mode_name, sizeof(mode_name), "%dx%d", desired_screenwidth, desired_screenheight);
-
     // make it first
     list_size++;
     for(i = list_size - 1; i > 0; i--)
