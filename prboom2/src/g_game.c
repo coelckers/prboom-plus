@@ -1754,19 +1754,18 @@ void G_DoCompleted (void)
           wminfo.next = gamemap;          // go to next level
     }
 
-  if (gamemapinfo && gamemapinfo->partime)
+  if (!(gamemapinfo && gamemapinfo->partime))
   {
-      wminfo.partime = gamemapinfo->partime;
-  }
-  else if ( gamemode == commercial )
-  {
-    if (gamemap >= 1 && gamemap <= 34)
-      wminfo.partime = TICRATE*cpars[gamemap-1];
-  }
-  else
-  {
-    if (gameepisode >= 1 && gameepisode <= 4 && gamemap >= 1 && gamemap <= 9)
-      wminfo.partime = TICRATE*pars[gameepisode][gamemap];
+      if ( gamemode == commercial )
+      {
+          if (gamemap >= 1 && gamemap <= 34)
+              wminfo.partime = TICRATE*cpars[gamemap-1];
+      }
+      else
+      {
+          if (gameepisode >= 1 && gameepisode <= 4 && gamemap >= 1 && gamemap <= 9)
+              wminfo.partime = TICRATE*pars[gameepisode][gamemap];
+      }
   }
 
 frommapinfo:
