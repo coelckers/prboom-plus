@@ -76,6 +76,7 @@ check_include_file("dirent.h" HAVE_DIRENT_H)
 
 option(BUILD_GL "Enable OpenGL rendering code" ON)
 if(BUILD_GL)
+    set(OpenGL_GL_PREFERENCE LEGACY)
     find_package(OpenGL)
 endif()
 
