@@ -1643,6 +1643,7 @@ void G_DoCompleted (void)
 		  gameaction = ga_victory;
 		  return;
 	  }
+      wminfo.partime = gamemapinfo->partime;
 	  if (secretexit) next = gamemapinfo->nextsecret;
 	  if (next[0] == 0) next = gamemapinfo->nextmap;
 	  if (next[0])
@@ -1657,7 +1658,6 @@ void G_DoCompleted (void)
 		      players[i].didsecret = false;
 		  }
 		  wminfo.didsecret = players[consoleplayer].didsecret;
-		  wminfo.partime = gamemapinfo->partime;
 		  goto frommapinfo;	// skip past the default setup.
 	  }
   }
@@ -1754,15 +1754,18 @@ void G_DoCompleted (void)
           wminfo.next = gamemap;          // go to next level
     }
 
-  if ( gamemode == commercial )
+  if (!(gamemapinfo && gamemapinfo->partime))
   {
-    if (gamemap >= 1 && gamemap <= 34)
-      wminfo.partime = TICRATE*cpars[gamemap-1];
-  }
-  else
-  {
-    if (gameepisode >= 1 && gameepisode <= 4 && gamemap >= 1 && gamemap <= 9)
-      wminfo.partime = TICRATE*pars[gameepisode][gamemap];
+      if ( gamemode == commercial )
+      {
+          if (gamemap >= 1 && gamemap <= 34)
+              wminfo.partime = TICRATE*cpars[gamemap-1];
+      }
+      else
+      {
+          if (gameepisode >= 1 && gameepisode <= 4 && gamemap >= 1 && gamemap <= 9)
+              wminfo.partime = TICRATE*pars[gameepisode][gamemap];
+      }
   }
 
 frommapinfo:
