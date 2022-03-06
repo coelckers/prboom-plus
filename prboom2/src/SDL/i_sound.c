@@ -227,6 +227,23 @@ static int addsfx(int sfxid, int channel, const unsigned char *data, size_t len)
   return channel;
 }
 
+static int getBufferSize(void)
+{
+  int limit, i;
+
+//if (snd_samplecount) return snd_samplecount;
+
+  limit = snd_samplerate / TICRATE;
+
+  // adapted from Chocolate Doom
+  // gets the smallest power of 2, for feeding into SDL
+  for (i = 0;; ++i)
+  {
+    if ((1 << (i + 1)) > limit)
+      return (1 << i);
+  }
+}
+
 static void updateSoundParams(int handle, int volume, int seperation, int pitch)
 {
   int slot = handle;
@@ -679,7 +696,7 @@ void I_InitSound(void)
     /* Initialize variables */
     audio_rate = snd_samplerate;
     audio_channels = 2;
-    audio_buffers = snd_samplecount * snd_samplerate / 11025;
+    audio_buffers = getBufferSize();
 
     if (Mix_OpenAudioDevice(audio_rate, MIX_DEFAULT_FORMAT, audio_channels, audio_buffers,
                             NULL, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE) < 0)
@@ -709,7 +726,7 @@ void I_InitSound(void)
     audio.format = AUDIO_S16LSB;
 #endif
     audio.channels = 2;
-    audio.samples = snd_samplecount * snd_samplerate / 11025;
+    audio.samples = getBufferSize();
     audio.callback = I_UpdateSound;
     if ( SDL_OpenAudio(&audio, NULL) < 0 )
     {
