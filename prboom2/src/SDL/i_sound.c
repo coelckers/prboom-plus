@@ -231,7 +231,8 @@ static int getSliceSize(void)
 {
   int limit, n;
 
-  if (snd_samplecount) return snd_samplecount;
+  if (snd_samplecount >= 32)
+    return snd_samplecount * snd_samplerate / 11025;
 
   limit = snd_samplerate / TICRATE;
 
