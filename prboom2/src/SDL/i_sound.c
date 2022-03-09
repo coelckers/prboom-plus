@@ -231,7 +231,7 @@ static int getBufferSize(void)
 {
   int limit, i;
 
-//if (snd_samplecount) return snd_samplecount;
+  if (snd_samplecount) return snd_samplecount;
 
   limit = snd_samplerate / TICRATE;
 
