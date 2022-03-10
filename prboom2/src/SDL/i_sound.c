@@ -227,6 +227,32 @@ static int addsfx(int sfxid, int channel, const unsigned char *data, size_t len)
   return channel;
 }
 
+static int getSliceSize(void)
+{
+  int limit, n;
+
+  if (snd_samplecount >= 32)
+    return snd_samplecount * snd_samplerate / 11025;
+
+  limit = snd_samplerate / TICRATE;
+
+  // Try all powers of two, not exceeding the limit.
+
+  for (n=0;; ++n)
+  {
+    // 2^n <= limit < 2^n+1 ?
+
+    if ((1 << (n + 1)) > limit)
+    {
+      return (1 << n);
+    }
+  }
+
+  // Should never happen?
+
+  return 1024;
+}
+
 static void updateSoundParams(int handle, int volume, int seperation, int pitch)
 {
   int slot = handle;
@@ -679,7 +705,7 @@ void I_InitSound(void)
     /* Initialize variables */
     audio_rate = snd_samplerate;
     audio_channels = 2;
-    audio_buffers = snd_samplecount * snd_samplerate / 11025;
+    audio_buffers = getSliceSize();
 
     if (Mix_OpenAudioDevice(audio_rate, MIX_DEFAULT_FORMAT, audio_channels, audio_buffers,
                             NULL, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE) < 0)
@@ -709,7 +735,7 @@ void I_InitSound(void)
     audio.format = AUDIO_S16LSB;
 #endif
     audio.channels = 2;
-    audio.samples = snd_samplecount * snd_samplerate / 11025;
+    audio.samples = getSliceSize();
     audio.callback = I_UpdateSound;
     if ( SDL_OpenAudio(&audio, NULL) < 0 )
     {
