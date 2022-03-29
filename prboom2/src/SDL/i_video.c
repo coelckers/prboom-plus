@@ -1512,7 +1512,7 @@ static void DeactivateMouse(void)
 // This is to combine all mouse movement for a tic into one mouse
 // motion event.
 
-static void SmoothMouse﻿(int* x, int* y)
+static void SmoothMouse(int* x, int* y)
 {
     static int x_remainder_old = 0;
     static int y_remainder_old = 0;
@@ -1520,12 +1520,12 @@ static void SmoothMouse﻿(int* x, int* y)
     int x_remainder, y_remainder;
     fixed_t correction_factor;
 
-    const fixed_t fractic﻿ = I_TickElapsedTime();
+    const fixed_t fractic = I_TickElapsedTime();
 
     *x += x_remainder_old;
     *y += y_remainder_old;
 
-    correction_factor = FixedDiv(fractic﻿, FRACUNIT + fractic﻿);
+    correction_factor = FixedDiv(fractic, FRACUNIT + fractic);
 
     x_remainder = FixedMul(*x, correction_factor);
     *x -= x_remainder;
@@ -1543,7 +1543,7 @@ static void I_ReadMouse(void)
     int x, y;
 
     SDL_GetRelativeMouseState(&x, &y);
-    SmoothMouse﻿(&x, &y);
+    SmoothMouse(&x, &y);
 
     if (x != 0 || y != 0)
     {
