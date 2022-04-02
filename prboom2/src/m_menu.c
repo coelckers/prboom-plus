@@ -3303,7 +3303,7 @@ static const char *gen_compstrings[] =
   "17/Default",
   "0/Doom v1.2",
   "1/Doom v1.666",
-  "2/Doom/2 v1.9",
+  "2/Doom (2) v1.9",
   "3/Ultimate v1.9",
   "4/Final Doom",
   "5/DosDoom",
