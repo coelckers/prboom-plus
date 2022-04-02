@@ -3300,27 +3300,25 @@ static const char *gen_skillstrings[] = {
 
 static const char *gen_compstrings[] =
 {
-  // The 1 digit is more thin than others,
-  // so padding is used to make it look consistent
   "17/Default",
-  " 0/Doom v1.2",
-  "  1/Doom v1.666",
-  " 2/Doom/2 v1.9",
-  " 3/Ultimate Doom",
-  " 4/Final Doom",
-  " 5/DosDoom",
-  " 6/TASDoom",
-  " 7/Boom's vanilla",
-  " 8/Boom v2.01",
-  " 9/Boom",
+  "0/Doom v1.2",
+  "1/Doom v1.666",
+  "2/Doom/2 v1.9",
+  "3/Ultimate v1.9",
+  "4/Final Doom",
+  "5/DosDoom",
+  "6/TASDoom",
+  "7/Boom vanilla",
+  "8/Boom v2.01",
+  "9/Boom",
   "10/LxDoom",
-  " 11/MBF",
+  "11/MBF",
   "12/PrBoom 2.03b",
   "13/PrBoom 2.1.x",
   "14/PrBoom 2.2.x",
   "15/PrBoom 2.3.x",
   "16/PrBoom 2.4.0",
-  "17/Latest PrBoom+",
+  "17/PrB+ Latest",
   NULL
 };
 
@@ -3340,7 +3338,7 @@ setup_menu_t gen_settings2[] = { // General Settings screen2
   {"Maximum number of player corpses", S_NUM|S_PRGWARN, m_null, G_X, G_Y+12*8, {"max_player_corpse"}},
   {"Game speed, percentage of normal", S_NUM|S_PRGWARN, m_null, G_X, G_Y+13*8, {"realtic_clock_rate"}},
   {"Default skill level",              S_CHOICE,        m_null, G_X, G_Y+14*8, {"default_skill"}, 0, 0, NULL, gen_skillstrings},
-  {"Default compatibility level",      S_CHOICE,        m_null, G_X-17, G_Y+15*8, {"default_compatibility_level"}, 0, 0, NULL, &gen_compstrings[1]},
+  {"Default compatibility level",      S_CHOICE,        m_null, G_X, G_Y+15*8, {"default_compatibility_level"}, 0, 0, NULL, &gen_compstrings[1]},
   {"Show ENDOOM screen",               S_YESNO,         m_null, G_X, G_Y+16*8, {"showendoom"}},
   {"Fullscreen menu background",       S_YESNO, m_null, G_X, G_Y + 17*8, {"menu_background"}},
 #ifdef USE_WINDOWS_LAUNCHER
