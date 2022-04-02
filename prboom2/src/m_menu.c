@@ -3300,6 +3300,8 @@ static const char *gen_skillstrings[] = {
 
 static const char *gen_compstrings[] =
 {
+  // The 1 digit is more thin than others,
+  // so padding is used to make it look consistent
   "17/Default",
   " 0/Doom v1.2",
   "  1/Doom v1.666",
