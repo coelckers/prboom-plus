@@ -3314,10 +3314,10 @@ static const char *gen_compstrings[] =
   "10/LxDoom",
   "11/MBF",
   "12/PrB 2.03b",
-  "13/PrBoom 2.1.x",
-  "14/PrBoom 2.2.x",
-  "15/PrBoom 2.3.x",
-  "16/PrBoom 2.4.0",
+  "13/PrB 2.1.x",
+  "14/PrB 2.2.x",
+  "15/PrB 2.3.x",
+  "16/PrB 2.4.0",
   "17/PrB+ Latest",
   NULL
 };
