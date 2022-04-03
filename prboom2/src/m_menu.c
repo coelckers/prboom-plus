@@ -3313,7 +3313,7 @@ static const char *gen_compstrings[] =
   "9/Boom",
   "10/LxDoom",
   "11/MBF",
-  "12/PrBoom 2.03b",
+  "12/PrB 2.03b",
   "13/PrBoom 2.1.x",
   "14/PrBoom 2.2.x",
   "15/PrBoom 2.3.x",
