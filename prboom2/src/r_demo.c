@@ -1242,6 +1242,8 @@ void G_WriteDemoFooter(FILE *file)
   {
     I_Error("G_WriteDemoFooter: error writing");
   }
+
+  W_FreePWADTable(&demoex);
 }
 
 int WadDataInit(waddata_t *waddata)
