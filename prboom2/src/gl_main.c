@@ -1897,8 +1897,8 @@ void gld_AddWall(seg_t *seg)
       wall.vb = (float)((-bottom + ceiling_height))/(float)wall.gltexture->realtexheight;
 
       /* Adjust the final float value accounting for the fixed point conversion */
-      wall.vt /= 1<<FRACBITS;
-      wall.vb /= 1<<FRACBITS;
+      wall.vt /= FRACUNIT;
+      wall.vb /= FRACUNIT;
 
       if (seg->linedef->tranlump >= 0 && general_translucency)
         wall.alpha=(float)tran_filter_pct/100.0f;
