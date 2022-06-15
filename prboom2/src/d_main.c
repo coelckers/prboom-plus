@@ -1790,7 +1790,11 @@ static void D_DoomMainSetup(void)
     {
       if (p < myargc-1)
       {
-        startmap = atoi(myargv[p+1]);   // Ty 08/29/98 - add test if last parm
+        int map;
+        if (sscanf(myargv[p+1], "%d", &map) == 1)
+        {
+          startmap = map;
+        }
         warpmap = startmap;
       }
     }
