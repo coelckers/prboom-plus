@@ -1784,7 +1784,7 @@ static void D_DoomMainSetup(void)
        (p = M_CheckParm ("-wart")))
        // Ty 08/29/98 - moved this check later so we can have -warp alone: && p < myargc-1)
   {
-    startmap = 0; // Ty 08/29/98 - allow "-warp x" to go to first map in wad(s)
+    startmap = -1; // Ty 08/29/98 - allow "-warp x" to go to first map in wad(s)
     autostart = true; // Ty 08/29/98 - move outside the decision tree
     if (gamemode == commercial)
     {
@@ -1813,7 +1813,7 @@ static void D_DoomMainSetup(void)
       }
     }
   }
-  // Ty 08/29/98 - later we'll check for startmap=0 and autostart=true
+  // Ty 08/29/98 - later we'll check for startmap=-1 and autostart=true
   // as a special case that -warp * was used.  Actually -warp with any
   // non-numeric will do that but we'll only document "*"
 
@@ -2280,7 +2280,7 @@ void GetFirstMap(int *ep, int *map)
   int ix;  // index for lookup
 
   strcpy(name,""); // initialize
-  if (*map == 0) // unknown so go search for first changed one
+  if (*map == -1) // unknown so go search for first changed one
   {
     *ep = 1;
     *map = 1; // default E1M1 or MAP01
