@@ -246,6 +246,10 @@ static void D_Wipe(void)
       I_UpdateNoBlit();
       M_Drawer();                   // menu is drawn even on top of wipes
       I_FinishUpdate();             // page flip or blit buffer
+      if (capturing_video && !doSkip && cap_wipescreen)
+      {
+        I_CaptureFrame();
+      }
     }
   while (!done);
 }
