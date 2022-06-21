@@ -237,6 +237,8 @@ const char *demo_patterns_mask;
 char **demo_patterns_list;
 const char *demo_patterns_list_def[9];
 
+int demo_endquit;
+
 // demo ex
 int demo_extendedformat = -1;
 int demo_extendedformat_default;

@@ -4288,14 +4288,15 @@ dboolean G_CheckDemoStatus (void)
 
       M_SaveDefaults();
 
-      I_Error ("Timed %u gametics in %u realtics = %-.1f frames per second",
-               (unsigned) gametic,realtics,
-               (unsigned) gametic * (double) TICRATE / realtics);
+      if (demo_endquit)
+        I_Error ("Timed %u gametics in %u realtics = %-.1f frames per second",
+                (unsigned) gametic,realtics,
+                (unsigned) gametic * (double) TICRATE / realtics);
     }
 
   if (demoplayback)
     {
-      if (singledemo)
+      if (singledemo && demo_endquit)
         I_SafeExit(0);  // killough
 
       if (demolumpnum != -1) {

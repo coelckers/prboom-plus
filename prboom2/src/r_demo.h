@@ -80,6 +80,8 @@ typedef struct
   char *missed;
 } patterndata_t;
 
+extern int demo_endquit;
+
 extern int demo_extendedformat;
 extern int demo_extendedformat_default;
 extern const char *demo_demoex_filename;
