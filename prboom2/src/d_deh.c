@@ -437,6 +437,7 @@ const char *s_STSTR_CHOPPERS     = STSTR_CHOPPERS;
 const char *s_STSTR_CLEV         = STSTR_CLEV;
 const char *s_STSTR_COMPON       = STSTR_COMPON;
 const char *s_STSTR_COMPOFF      = STSTR_COMPOFF;
+const char *s_STSTR_DEMOREC      = STSTR_DEMOREC;
 const char *s_E1TEXT     = E1TEXT;
 const char *s_E2TEXT     = E2TEXT;
 const char *s_E3TEXT     = E3TEXT;
@@ -777,6 +778,7 @@ static deh_strs deh_strlookup[] = {
   {&s_STSTR_CLEV,"STSTR_CLEV"},
   {&s_STSTR_COMPON,"STSTR_COMPON"},
   {&s_STSTR_COMPOFF,"STSTR_COMPOFF"},
+  {&s_STSTR_DEMOREC,"STSTR_DEMOREC"},
   {&s_E1TEXT,"E1TEXT"},
   {&s_E2TEXT,"E2TEXT"},
   {&s_E3TEXT,"E3TEXT"},

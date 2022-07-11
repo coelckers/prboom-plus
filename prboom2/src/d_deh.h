@@ -657,6 +657,8 @@ extern const char* s_STSTR_BEHOLDX; // = STSTR_BEHOLDX;
 extern const char* s_STSTR_CHOPPERS; // = STSTR_CHOPPERS;
 //#define STSTR_CLEV            "Changing Level..."
 extern const char* s_STSTR_CLEV; // = STSTR_CLEV;
+//#define STSTR_DEMOREC         "Demo recording"
+extern const char* s_STSTR_DEMOREC; // = STSTR_DEMOREC;
 
 //
 //      F_Finale.C
