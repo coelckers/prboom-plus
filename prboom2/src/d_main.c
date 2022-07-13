@@ -465,9 +465,6 @@ static void D_DoomLoop(void)
   if (quickstart_window_ms > 0)
     I_uSleep(quickstart_window_ms * 1000);
 
-  if (demorecording)
-    players[consoleplayer].message = s_STSTR_DEMOREC;
-
   for (;;)
     {
       WasRenderedInTryRunTics = false;
