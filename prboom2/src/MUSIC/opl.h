@@ -112,7 +112,7 @@ void OPL_SetPaused(int paused);
 
 extern unsigned int opl_sample_rate;
 
-void OPL_Render_Samples (void *dest, unsigned nsamp);
+void OPL_Render_Samples(void *dest, unsigned nsamp);
 
 
 void OPL_SetCallback(unsigned int ms, opl_callback_t callback, void *data);

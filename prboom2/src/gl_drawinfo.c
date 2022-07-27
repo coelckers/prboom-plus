@@ -1,4 +1,4 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
  *
@@ -8,7 +8,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -21,7 +21,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -45,29 +45,30 @@ GLDrawInfo gld_drawinfo;
 //
 void gld_FreeDrawInfo(void)
 {
-  int i;
+    int i;
 
-  for (i = 0; i < gld_drawinfo.maxsize; i++)
-  {
-    if (gld_drawinfo.data[i].data)
+    for(i = 0; i < gld_drawinfo.maxsize; i++)
     {
-      free(gld_drawinfo.data[i].data);
-      gld_drawinfo.data[i].data = 0;
+        if(gld_drawinfo.data[i].data)
+        {
+            free(gld_drawinfo.data[i].data);
+            gld_drawinfo.data[i].data = 0;
+        }
     }
-  }
-  free(gld_drawinfo.data);
-  gld_drawinfo.data = 0;
 
-  for (i = 0; i < GLDIT_TYPES; i++)
-  {
-    if (gld_drawinfo.items[i])
+    free(gld_drawinfo.data);
+    gld_drawinfo.data = 0;
+
+    for(i = 0; i < GLDIT_TYPES; i++)
     {
-      free(gld_drawinfo.items[i]);
-      gld_drawinfo.items[i] = 0;
+        if(gld_drawinfo.items[i])
+        {
+            free(gld_drawinfo.items[i]);
+            gld_drawinfo.items[i] = 0;
+        }
     }
-  }
 
-  memset(&gld_drawinfo, 0, sizeof(GLDrawInfo));
+    memset(&gld_drawinfo, 0, sizeof(GLDrawInfo));
 }
 
 //
@@ -77,18 +78,19 @@ void gld_FreeDrawInfo(void)
 //
 void gld_ResetDrawInfo(void)
 {
-  int i;
+    int i;
 
-  for (i = 0; i < gld_drawinfo.maxsize; i++)
-  {
-    gld_drawinfo.data[i].size = 0;
-  }
-  gld_drawinfo.size = 0;
+    for(i = 0; i < gld_drawinfo.maxsize; i++)
+    {
+        gld_drawinfo.data[i].size = 0;
+    }
 
-  for (i = 0; i < GLDIT_TYPES; i++)
-  {
-    gld_drawinfo.num_items[i] = 0;
-  }
+    gld_drawinfo.size = 0;
+
+    for(i = 0; i < GLDIT_TYPES; i++)
+    {
+        gld_drawinfo.num_items[i] = 0;
+    }
 }
 
 //
@@ -96,13 +98,13 @@ void gld_ResetDrawInfo(void)
 //
 static void gld_AddDrawRange(int size)
 {
-  gld_drawinfo.maxsize++;
-  gld_drawinfo.data = realloc(gld_drawinfo.data, 
-    gld_drawinfo.maxsize * sizeof(gld_drawinfo.data[0]));
+    gld_drawinfo.maxsize++;
+    gld_drawinfo.data = realloc(gld_drawinfo.data,
+                                gld_drawinfo.maxsize * sizeof(gld_drawinfo.data[0]));
 
-  gld_drawinfo.data[gld_drawinfo.size].maxsize = size;
-  gld_drawinfo.data[gld_drawinfo.size].data = malloc(size);
-  gld_drawinfo.data[gld_drawinfo.size].size = 0;
+    gld_drawinfo.data[gld_drawinfo.size].maxsize = size;
+    gld_drawinfo.data[gld_drawinfo.size].data = malloc(size);
+    gld_drawinfo.data[gld_drawinfo.size].size = 0;
 }
 
 //
@@ -112,58 +114,61 @@ static void gld_AddDrawRange(int size)
 #define SIZEOF8(type) ((sizeof(type)+7)&~7)
 void gld_AddDrawItem(GLDrawItemType itemtype, void *itemdata)
 {
-  int itemsize = 0;
-  byte *item_p = NULL;
+    int itemsize = 0;
+    byte *item_p = NULL;
 
-  static int itemsizes[GLDIT_TYPES] = {
-    0,
-    SIZEOF8(GLWall), SIZEOF8(GLWall), SIZEOF8(GLWall), SIZEOF8(GLWall), SIZEOF8(GLWall),
-    SIZEOF8(GLWall), SIZEOF8(GLWall),
-    SIZEOF8(GLFlat), SIZEOF8(GLFlat),
-    SIZEOF8(GLFlat), SIZEOF8(GLFlat),
-    SIZEOF8(GLSprite), SIZEOF8(GLSprite), SIZEOF8(GLSprite),
-    SIZEOF8(GLShadow),
-    SIZEOF8(GLHealthBar)
-  };
-
-  itemsize = itemsizes[itemtype];
-  if (itemsize == 0)
-  {
-    I_Error("gld_AddDrawItem: unknown GLDrawItemType %d", itemtype);
-  }
-
-  if (gld_drawinfo.maxsize == 0)
-  {
-    gld_AddDrawRange(NEWSIZE);
-  }
-
-  if (gld_drawinfo.data[gld_drawinfo.size].size + itemsize >=
-    gld_drawinfo.data[gld_drawinfo.size].maxsize)
-  {
-    gld_drawinfo.size++;
-    if (gld_drawinfo.size >= gld_drawinfo.maxsize)
+    static int itemsizes[GLDIT_TYPES] =
     {
-      gld_AddDrawRange(NEWSIZE);
+        0,
+        SIZEOF8(GLWall), SIZEOF8(GLWall), SIZEOF8(GLWall), SIZEOF8(GLWall), SIZEOF8(GLWall),
+        SIZEOF8(GLWall), SIZEOF8(GLWall),
+        SIZEOF8(GLFlat), SIZEOF8(GLFlat),
+        SIZEOF8(GLFlat), SIZEOF8(GLFlat),
+        SIZEOF8(GLSprite), SIZEOF8(GLSprite), SIZEOF8(GLSprite),
+        SIZEOF8(GLShadow),
+        SIZEOF8(GLHealthBar)
+    };
+
+    itemsize = itemsizes[itemtype];
+
+    if(itemsize == 0)
+    {
+        I_Error("gld_AddDrawItem: unknown GLDrawItemType %d", itemtype);
     }
-  }
 
-  item_p = gld_drawinfo.data[gld_drawinfo.size].data +
-    gld_drawinfo.data[gld_drawinfo.size].size;
+    if(gld_drawinfo.maxsize == 0)
+    {
+        gld_AddDrawRange(NEWSIZE);
+    }
 
-  memcpy(item_p, itemdata, itemsize);
+    if(gld_drawinfo.data[gld_drawinfo.size].size + itemsize >=
+            gld_drawinfo.data[gld_drawinfo.size].maxsize)
+    {
+        gld_drawinfo.size++;
 
-  gld_drawinfo.data[gld_drawinfo.size].size += itemsize;
+        if(gld_drawinfo.size >= gld_drawinfo.maxsize)
+        {
+            gld_AddDrawRange(NEWSIZE);
+        }
+    }
 
-  if (gld_drawinfo.num_items[itemtype] >= gld_drawinfo.max_items[itemtype])
-  {
-    gld_drawinfo.max_items[itemtype] += 64;
-    gld_drawinfo.items[itemtype] = realloc(
-      gld_drawinfo.items[itemtype],
-      gld_drawinfo.max_items[itemtype] * sizeof(gld_drawinfo.items[0][0]));
-  }
+    item_p = gld_drawinfo.data[gld_drawinfo.size].data +
+             gld_drawinfo.data[gld_drawinfo.size].size;
 
-  gld_drawinfo.items[itemtype][gld_drawinfo.num_items[itemtype]].item.item = item_p;
-  gld_drawinfo.num_items[itemtype]++;
+    memcpy(item_p, itemdata, itemsize);
+
+    gld_drawinfo.data[gld_drawinfo.size].size += itemsize;
+
+    if(gld_drawinfo.num_items[itemtype] >= gld_drawinfo.max_items[itemtype])
+    {
+        gld_drawinfo.max_items[itemtype] += 64;
+        gld_drawinfo.items[itemtype] = realloc(
+                                           gld_drawinfo.items[itemtype],
+                                           gld_drawinfo.max_items[itemtype] * sizeof(gld_drawinfo.items[0][0]));
+    }
+
+    gld_drawinfo.items[itemtype][gld_drawinfo.num_items[itemtype]].item.item = item_p;
+    gld_drawinfo.num_items[itemtype]++;
 }
 #undef SIZEOF8
 #undef NEWSIZE

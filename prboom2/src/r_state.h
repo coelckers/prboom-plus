@@ -106,7 +106,7 @@ extern fixed_t          viewz;
 extern angle_t          viewangle;
 extern player_t         *viewplayer;
 extern angle_t          clipangle;
-extern int              viewangletox[FINEANGLES/2];
+extern int              viewangletox[FINEANGLES / 2];
 
 // e6y: resolution limitation is removed
 extern angle_t          *xtoviewangle;  // killough 2/8/98

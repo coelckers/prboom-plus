@@ -55,7 +55,7 @@
 #include "e6y.h"//e6y
 #include "i_capture.h"
 
-int cons_error_mask = -1-LO_INFO; /* all but LO_INFO when redir'd */
+int cons_error_mask = -1 - LO_INFO; /* all but LO_INFO when redir'd */
 int cons_output_mask = -1;        /* all output enabled */
 
 /* cphipps - enlarged message buffer and made non-static
@@ -65,27 +65,29 @@ int cons_output_mask = -1;        /* all output enabled */
 
 int lprintf(OutputLevels pri, const char *s, ...)
 {
-  int r=0;
-  char msg[MAX_MESSAGE_SIZE];
-  int lvl=pri;
+    int r = 0;
+    char msg[MAX_MESSAGE_SIZE];
+    int lvl = pri;
 
-  va_list v;
-  va_start(v,s);
-  doom_vsnprintf(msg,sizeof(msg),s,v);    /* print message in buffer  */
-  va_end(v);
+    va_list v;
+    va_start(v, s);
+    doom_vsnprintf(msg, sizeof(msg), s, v); /* print message in buffer  */
+    va_end(v);
 
-  if (lvl&cons_output_mask)               /* mask output as specified */
-  {
+    if(lvl & cons_output_mask)              /* mask output as specified */
+    {
 #ifdef _WIN32
-    // do not crash with unicode dirs
-    if (fileno(stdout) != -1)
-#endif
-    r=fprintf(stdout,"%s",msg);
-  }
-  if (!isatty(1) && lvl&cons_error_mask)  /* if stdout redirected     */
-    r=fprintf(stderr,"%s",msg);           /* select output at console */
 
-  return r;
+        // do not crash with unicode dirs
+        if(fileno(stdout) != -1)
+#endif
+            r = fprintf(stdout, "%s", msg);
+    }
+
+    if(!isatty(1) && lvl & cons_error_mask) /* if stdout redirected     */
+        r = fprintf(stderr, "%s", msg);       /* select output at console */
+
+    return r;
 }
 
 /*
@@ -99,18 +101,21 @@ int lprintf(OutputLevels pri, const char *s, ...)
 
 void I_Error(const char *error, ...)
 {
-  char errmsg[MAX_MESSAGE_SIZE];
-  va_list argptr;
-  va_start(argptr,error);
-  doom_vsnprintf(errmsg,sizeof(errmsg),error,argptr);
-  va_end(argptr);
-  lprintf(LO_ERROR, "%s\n", errmsg);
+    char errmsg[MAX_MESSAGE_SIZE];
+    va_list argptr;
+    va_start(argptr, error);
+    doom_vsnprintf(errmsg, sizeof(errmsg), error, argptr);
+    va_end(argptr);
+    lprintf(LO_ERROR, "%s\n", errmsg);
 #ifdef _WIN32
-  if (!M_CheckParm ("-nodraw") && !capturing_video) {
-    I_MessageBox(errmsg, PRB_MB_OK);
-  }
+
+    if(!M_CheckParm("-nodraw") && !capturing_video)
+    {
+        I_MessageBox(errmsg, PRB_MB_OK);
+    }
+
 #endif
-  I_SafeExit(-1);
+    I_SafeExit(-1);
 }
 
 // Attempt to compensate for lack of va_copy
@@ -127,56 +132,56 @@ void I_Error(const char *error, ...)
 
 int doom_vsnprintf(char *buf, size_t max, const char *fmt, va_list va)
 {
-  int rv;
-  va_list vc;
+    int rv;
+    va_list vc;
 
-  assert((max == 0 && buf == NULL) || (max != 0 && buf != NULL));
-  assert(fmt != NULL);
+    assert((max == 0 && buf == NULL) || (max != 0 && buf != NULL));
+    assert(fmt != NULL);
 
-  va_copy(vc, va);
-  rv = vsnprintf(buf, max, fmt, vc);
-  va_end(vc);
+    va_copy(vc, va);
+    rv = vsnprintf(buf, max, fmt, vc);
+    va_end(vc);
 
-  if (rv < 0) // Handle an unhelpful return value.
-  {
-    // write into a scratch buffer that keeps growing until the output fits
-    static char *backbuffer;
-    static size_t backsize = 1024;
-
-    for (; rv < 0; backsize *= 2)
+    if(rv < 0)  // Handle an unhelpful return value.
     {
-      if (backsize <= max) continue;
+        // write into a scratch buffer that keeps growing until the output fits
+        static char *backbuffer;
+        static size_t backsize = 1024;
 
-      backbuffer = (realloc)(backbuffer, backsize);
-      assert(backbuffer != NULL);
+        for(; rv < 0; backsize *= 2)
+        {
+            if(backsize <= max) continue;
 
-      va_copy(vc, va);
-      rv = vsnprintf(backbuffer, backsize, fmt, vc);
-      va_end(vc);
+            backbuffer = (realloc)(backbuffer, backsize);
+            assert(backbuffer != NULL);
+
+            va_copy(vc, va);
+            rv = vsnprintf(backbuffer, backsize, fmt, vc);
+            va_end(vc);
+        }
+
+        if(buf)
+        {
+            size_t end = (size_t) rv >= max ? max - 1 : rv;
+            memmove(buf, backbuffer, end);
+            buf[end] = '\0';
+        }
     }
 
-    if (buf)
-    {
-      size_t end = (size_t) rv >= max ? max-1 : rv;
-      memmove(buf, backbuffer, end);
-      buf[end] = '\0';
-    }
-  }
+    if(buf && (size_t) rv >= max && buf[max - 1]) // ensure null-termination
+        buf[max - 1] = '\0';
 
-  if (buf && (size_t) rv >= max && buf[max-1]) // ensure null-termination
-    buf[max-1] = '\0';
-
-  return rv;
+    return rv;
 }
 
 int doom_snprintf(char *buf, size_t max, const char *fmt, ...)
 {
-  int rv;
-  va_list va;
+    int rv;
+    va_list va;
 
-  va_start(va, fmt);
-  rv = doom_vsnprintf(buf, max, fmt, va);
-  va_end(va);
+    va_start(va, fmt);
+    rv = doom_vsnprintf(buf, max, fmt, va);
+    va_end(va);
 
-  return rv;
+    return rv;
 }

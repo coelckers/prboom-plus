@@ -27,41 +27,41 @@ extern "C"
 
 struct BossAction
 {
-	int type;
-	int special;
-	int tag;
+    int type;
+    int special;
+    int tag;
 };
 
 struct MapEntry
 {
-	char *mapname;
-	char *levelname;
-	char *label;
-	char *intertext;
-	char *intertextsecret;
-	char levelpic[9];
-	char nextmap[9];
-	char nextsecret[9];
-	char music[9];
-	char skytexture[9];
-	char endpic[9];
-	char exitpic[9];
-	char enterpic[9];
-	char interbackdrop[9];
-	char intermusic[9];
-	int partime;
-	int nointermission;
-	int numbossactions;
+    char *mapname;
+    char *levelname;
+    char *label;
+    char *intertext;
+    char *intertextsecret;
+    char levelpic[9];
+    char nextmap[9];
+    char nextsecret[9];
+    char music[9];
+    char skytexture[9];
+    char endpic[9];
+    char exitpic[9];
+    char enterpic[9];
+    char interbackdrop[9];
+    char intermusic[9];
+    int partime;
+    int nointermission;
+    int numbossactions;
 
-	unsigned int propertycount;
-	struct MapProperty *properties;
-	struct BossAction *bossactions;
+    unsigned int propertycount;
+    struct MapProperty *properties;
+    struct BossAction *bossactions;
 };
 
 struct MapList
 {
-	unsigned int mapcount;
-	struct MapEntry *maps;
+    unsigned int mapcount;
+    struct MapEntry *maps;
 };
 
 typedef void (*umapinfo_errorfunc)(const char *fmt, ...);	// this must not return!

@@ -40,34 +40,37 @@
 #pragma interface
 #endif
 
-enum column_pipeline_e {
-  RDC_PIPELINE_STANDARD,
-  RDC_PIPELINE_TRANSLUCENT,
-  RDC_PIPELINE_TRANSLATED,
-  RDC_PIPELINE_FUZZ,
-  RDC_PIPELINE_MAXPIPELINES,
+enum column_pipeline_e
+{
+    RDC_PIPELINE_STANDARD,
+    RDC_PIPELINE_TRANSLUCENT,
+    RDC_PIPELINE_TRANSLATED,
+    RDC_PIPELINE_FUZZ,
+    RDC_PIPELINE_MAXPIPELINES,
 };
 
 // Used to specify what kind of filering you want
-enum draw_filter_type_e {
-  RDRAW_FILTER_NONE,
-  RDRAW_FILTER_POINT,
-  RDRAW_FILTER_LINEAR,
-  RDRAW_FILTER_ROUNDED,
-  RDRAW_FILTER_MAXFILTERS
+enum draw_filter_type_e
+{
+    RDRAW_FILTER_NONE,
+    RDRAW_FILTER_POINT,
+    RDRAW_FILTER_LINEAR,
+    RDRAW_FILTER_ROUNDED,
+    RDRAW_FILTER_MAXFILTERS
 };
 
-// Used to specify what kind of column edge rendering to use on masked 
+// Used to specify what kind of column edge rendering to use on masked
 // columns. SQUARE = standard, SLOPED = slope the column edge up or down
 // based on neighboring columns
-enum sloped_edge_type_e {
-  RDRAW_MASKEDCOLUMNEDGE_SQUARE,
-  RDRAW_MASKEDCOLUMNEDGE_SLOPED
+enum sloped_edge_type_e
+{
+    RDRAW_MASKEDCOLUMNEDGE_SQUARE,
+    RDRAW_MASKEDCOLUMNEDGE_SLOPED
 };
 
 typedef enum
 {
-  DRAW_COLUMN_ISPATCH = 0x00000001
+    DRAW_COLUMN_ISPATCH = 0x00000001
 } draw_column_flags_e;
 
 typedef struct draw_column_vars_s* pdraw_column_vars_s;
@@ -76,67 +79,69 @@ typedef void (*R_DrawColumn_f)(pdraw_column_vars_s dcvars);
 // Packaged into a struct - POPE
 typedef struct draw_column_vars_s
 {
-  int                 x;
-  int                 yl;
-  int                 yh;
-  int                 dy;
-  fixed_t             z; // the current column z coord
-  fixed_t             iscale;
-  fixed_t             texturemid;
-  int                 texheight;    // killough
-  fixed_t             texu; // the current column u coord
-  const byte          *source; // first pixel in a column
-  const byte          *prevsource; // first pixel in previous column
-  const byte          *nextsource; // first pixel in next column
-  const lighttable_t  *colormap;
-  const lighttable_t  *nextcolormap;
-  const byte          *translation;
-  int                 edgeslope; // OR'ed RDRAW_EDGESLOPE_*
-  // 1 if R_DrawColumn* is currently drawing a masked column, otherwise 0
-  int                 drawingmasked;
-  enum sloped_edge_type_e edgetype;
-  unsigned int        flags; //e6y: for detect patches ind colfunc()
+    int                 x;
+    int                 yl;
+    int                 yh;
+    int                 dy;
+    fixed_t             z; // the current column z coord
+    fixed_t             iscale;
+    fixed_t             texturemid;
+    int                 texheight;    // killough
+    fixed_t             texu; // the current column u coord
+    const byte          *source; // first pixel in a column
+    const byte          *prevsource; // first pixel in previous column
+    const byte          *nextsource; // first pixel in next column
+    const lighttable_t  *colormap;
+    const lighttable_t  *nextcolormap;
+    const byte          *translation;
+    int                 edgeslope; // OR'ed RDRAW_EDGESLOPE_*
+    // 1 if R_DrawColumn* is currently drawing a masked column, otherwise 0
+    int                 drawingmasked;
+    enum sloped_edge_type_e edgetype;
+    unsigned int        flags; //e6y: for detect patches ind colfunc()
 } draw_column_vars_t;
 
 void R_SetDefaultDrawColumnVars(draw_column_vars_t *dcvars);
 
 void R_VideoErase(int x, int y, int count);
 
-typedef struct {
-  int                 y;
-  int                 x1;
-  int                 x2;
-  fixed_t             z; // the current span z coord
-  fixed_t             xfrac;
-  fixed_t             yfrac;
-  fixed_t             xstep;
-  fixed_t             ystep;
-  const byte          *source; // start of a 64*64 tile image
-  const lighttable_t  *colormap;
-  const lighttable_t  *nextcolormap;
+typedef struct
+{
+    int                 y;
+    int                 x1;
+    int                 x2;
+    fixed_t             z; // the current span z coord
+    fixed_t             xfrac;
+    fixed_t             yfrac;
+    fixed_t             xstep;
+    fixed_t             ystep;
+    const byte          *source; // start of a 64*64 tile image
+    const lighttable_t  *colormap;
+    const lighttable_t  *nextcolormap;
 } draw_span_vars_t;
 
-typedef struct {
-  byte           *byte_topleft;
-  unsigned short *short_topleft;
-  unsigned int   *int_topleft;
-  int   byte_pitch;
-  int   short_pitch;
-  int   int_pitch;
+typedef struct
+{
+    byte           *byte_topleft;
+    unsigned short *short_topleft;
+    unsigned int   *int_topleft;
+    int   byte_pitch;
+    int   short_pitch;
+    int   int_pitch;
 
-  enum draw_filter_type_e filterwall;
-  enum draw_filter_type_e filterfloor;
-  enum draw_filter_type_e filtersprite;
-  enum draw_filter_type_e filterz;
-  enum draw_filter_type_e filterpatch;
+    enum draw_filter_type_e filterwall;
+    enum draw_filter_type_e filterfloor;
+    enum draw_filter_type_e filtersprite;
+    enum draw_filter_type_e filterz;
+    enum draw_filter_type_e filterpatch;
 
-  enum sloped_edge_type_e sprite_edges;
-  enum sloped_edge_type_e patch_edges;
+    enum sloped_edge_type_e sprite_edges;
+    enum sloped_edge_type_e patch_edges;
 
-  // Used to specify an early-out magnification threshold for filtering.
-  // If a texture is being minified (dcvars.iscale > rdraw_magThresh), then it
-  // drops back to point filtering.
-  fixed_t mag_threshold;
+    // Used to specify an early-out magnification threshold for filtering.
+    // If a texture is being minified (dcvars.iscale > rdraw_magThresh), then it
+    // drops back to point filtering.
+    fixed_t mag_threshold;
 } draw_vars_t;
 
 extern draw_vars_t drawvars;

@@ -48,33 +48,33 @@
 
 typedef enum
 {
-  patch_stretch_16x10,
-  patch_stretch_4x3,
-  patch_stretch_full,
-  
-  patch_stretch_max
+    patch_stretch_16x10,
+    patch_stretch_4x3,
+    patch_stretch_full,
+
+    patch_stretch_max
 } patch_stretch_t;
 
 typedef struct
 {
-   fixed_t     xstep, ystep;
+    fixed_t     xstep, ystep;
 
-   int width, height;
+    int width, height;
 
-   // SoM 1-31-04: This will insure that scaled patches and such are put in the right places
-   short x1lookup[321];
-   short y1lookup[201];
-   short x2lookup[321];
-   short y2lookup[201];
+    // SoM 1-31-04: This will insure that scaled patches and such are put in the right places
+    short x1lookup[321];
+    short y1lookup[201];
+    short x2lookup[321];
+    short y2lookup[201];
 } cb_video_t;
 
 typedef struct stretch_param_s
 {
-  cb_video_t *video;
-  int deltax1;
-  int deltay1;
-  int deltax2;
-  int deltay2;
+    cb_video_t *video;
+    int deltax1;
+    int deltay1;
+    int deltax2;
+    int deltay2;
 } stretch_param_t;
 
 extern stretch_param_t stretch_params_table[3][VPT_ALIGN_MAX];
@@ -115,35 +115,36 @@ extern const byte *colrngs[];
 // symbolic indices into color translation table pointer array
 typedef enum
 {
-  CR_BRICK,   //0
-  CR_TAN,     //1
-  CR_GRAY,    //2
-  CR_GREEN,   //3
-  CR_BROWN,   //4
-  CR_GOLD,    //5
-  CR_RED,     //6
-  CR_BLUE,    //7
-  CR_ORANGE,  //8
-  CR_YELLOW,  //9
-  CR_BLUE2,   //10 // proff
-  CR_BLACK,   //11
-  CR_PURPLE,  //12
-  CR_WHITE,   //13
-  CR_LIMIT    //14 //jff 2/27/98 added for range check
+    CR_BRICK,   //0
+    CR_TAN,     //1
+    CR_GRAY,    //2
+    CR_GREEN,   //3
+    CR_BROWN,   //4
+    CR_GOLD,    //5
+    CR_RED,     //6
+    CR_BLUE,    //7
+    CR_ORANGE,  //8
+    CR_YELLOW,  //9
+    CR_BLUE2,   //10 // proff
+    CR_BLACK,   //11
+    CR_PURPLE,  //12
+    CR_WHITE,   //13
+    CR_LIMIT    //14 //jff 2/27/98 added for range check
 } crange_idx_e;
 //jff 1/16/98 end palette color range additions
 
 #define CR_DEFAULT CR_RED   /* default value for out of range colors */
 
-typedef struct {
-  byte *data;          // pointer to the screen content
-  dboolean not_on_heap; // if set, no malloc or free is preformed and
-                       // data never set to NULL. Used i.e. with SDL doublebuffer.
-  int width;           // the width of the surface
-  int height;          // the height of the surface, used when mallocing
-  int byte_pitch;      // tha actual width of one line, used when mallocing
-  int short_pitch;     // tha actual width of one line, used when mallocing
-  int int_pitch;       // tha actual width of one line, used when mallocing
+typedef struct
+{
+    byte *data;          // pointer to the screen content
+    dboolean not_on_heap; // if set, no malloc or free is preformed and
+    // data never set to NULL. Used i.e. with SDL doublebuffer.
+    int width;           // the width of the surface
+    int height;          // the height of the surface, used when mallocing
+    int byte_pitch;      // tha actual width of one line, used when mallocing
+    int short_pitch;     // tha actual width of one line, used when mallocing
+    int int_pitch;       // tha actual width of one line, used when mallocing
 } screeninfo_t;
 
 #define NUM_SCREENS 6
@@ -172,13 +173,14 @@ extern unsigned int *V_Palette32;
 #define VID_PAL32(color, weight) V_Palette32[ (color)*VID_NUMCOLORWEIGHTS + (weight) ]
 
 // The available bit-depth modes
-typedef enum {
-  VID_MODE8,
-  VID_MODE15,
-  VID_MODE16,
-  VID_MODE32,
-  VID_MODEGL,
-  VID_MODEMAX
+typedef enum
+{
+    VID_MODE8,
+    VID_MODE15,
+    VID_MODE16,
+    VID_MODE32,
+    VID_MODEGL,
+    VID_MODEMAX
 } video_mode_t;
 
 extern const char *default_videomode;
@@ -197,7 +199,7 @@ void V_InitColorTranslation(void);
 void V_InitFlexTranTable(void);
 
 // Allocates buffer screens, call before R_Init.
-void V_Init (void);
+void V_Init(void);
 
 // V_CopyRect
 typedef void (*V_CopyRect_f)(int srcscrn, int destscrn,
@@ -221,8 +223,8 @@ typedef void (*V_DrawNumPatch_f)(int x, int y, int scrn,
 extern V_DrawNumPatch_f V_DrawNumPatch;
 
 typedef void (*V_DrawNumPatchPrecise_f)(float x, float y, int scrn,
-                                 int lump, int cm,
-                                 enum patch_translation_e flags);
+                                        int lump, int cm,
+                                        enum patch_translation_e flags);
 extern V_DrawNumPatchPrecise_f V_DrawNumPatchPrecise;
 
 // V_DrawNamePatch - Draws the patch from lump "name"
@@ -264,18 +266,18 @@ void V_ChangeScreenResolution(void);
 // CPhipps - function to plot a pixel
 
 // V_PlotPixel
-typedef void (*V_PlotPixel_f)(int,int,int,byte);
+typedef void (*V_PlotPixel_f)(int, int, int, byte);
 extern V_PlotPixel_f V_PlotPixel;
 
 typedef struct
 {
-  int x, y;
-  float fx, fy;
+    int x, y;
+    float fx, fy;
 } fpoint_t;
 
 typedef struct
 {
-  fpoint_t a, b;
+    fpoint_t a, b;
 } fline_t;
 
 // V_DrawLine

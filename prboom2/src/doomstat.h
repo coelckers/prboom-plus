@@ -88,51 +88,53 @@ extern int demo_insurance, default_demo_insurance;      // killough 4/5/98
 // -------------------------------------------
 // killough 10/98: compatibility vector
 
-enum {
-  comp_telefrag,
-  comp_dropoff,
-  comp_vile,
-  comp_pain,
-  comp_skull,
-  comp_blazing,
-  comp_doorlight,
-  comp_model,
-  comp_god,
-  comp_falloff,
-  comp_floors,
-  comp_skymap,
-  comp_pursuit,
-  comp_doorstuck,
-  comp_staylift,
-  comp_zombie,
-  comp_stairs,
-  comp_infcheat,
-  comp_zerotags,
-  comp_moveblock,
-  comp_respawn,  /* cph - alias of comp_respawnfix from eternity */
-  comp_sound,
-  comp_666,
-  comp_soul,
-  comp_maskedanim,
+enum
+{
+    comp_telefrag,
+    comp_dropoff,
+    comp_vile,
+    comp_pain,
+    comp_skull,
+    comp_blazing,
+    comp_doorlight,
+    comp_model,
+    comp_god,
+    comp_falloff,
+    comp_floors,
+    comp_skymap,
+    comp_pursuit,
+    comp_doorstuck,
+    comp_staylift,
+    comp_zombie,
+    comp_stairs,
+    comp_infcheat,
+    comp_zerotags,
+    comp_moveblock,
+    comp_respawn,  /* cph - alias of comp_respawnfix from eternity */
+    comp_sound,
+    comp_666,
+    comp_soul,
+    comp_maskedanim,
 
-  //e6y
-  comp_ouchface,
-  comp_maxhealth,
-  comp_translucency,
+    //e6y
+    comp_ouchface,
+    comp_maxhealth,
+    comp_translucency,
 
-  COMP_NUM,      /* cph - should be last in sequence */
-  COMP_TOTAL=32  // Some extra room for additional variables
+    COMP_NUM,      /* cph - should be last in sequence */
+    COMP_TOTAL = 32 // Some extra room for additional variables
 };
 
-enum {
-  comperr_zerotag,
-  comperr_passuse,
-  comperr_hangsolid,
-  comperr_blockmap,
-  comperr_allowjump,
-  comperr_freeaim,
+enum
+{
+    comperr_zerotag,
+    comperr_passuse,
+    comperr_hangsolid,
+    comperr_blockmap,
+    comperr_allowjump,
+    comperr_freeaim,
 
-  COMPERR_NUM
+    COMPERR_NUM
 };
 
 extern int comp[COMP_TOTAL], default_comp[COMP_TOTAL];
@@ -196,19 +198,21 @@ extern int desired_screenwidth, desired_screenheight;
 // Status flags for refresh.
 //
 
-enum automapmode_e {
-  am_active = 1,  // currently shown
-  am_overlay= 2,  // covers the screen, i.e. not overlay mode
-  am_rotate = 4,  // rotates to the player facing direction
-  am_follow = 8,  // keep the player centred
-  am_grid   =16,  // show grid
+enum automapmode_e
+{
+    am_active = 1,  // currently shown
+    am_overlay = 2, // covers the screen, i.e. not overlay mode
+    am_rotate = 4,  // rotates to the player facing direction
+    am_follow = 8,  // keep the player centred
+    am_grid   = 16, // show grid
 };
 extern enum automapmode_e automapmode; // Mode that the automap is in
 
-enum menuactive_e {
-  mnact_inactive, // no menu
-  mnact_float, // doom-style large font menu, doesn't overlap anything
-  mnact_full, // boom-style small font menu, may overlap status bar
+enum menuactive_e
+{
+    mnact_inactive, // no menu
+    mnact_float, // doom-style large font menu, doesn't overlap anything
+    mnact_full, // boom-style small font menu, may overlap status bar
 };
 extern enum menuactive_e menuactive; // Type of menu overlaid, if any
 

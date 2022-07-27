@@ -85,11 +85,11 @@ int default_player_bobbing;  // killough 3/1/98: make local to each game
 int monsters_remember;          // killough 3/1/98
 int default_monsters_remember;
 
-int monster_infighting=1;       // killough 7/19/98: monster<=>monster attacks
-int default_monster_infighting=1;
+int monster_infighting = 1;     // killough 7/19/98: monster<=>monster attacks
+int default_monster_infighting = 1;
 
-int monster_friction=1;       // killough 10/98: monsters affected by friction
-int default_monster_friction=1;
+int monster_friction = 1;     // killough 10/98: monsters affected by friction
+int default_monster_friction = 1;
 
 int dogs, default_dogs;         // killough 7/19/98: Marine's best friend :)
 int dog_jumping, default_dog_jumping;   // killough 10/98
@@ -112,12 +112,12 @@ int monkeys, default_monkeys;
 
 char *MAPNAME(int e, int m)
 {
-  static char name[9];
+    static char name[9];
 
-  if (gamemode == commercial)
-    snprintf(name, sizeof(name), "MAP%02d", m);
-  else
-    snprintf(name, sizeof(name), "E%dM%d", e, m);
+    if(gamemode == commercial)
+        snprintf(name, sizeof(name), "MAP%02d", m);
+    else
+        snprintf(name, sizeof(name), "E%dM%d", e, m);
 
-  return name;
+    return name;
 }

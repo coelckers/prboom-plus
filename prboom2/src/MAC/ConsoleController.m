@@ -8,91 +8,95 @@
 
 - (id)initWithWindow:(id)window
 {
-	return [super initWithWindow:window];
+    return [super initWithWindow:window];
 }
 
 - (void)awakeFromNib
 {
-	launchDelegate = nil;
-	log = [[[NSMutableString alloc] init] retain];
+    launchDelegate = nil;
+    log = [[[NSMutableString alloc] init] retain];
 }
 
 - (void)dealloc
 {
-	[log release];
-	[super dealloc];
+    [log release];
+    [super dealloc];
 }
 
 - (void)launch:(NSString *)path args:(NSArray *)args delegate:(id)delegate
 {
-	launchDelegate = delegate;
+    launchDelegate = delegate;
 
-	// clear console
-	[log setString:@""];
-	[textView setString:@""];
+    // clear console
+    [log setString:@""];
+    [textView setString:@""];
 
-	NSTask *task = [[NSTask alloc] init];
-	[task retain];
-	[task setLaunchPath:path];
-	[task setArguments:args];
-	NSPipe *standardOutput = [[NSPipe alloc] init];
-	[standardOutput retain];
-	[task setStandardOutput:standardOutput];
+    NSTask *task = [[NSTask alloc] init];
+    [task retain];
+    [task setLaunchPath:path];
+    [task setArguments:args];
+    NSPipe *standardOutput = [[NSPipe alloc] init];
+    [standardOutput retain];
+    [task setStandardOutput:standardOutput];
 
-	[[NSNotificationCenter defaultCenter] addObserver:self
-	 selector:@selector(dataReady:)
-	 name:NSFileHandleReadCompletionNotification
-	 object:[standardOutput fileHandleForReading]];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                          selector:@selector(dataReady:)
+                                          name:NSFileHandleReadCompletionNotification
+                                          object:[standardOutput fileHandleForReading]];
 
-	[[NSNotificationCenter defaultCenter]
-	 addObserver:self selector:@selector(taskComplete:)
-	 name:NSTaskDidTerminateNotification object:nil];
+    [[NSNotificationCenter defaultCenter]
+     addObserver:self selector:@selector(taskComplete:)
+     name:NSTaskDidTerminateNotification object:nil];
 
-	[task launch];
-	[[standardOutput fileHandleForReading] readInBackgroundAndNotify];
+    [task launch];
+    [[standardOutput fileHandleForReading] readInBackgroundAndNotify];
 }
 
 - (void)dataReady:(NSNotification *)notification
 {
-	NSData *data = [[notification userInfo]
-	               objectForKey:NSFileHandleNotificationDataItem];
-	NSFileHandle *handle = [notification object];
-	if([data length])
-	{
-		NSString *string = [[NSString alloc] initWithData:data
-		                    encoding:NSUTF8StringEncoding];
-		[log appendString:string];
-		[string release];
+    NSData *data = [[notification userInfo]
+                    objectForKey:NSFileHandleNotificationDataItem];
+    NSFileHandle *handle = [notification object];
 
-		[[textView textStorage] beginEditing];
-		[[textView textStorage] setAttributedString:[ANSIString parseColorCodes:log]];
-		[[textView textStorage] endEditing];
+    if([data length])
+    {
+        NSString *string = [[NSString alloc] initWithData:data
+                                             encoding:NSUTF8StringEncoding];
+        [log appendString:string];
+        [string release];
 
-		// Scroll to bottom
-		[textView scrollRangeToVisible:NSMakeRange([[textView string] length], 0)];
+        [[textView textStorage] beginEditing];
+        [[textView textStorage] setAttributedString:[ANSIString parseColorCodes:log]];
+        [[textView textStorage] endEditing];
 
-		[handle readInBackgroundAndNotify];
-	}
-	else
-	{
-		[[NSNotificationCenter defaultCenter]
-		 removeObserver:self
-		 name:NSFileHandleReadCompletionNotification
-		 object:[notification object]];
-	}
+        // Scroll to bottom
+        [textView scrollRangeToVisible:NSMakeRange([[textView string] length], 0)];
+
+        [handle readInBackgroundAndNotify];
+    }
+    else
+    {
+        [[NSNotificationCenter defaultCenter]
+         removeObserver:self
+         name:NSFileHandleReadCompletionNotification
+         object:[notification object]];
+    }
 }
 
 - (void)taskComplete:(NSNotification *)notification
 {
-	NSTask *task = [notification object];
-	if ([task terminationStatus] != 0)
-		[self showWindow:nil];
-	[[NSNotificationCenter defaultCenter]
-	 removeObserver:self
-	 name:NSTaskDidTerminateNotification
-	 object:[notification object]];
-	if(launchDelegate)
-		[launchDelegate taskEnded:self];
+    NSTask *task = [notification object];
+
+    if([task terminationStatus] != 0)
+        [self showWindow:nil];
+
+    [[NSNotificationCenter defaultCenter]
+     removeObserver:self
+     name:NSTaskDidTerminateNotification
+     object:[notification object]];
+
+    if(launchDelegate)
+        [launchDelegate taskEnded:self];
 }
 
 @end

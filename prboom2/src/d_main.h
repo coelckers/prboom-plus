@@ -63,7 +63,7 @@ void D_PostEvent(event_t* ev);
 // Demo stuff
 extern dboolean advancedemo;
 void D_AdvanceDemo(void);
-void D_DoAdvanceDemo (void);
+void D_DoAdvanceDemo(void);
 
 //
 // BASE LEVEL
@@ -73,7 +73,7 @@ void D_Display(fixed_t frac);
 void D_PageTicker(void);
 void D_StartTitle(void);
 void D_DoomMain(void);
-void D_AddFile (const char *file, wad_source_t source);
+void D_AddFile(const char *file, wad_source_t source);
 
 void AddIWAD(const char *iwad);
 const char *BaseName(const char *filename);

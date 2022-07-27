@@ -41,30 +41,30 @@
 #ifndef HAVE_ALSA
 #include <string.h>
 
-static const char *alsa_name (void)
+static const char *alsa_name(void)
 {
-  return "alsa midi player (DISABLED)";
+    return "alsa midi player (DISABLED)";
 }
 
 
-static int alsa_init (int samplerate)
+static int alsa_init(int samplerate)
 {
-  return 0;
+    return 0;
 }
 
 const music_player_t alsa_player =
 {
-  alsa_name,
-  alsa_init,
-  NULL,
-  NULL,
-  NULL,
-  NULL,
-  NULL,
-  NULL,
-  NULL,
-  NULL,
-  NULL
+    alsa_name,
+    alsa_init,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL
 };
 
 #else // HAVE_ALSA
@@ -122,342 +122,349 @@ static snd_seq_queue_status_t *queue_status;
 int alsaplayer_num_outs;
 alsaplay_output_t alsaplayer_outputs[64];
 
-void alsaplay_clear_outputs(void) {
-  // clear output list
-  alsaplayer_num_outs = 0;
+void alsaplay_clear_outputs(void)
+{
+    // clear output list
+    alsaplayer_num_outs = 0;
 }
 
 static snd_seq_client_info_t *cinfo;
 static snd_seq_port_info_t   *pinfo;
 
-void alsaplay_refresh_outputs(void) {
-  // port type and capabilities required from valid MIDI output
-  const int OUT_CAPS_DESIRED = (SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE);
+void alsaplay_refresh_outputs(void)
+{
+    // port type and capabilities required from valid MIDI output
+    const int OUT_CAPS_DESIRED = (SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE);
 
-  snd_seq_client_info_malloc(&cinfo);
-  snd_seq_port_info_malloc  (&pinfo);
+    snd_seq_client_info_malloc(&cinfo);
+    snd_seq_port_info_malloc(&pinfo);
 
-  if (!seq_handle)
-  {
-    lprintf(LO_WARN, "alsaplay_refresh_outputs: Can't list ALSA output ports: seq_handle is not initialized\n");
-    return;
-  }
-
-  alsaplay_clear_outputs();
-
-  // clear client info
-  snd_seq_client_info_set_client(cinfo, -1);
-
-  while (snd_seq_query_next_client(seq_handle, cinfo) == 0)
-  {
-    // list ports of each client
-
-    int client_num = snd_seq_client_info_get_client(cinfo);
-
-    if (client_num == out_id)
+    if(!seq_handle)
     {
-      // skip self
-      continue;
+        lprintf(LO_WARN, "alsaplay_refresh_outputs: Can't list ALSA output ports: seq_handle is not initialized\n");
+        return;
     }
 
-    if (!snd_seq_client_info_get_num_ports(cinfo))
+    alsaplay_clear_outputs();
+
+    // clear client info
+    snd_seq_client_info_set_client(cinfo, -1);
+
+    while(snd_seq_query_next_client(seq_handle, cinfo) == 0)
     {
-      // skip clients without ports
-      continue;
+        // list ports of each client
+
+        int client_num = snd_seq_client_info_get_client(cinfo);
+
+        if(client_num == out_id)
+        {
+            // skip self
+            continue;
+        }
+
+        if(!snd_seq_client_info_get_num_ports(cinfo))
+        {
+            // skip clients without ports
+            continue;
+        }
+
+        // clear port info
+        snd_seq_port_info_set_client(pinfo, client_num);
+        snd_seq_port_info_set_port(pinfo, -1);
+
+        while(snd_seq_query_next_port(seq_handle, pinfo) == 0)
+        {
+            int port_num = snd_seq_port_info_get_port(pinfo);
+            int out_ind;
+            const char *client_name;
+
+            // check if port is valid midi output
+
+            if(!(snd_seq_port_info_get_type(pinfo) & SND_SEQ_PORT_TYPE_MIDI_GENERIC))
+            {
+                continue;
+            }
+
+            if((snd_seq_port_info_get_capability(pinfo) & OUT_CAPS_DESIRED) != OUT_CAPS_DESIRED)
+            {
+                continue;
+            }
+
+            // add to outputs list
+
+            out_ind = alsaplayer_num_outs++;
+
+            alsaplayer_outputs[out_ind].client = client_num;
+            alsaplayer_outputs[out_ind].port = port_num;
+
+            client_name = snd_seq_client_info_get_name(cinfo);
+
+            lprintf(LO_INFO, "alsaplay_refresh_outputs: output #%d: (%d:%d) %s\n", out_ind, client_num, port_num, client_name);
+
+            // client name only up to 100 chars, so it always fits within a 120 byte buffer
+            sprintf(alsaplayer_outputs[out_ind].name, "%.*s (%d:%d)", 100, client_name, client_num, port_num);
+        }
     }
 
-    // clear port info
-    snd_seq_port_info_set_client(pinfo, client_num);
-    snd_seq_port_info_set_port(pinfo, -1);
-
-    while (snd_seq_query_next_port(seq_handle, pinfo) == 0)
-    {
-      int port_num = snd_seq_port_info_get_port(pinfo);
-      int out_ind;
-      const char *client_name;
-
-      // check if port is valid midi output
-
-      if (!(snd_seq_port_info_get_type(pinfo) & SND_SEQ_PORT_TYPE_MIDI_GENERIC))
-      {
-        continue;
-      }
-
-      if ((snd_seq_port_info_get_capability(pinfo) & OUT_CAPS_DESIRED) != OUT_CAPS_DESIRED)
-      {
-        continue;
-      }
-
-      // add to outputs list
-
-      out_ind = alsaplayer_num_outs++;
-
-      alsaplayer_outputs[out_ind].client = client_num;
-      alsaplayer_outputs[out_ind].port = port_num;
-
-      client_name = snd_seq_client_info_get_name(cinfo);
-
-      lprintf(LO_INFO, "alsaplay_refresh_outputs: output #%d: (%d:%d) %s\n", out_ind, client_num, port_num, client_name);
-
-      // client name only up to 100 chars, so it always fits within a 120 byte buffer
-      sprintf(alsaplayer_outputs[out_ind].name, "%.*s (%d:%d)", 100, client_name, client_num, port_num);
-    }
-  }
-
-  snd_seq_client_info_free(cinfo);
-  snd_seq_port_info_free  (pinfo);
+    snd_seq_client_info_free(cinfo);
+    snd_seq_port_info_free(pinfo);
 }
 
-int alsaplay_connect_output(int which) {
-  if (which >= alsaplayer_num_outs)
-  {
-    lprintf(LO_WARN, "alsaplay_connect_output: tried to connect to output listing at index out of bounds: %d\n", which);
-    return -1;
-  }
+int alsaplay_connect_output(int which)
+{
+    if(which >= alsaplayer_num_outs)
+    {
+        lprintf(LO_WARN, "alsaplay_connect_output: tried to connect to output listing at index out of bounds: %d\n", which);
+        return -1;
+    }
 
-  return alsa_midi_set_dest(alsaplayer_outputs[which].client, alsaplayer_outputs[which].port);
+    return alsa_midi_set_dest(alsaplayer_outputs[which].client, alsaplayer_outputs[which].port);
 }
 
-const char *alsaplay_get_output_name(int which) {
-  if (seq_handle == NULL)
-  {
-    return NULL;
-  }
+const char *alsaplay_get_output_name(int which)
+{
+    if(seq_handle == NULL)
+    {
+        return NULL;
+    }
 
-  if (which >= alsaplayer_num_outs)
-  {
-    return NULL;
-  }
+    if(which >= alsaplayer_num_outs)
+    {
+        return NULL;
+    }
 
-  return alsaplayer_outputs[which].name;
+    return alsaplayer_outputs[which].name;
 }
 
 ////////////////////
 
 // alsa utility functions
 
-int alsa_midi_default_dest (void)
+int alsa_midi_default_dest(void)
 {
-  static int status; // alsa error code
-  static int code;   // *our* error code, for control flow
+    static int status; // alsa error code
+    static int code;   // *our* error code, for control flow
 
-  static const char *loopback_check_name = "MIDI THROUGH"; // uppercase for comparison
-  static const signed char upper_diff = 'A' - 'a';
-  const int loopback_check_len = strlen(loopback_check_name);
+    static const char *loopback_check_name = "MIDI THROUGH"; // uppercase for comparison
+    static const signed char upper_diff = 'A' - 'a';
+    const int loopback_check_len = strlen(loopback_check_name);
 
-  // port type and capabilities required from valid MIDI output
-  const int OUT_CAPS_DESIRED = (SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE);
+    // port type and capabilities required from valid MIDI output
+    const int OUT_CAPS_DESIRED = (SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE);
 
-  int loopback_cl = -1, loopback_prt = 0;
-  const char *loopback_name;
+    int loopback_cl = -1, loopback_prt = 0;
+    const char *loopback_name;
 
-  snd_seq_client_info_malloc(&cinfo);
-  snd_seq_port_info_malloc  (&pinfo);
+    snd_seq_client_info_malloc(&cinfo);
+    snd_seq_port_info_malloc(&pinfo);
 
-  if (!seq_handle)
-  {
-    lprintf(LO_WARN, "alsa_midi_default_dest: Can't list ALSA output ports: seq_handle is not initialized\n");
-    return 0;
-  }
-
-  alsaplay_clear_outputs();
-
-  // clear client info
-  snd_seq_client_info_set_client(cinfo, -1);
-
-  while (snd_seq_query_next_client(seq_handle, cinfo) == 0)
-  {
-    // list ports of each client
-
-    int client_num = snd_seq_client_info_get_client(cinfo);
-    const char *client_name;
-
-    if (client_num == out_id)
+    if(!seq_handle)
     {
-      // skip self
-      continue;
+        lprintf(LO_WARN, "alsa_midi_default_dest: Can't list ALSA output ports: seq_handle is not initialized\n");
+        return 0;
     }
 
-    if (!snd_seq_client_info_get_num_ports(cinfo))
+    alsaplay_clear_outputs();
+
+    // clear client info
+    snd_seq_client_info_set_client(cinfo, -1);
+
+    while(snd_seq_query_next_client(seq_handle, cinfo) == 0)
     {
-      // skip clients without ports
-      continue;
-    }
+        // list ports of each client
 
-    client_name = snd_seq_client_info_get_name(cinfo);
+        int client_num = snd_seq_client_info_get_client(cinfo);
+        const char *client_name;
 
-    if (strlen(client_name) >= loopback_check_len)
-    {
-      // check for and skip loopback (eg MIDI Through)
-
-      int i;
-
-      for (i = 0; i < loopback_check_len; i++)
-      {
-        char a = client_name[i];
-        a = (a < 'a') || (a > 'z') ? a : a + upper_diff;
-
-        if (a != loopback_check_name[i])
+        if(client_num == out_id)
         {
-          break;
-        }
-      }
-
-      if (i == loopback_check_len)
-      {
-        loopback_cl = client_num;
-        loopback_name = client_name;
-
-        continue;
-      }
-    }
-
-    // clear port info
-    snd_seq_port_info_set_client(pinfo, client_num);
-    snd_seq_port_info_set_port(pinfo, -1);
-
-    while (snd_seq_query_next_port(seq_handle, pinfo) == 0)
-    {
-      int port_num = snd_seq_port_info_get_port(pinfo);
-
-      // check if port is valid midi output
-
-      if (!(snd_seq_port_info_get_type(pinfo) & SND_SEQ_PORT_TYPE_MIDI_GENERIC))
-      {
-        continue;
-      }
-
-      if ((snd_seq_port_info_get_capability(pinfo) & OUT_CAPS_DESIRED) != OUT_CAPS_DESIRED)
-      {
-        continue;
-      }
-
-      if (loopback_cl == client_num)
-      {
-        // save as midi through port
-
-        loopback_prt = port_num;
-        break;
-      }
-
-      else
-      {
-        // connect to this port
-
-        if (alsa_midi_set_dest(client_num, port_num) != 0)
-        {
-          lprintf(LO_WARN, "alsa_midi_default_dest: error connecting to default port %i:%i (%s): %s\n", client_num, port_num, client_name, snd_strerror(alsaplayer_err));
-
-          code = 0;
-          goto cleanup;
+            // skip self
+            continue;
         }
 
-        lprintf(LO_INFO, "alsa_midi_default_dest: connected to default port %i:%i (%s)\n", client_num, port_num, client_name);
+        if(!snd_seq_client_info_get_num_ports(cinfo))
+        {
+            // skip clients without ports
+            continue;
+        }
+
+        client_name = snd_seq_client_info_get_name(cinfo);
+
+        if(strlen(client_name) >= loopback_check_len)
+        {
+            // check for and skip loopback (eg MIDI Through)
+
+            int i;
+
+            for(i = 0; i < loopback_check_len; i++)
+            {
+                char a = client_name[i];
+                a = (a < 'a') || (a > 'z') ? a : a + upper_diff;
+
+                if(a != loopback_check_name[i])
+                {
+                    break;
+                }
+            }
+
+            if(i == loopback_check_len)
+            {
+                loopback_cl = client_num;
+                loopback_name = client_name;
+
+                continue;
+            }
+        }
+
+        // clear port info
+        snd_seq_port_info_set_client(pinfo, client_num);
+        snd_seq_port_info_set_port(pinfo, -1);
+
+        while(snd_seq_query_next_port(seq_handle, pinfo) == 0)
+        {
+            int port_num = snd_seq_port_info_get_port(pinfo);
+
+            // check if port is valid midi output
+
+            if(!(snd_seq_port_info_get_type(pinfo) & SND_SEQ_PORT_TYPE_MIDI_GENERIC))
+            {
+                continue;
+            }
+
+            if((snd_seq_port_info_get_capability(pinfo) & OUT_CAPS_DESIRED) != OUT_CAPS_DESIRED)
+            {
+                continue;
+            }
+
+            if(loopback_cl == client_num)
+            {
+                // save as midi through port
+
+                loopback_prt = port_num;
+                break;
+            }
+
+            else
+            {
+                // connect to this port
+
+                if(alsa_midi_set_dest(client_num, port_num) != 0)
+                {
+                    lprintf(LO_WARN, "alsa_midi_default_dest: error connecting to default port %i:%i (%s): %s\n", client_num, port_num, client_name, snd_strerror(alsaplayer_err));
+
+                    code = 0;
+                    goto cleanup;
+                }
+
+                lprintf(LO_INFO, "alsa_midi_default_dest: connected to default port %i:%i (%s)\n", client_num, port_num, client_name);
+
+                code = 1;
+                goto cleanup;
+            }
+        }
+    }
+
+    // try midi through as last resort fallback
+
+    if(loopback_cl != -1)
+    {
+        if((status = alsa_midi_set_dest(loopback_cl, loopback_prt)) != 0)
+        {
+            lprintf(LO_WARN, "alsa_midi_default_dest: (fallback) error connecting to default port %i:%i (%s): %s\n", loopback_cl, loopback_prt, loopback_name, snd_strerror(status));
+            code = 0;
+            goto cleanup;
+        }
+
+        lprintf(LO_INFO, "alsa_midi_default_dest: (fallback) connected to default port %i:%i (%s)\n", loopback_cl, loopback_prt, loopback_name);
 
         code = 1;
         goto cleanup;
-      }
-    }
-  }
-
-  // try midi through as last resort fallback
-
-  if (loopback_cl != -1)
-  {
-    if ((status = alsa_midi_set_dest(loopback_cl, loopback_prt)) != 0)
-    {
-      lprintf(LO_WARN, "alsa_midi_default_dest: (fallback) error connecting to default port %i:%i (%s): %s\n", loopback_cl, loopback_prt, loopback_name, snd_strerror(status));
-      code = 0;
-      goto cleanup;
     }
 
-    lprintf(LO_INFO, "alsa_midi_default_dest: (fallback) connected to default port %i:%i (%s)\n", loopback_cl, loopback_prt, loopback_name);
+    // no default port
+    lprintf(LO_WARN, "alsa_midi_default_dest: no default port found\n");
 
-    code = 1;
-    goto cleanup;
-  }
-
-  // no default port
-  lprintf(LO_WARN, "alsa_midi_default_dest: no default port found\n");
-
-  code = 0;
+    code = 0;
 
 cleanup:
-  snd_seq_client_info_free(cinfo);
-  snd_seq_port_info_free  (pinfo);
+    snd_seq_client_info_free(cinfo);
+    snd_seq_port_info_free(pinfo);
 
-  return code;
+    return code;
 }
 
-static const char *alsa_midi_open (void)
+static const char *alsa_midi_open(void)
 {
-  CHK_RET(snd_seq_open(&seq_handle, "default", SND_SEQ_OPEN_OUTPUT, 0),
-    "could not open sequencer")
+    CHK_RET(snd_seq_open(&seq_handle, "default", SND_SEQ_OPEN_OUTPUT, 0),
+            "could not open sequencer")
 
-  CHK_RET(snd_seq_set_client_name(seq_handle, "PrBoom+ MIDI"),
-    "could not set client name")
+    CHK_RET(snd_seq_set_client_name(seq_handle, "PrBoom+ MIDI"),
+            "could not set client name")
 
-  out_id = snd_seq_client_id(seq_handle);
+    out_id = snd_seq_client_id(seq_handle);
 
-  CHK_RET(
-    out_port = snd_seq_create_simple_port(seq_handle, "Music",
-      SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ | SND_SEQ_PORT_CAP_READ,
-      SND_SEQ_PORT_TYPE_MIDI_GENERIC | SND_SEQ_PORT_TYPE_APPLICATION | SND_SEQ_PORT_TYPE_SOFTWARE
-    ),
-    "could not open alsa port")
+    CHK_RET(
+        out_port = snd_seq_create_simple_port(seq_handle, "Music",
+                   SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ | SND_SEQ_PORT_CAP_READ,
+                   SND_SEQ_PORT_TYPE_MIDI_GENERIC | SND_SEQ_PORT_TYPE_APPLICATION | SND_SEQ_PORT_TYPE_SOFTWARE
+                                             ),
+        "could not open alsa port")
 
-  out_queue = snd_seq_alloc_named_queue(seq_handle, "prboom music queue");
+    out_queue = snd_seq_alloc_named_queue(seq_handle, "prboom music queue");
 
-  snd_seq_queue_status_malloc(&queue_status);
+    snd_seq_queue_status_malloc(&queue_status);
 
-  alsa_open = 1;
-  return NULL;
+    alsa_open = 1;
+    return NULL;
 }
 
-int alsa_midi_set_dest (int client, int port)
+int alsa_midi_set_dest(int client, int port)
 {
-  static int last_client = -1, last_port = 0;
+    static int last_client = -1, last_port = 0;
 
-  if (!seq_handle) {
-    return -2;
-  }
+    if(!seq_handle)
+    {
+        return -2;
+    }
 
-  // disconnect if previously connected
+    // disconnect if previously connected
 
-  if (last_client != 0) {
-    snd_seq_disconnect_to(seq_handle, out_port, last_client, last_port);
+    if(last_client != 0)
+    {
+        snd_seq_disconnect_to(seq_handle, out_port, last_client, last_port);
 
-    last_client = client;
-    last_port = port;
-  }
+        last_client = client;
+        last_port = port;
+    }
 
-  // connects to a destination alsa-midi client and port
+    // connects to a destination alsa-midi client and port
 
-  CHK_LPRINT_ERR_RET(snd_seq_connect_to(seq_handle, out_port, client, port), -3,
-    LO_WARN, "alsa_midi_set_dest: error connecting to (%d:%d): %s", last_client, last_port);
+    CHK_LPRINT_ERR_RET(snd_seq_connect_to(seq_handle, out_port, client, port), -3,
+                       LO_WARN, "alsa_midi_set_dest: error connecting to (%d:%d): %s", last_client, last_port);
 
-  alsa_first_connected = 1;
-  return 0;
-}
-
-static unsigned long alsa_now (void)
-{
-  // get current position in millisecs
-
-  const snd_seq_real_time_t *time;
-
-  // update queue status
-  CHK_LPRINT_ERR_RET(snd_seq_get_queue_status(seq_handle, out_queue, queue_status), 0,
-    LO_WARN, "alsaplayer: alsa_now(): error getting queue status: %s\n");
-
-  time = snd_seq_queue_status_get_real_time(queue_status);
-
-  if (time == 0) {
-    lprintf (LO_WARN, "alsaplayer: alsa_now(): error getting realtime position from queue status\n");
+    alsa_first_connected = 1;
     return 0;
-  }
+}
 
-  return time->tv_sec * 1000 + (time->tv_nsec / 1000000); // (s,ns) to ms
+static unsigned long alsa_now(void)
+{
+    // get current position in millisecs
+
+    const snd_seq_real_time_t *time;
+
+    // update queue status
+    CHK_LPRINT_ERR_RET(snd_seq_get_queue_status(seq_handle, out_queue, queue_status), 0,
+                       LO_WARN, "alsaplayer: alsa_now(): error getting queue status: %s\n");
+
+    time = snd_seq_queue_status_get_real_time(queue_status);
+
+    if(time == 0)
+    {
+        lprintf(LO_WARN, "alsaplayer: alsa_now(): error getting realtime position from queue status\n");
+        return 0;
+    }
+
+    return time->tv_sec * 1000 + (time->tv_nsec / 1000000); // (s,ns) to ms
 }
 
 ////////////////////
@@ -465,547 +472,575 @@ static unsigned long alsa_now (void)
 // alsa player callbacks
 
 
-static const snd_seq_real_time_t *alsa_now_realtime (void)
+static const snd_seq_real_time_t *alsa_now_realtime(void)
 {
-  // get current position in millisecs
+    // get current position in millisecs
 
-  const snd_seq_real_time_t *time;
+    const snd_seq_real_time_t *time;
 
-  // update queue status
-  CHK_LPRINT_ERR_RET(snd_seq_get_queue_status(seq_handle, out_queue, queue_status), 0,
-    LO_WARN, "alsaplayer: alsa_now(): error getting queue status: %s\n");
+    // update queue status
+    CHK_LPRINT_ERR_RET(snd_seq_get_queue_status(seq_handle, out_queue, queue_status), 0,
+                       LO_WARN, "alsaplayer: alsa_now(): error getting queue status: %s\n");
 
-  time = snd_seq_queue_status_get_real_time(queue_status);
+    time = snd_seq_queue_status_get_real_time(queue_status);
 
-  if (time == 0) {
-    lprintf (LO_WARN, "alsaplayer: alsa_now(): error getting realtime position from queue status\n");
-  }
+    if(time == 0)
+    {
+        lprintf(LO_WARN, "alsaplayer: alsa_now(): error getting realtime position from queue status\n");
+    }
 
-  return time;
+    return time;
 }
 
-static void alsa_midi_evt_start (unsigned long when)
+static void alsa_midi_evt_start(unsigned long when)
 {
-  snd_seq_ev_clear(&seq_ev);
+    snd_seq_ev_clear(&seq_ev);
 
-  // source
-  snd_seq_ev_set_source(&seq_ev, out_port);
+    // source
+    snd_seq_ev_set_source(&seq_ev, out_port);
 
-  // schedule
-  if (when != 0) {
-    snd_seq_real_time_t rtime;
+    // schedule
+    if(when != 0)
+    {
+        snd_seq_real_time_t rtime;
 
-    // ms into (s,ns)
-    rtime.tv_sec = when / 1000;
-    rtime.tv_nsec = (when % 1000) * 1000000;
+        // ms into (s,ns)
+        rtime.tv_sec = when / 1000;
+        rtime.tv_nsec = (when % 1000) * 1000000;
 
-    snd_seq_ev_schedule_real(&seq_ev, out_queue, 0, &rtime);
-  }
+        snd_seq_ev_schedule_real(&seq_ev, out_queue, 0, &rtime);
+    }
 
-  else {
-    snd_seq_ev_schedule_real(&seq_ev, out_queue, 0, alsa_now_realtime());
-  }
+    else
+    {
+        snd_seq_ev_schedule_real(&seq_ev, out_queue, 0, alsa_now_realtime());
+    }
 
-  // priority
-  snd_seq_ev_set_priority(&seq_ev, 0);
+    // priority
+    snd_seq_ev_set_priority(&seq_ev, 0);
 
-  // destination
-  snd_seq_ev_set_subs(&seq_ev);
+    // destination
+    snd_seq_ev_set_subs(&seq_ev);
 }
 
-static void alsa_midi_evt_finish ()
+static void alsa_midi_evt_finish()
 {
-  CHK_LPRINT_ERR(snd_seq_event_output(seq_handle, &seq_ev),
-    LO_WARN, "alsa_midi_evt_finish: could not output alsa midi event: %s\n");
+    CHK_LPRINT_ERR(snd_seq_event_output(seq_handle, &seq_ev),
+                   LO_WARN, "alsa_midi_evt_finish: could not output alsa midi event: %s\n");
 }
 
-static void alsa_midi_evt_flush ()
+static void alsa_midi_evt_flush()
 {
-  CHK_LPRINT_ERR(snd_seq_drain_output(seq_handle),
-    LO_WARN, "alsa_midi_evt_finish: could not drain alsa sequencer output: %s\n");
+    CHK_LPRINT_ERR(snd_seq_drain_output(seq_handle),
+                   LO_WARN, "alsa_midi_evt_finish: could not drain alsa sequencer output: %s\n");
 }
 
-static void alsa_midi_write_event (unsigned long when, midi_event_type_t type, int channel, int v1, int v2)
+static void alsa_midi_write_event(unsigned long when, midi_event_type_t type, int channel, int v1, int v2)
 {
-  // ported from portmidiplayer.c (no pun intended!)
-  alsa_midi_evt_start(when);
+    // ported from portmidiplayer.c (no pun intended!)
+    alsa_midi_evt_start(when);
 
-  // set event value fields
-  switch(type) {
+    // set event value fields
+    switch(type)
+    {
     case MIDI_EVENT_NOTE_OFF:
-      snd_seq_ev_set_noteoff(&seq_ev, channel, v1, v2);
-      break;
+        snd_seq_ev_set_noteoff(&seq_ev, channel, v1, v2);
+        break;
 
     case MIDI_EVENT_NOTE_ON:
-      snd_seq_ev_set_noteon(&seq_ev, channel, v1, v2);
-      break;
+        snd_seq_ev_set_noteon(&seq_ev, channel, v1, v2);
+        break;
 
     case MIDI_EVENT_AFTERTOUCH:
-      snd_seq_ev_set_keypress(&seq_ev, channel, v1, v2);
-      break;
+        snd_seq_ev_set_keypress(&seq_ev, channel, v1, v2);
+        break;
 
     case MIDI_EVENT_PROGRAM_CHANGE:
-      snd_seq_ev_set_pgmchange(&seq_ev, channel, v1);
-      break;
+        snd_seq_ev_set_pgmchange(&seq_ev, channel, v1);
+        break;
 
     case MIDI_EVENT_CHAN_AFTERTOUCH:
-      snd_seq_ev_set_chanpress(&seq_ev, channel, v1);
-      break;
+        snd_seq_ev_set_chanpress(&seq_ev, channel, v1);
+        break;
 
     case MIDI_EVENT_PITCH_BEND:
-      snd_seq_ev_set_pitchbend(&seq_ev, channel, v1 << 8 | v2);
-      break;
+        snd_seq_ev_set_pitchbend(&seq_ev, channel, v1 << 8 | v2);
+        break;
 
     case MIDI_EVENT_CONTROLLER:
-      snd_seq_ev_set_controller(&seq_ev, channel, v1, v2);
-      break;
+        snd_seq_ev_set_controller(&seq_ev, channel, v1, v2);
+        break;
 
     default:
-      // unknown type
-      lprintf(LO_WARN, "alsa_midi_write_event: unknown midi event type: %d\n", type);
-      return;
-  }
+        // unknown type
+        lprintf(LO_WARN, "alsa_midi_write_event: unknown midi event type: %d\n", type);
+        return;
+    }
 
-  alsa_midi_evt_finish();
+    alsa_midi_evt_finish();
 }
 
-static void alsa_midi_write_control (unsigned long when, int channel, int v1, int v2)
+static void alsa_midi_write_control(unsigned long when, int channel, int v1, int v2)
 {
-  alsa_midi_write_event(when, MIDI_EVENT_CONTROLLER, channel, v1, v2);
+    alsa_midi_write_event(when, MIDI_EVENT_CONTROLLER, channel, v1, v2);
 }
 
-static void alsa_midi_write_control_now (int channel, int v1, int v2)
+static void alsa_midi_write_control_now(int channel, int v1, int v2)
 {
-  // send event now, disregarding 'when'
-  alsa_midi_write_control(0, channel, v1, v2);
+    // send event now, disregarding 'when'
+    alsa_midi_write_control(0, channel, v1, v2);
 }
 
-static void alsa_midi_all_notes_off_chan (int channel)
+static void alsa_midi_all_notes_off_chan(int channel)
 {
-  alsa_midi_write_control_now(channel, 123, 0);
-  alsa_midi_evt_flush();
+    alsa_midi_write_control_now(channel, 123, 0);
+    alsa_midi_evt_flush();
 }
 
-static void alsa_midi_all_notes_off (void)
+static void alsa_midi_all_notes_off(void)
 {
-  // sends All Notes Off event in all channels
-  for (int i = 0; i < 16; i++) {
-    alsa_midi_all_notes_off_chan(i);
-  }
+    // sends All Notes Off event in all channels
+    for(int i = 0; i < 16; i++)
+    {
+        alsa_midi_all_notes_off_chan(i);
+    }
 }
 
-static int alsa_midi_init_connect_default_port (void)
+static int alsa_midi_init_connect_default_port(void)
 {
-  // load MIDI device specified in config
+    // load MIDI device specified in config
 
-  if (snd_mididev && strlen(snd_mididev))
-  {
-    snd_seq_addr_t seqaddr;
+    if(snd_mididev && strlen(snd_mididev))
+    {
+        snd_seq_addr_t seqaddr;
 
-    CHK_LPRINT_ERR(snd_seq_parse_address(seq_handle, &seqaddr, snd_mididev),
-      LO_WARN, "alsa_init: Error connecting to configured MIDI output port \"%s\": %s", snd_mididev)
+        CHK_LPRINT_ERR(snd_seq_parse_address(seq_handle, &seqaddr, snd_mididev),
+                       LO_WARN, "alsa_init: Error connecting to configured MIDI output port \"%s\": %s", snd_mididev)
 
-    return alsa_midi_set_dest(seqaddr.client, seqaddr.port) == 0;
-  }
+        return alsa_midi_set_dest(seqaddr.client, seqaddr.port) == 0;
+    }
 
-  else
-  {
-    // connect to default
-    return alsa_midi_default_dest();
-  }
+    else
+    {
+        // connect to default
+        return alsa_midi_default_dest();
+    }
 }
 
 ////////////////////
 
 // alsa player callbacks
 
-static const char *alsa_name (void)
+static const char *alsa_name(void)
 {
-  return "alsa midi player";
+    return "alsa midi player";
 }
 
-static int alsa_init (int samplerate)
+static int alsa_init(int samplerate)
 {
-  const char *msg = alsa_midi_open();
+    const char *msg = alsa_midi_open();
 
-  lprintf (LO_INFO, "alsaplayer: Trying to open ALSA output port\n");
+    lprintf(LO_INFO, "alsaplayer: Trying to open ALSA output port\n");
 
-  if (msg != NULL) {
-    lprintf(LO_WARN, "alsa_init: alsa_midi_open() failed: %s\n", msg);
-    return 0;
-  }
+    if(msg != NULL)
+    {
+        lprintf(LO_WARN, "alsa_init: alsa_midi_open() failed: %s\n", msg);
+        return 0;
+    }
 
-  lprintf (LO_INFO, "alsaplayer: Successfully opened port: %d\n", out_port);
+    lprintf(LO_INFO, "alsaplayer: Successfully opened port: %d\n", out_port);
 
-  alsaplay_refresh_outputs(); // make output list and print it out
+    alsaplay_refresh_outputs(); // make output list and print it out
 
-  return 1;
+    return 1;
 }
 
-static void alsa_shutdown (void)
+static void alsa_shutdown(void)
 {
-  if (seq_handle) {
-    alsa_midi_all_notes_off();
-    alsa_midi_evt_flush();
+    if(seq_handle)
+    {
+        alsa_midi_all_notes_off();
+        alsa_midi_evt_flush();
 
-    snd_seq_free_queue(seq_handle, out_queue);
-    snd_seq_queue_status_free(queue_status);
+        snd_seq_free_queue(seq_handle, out_queue);
+        snd_seq_queue_status_free(queue_status);
 
-    snd_seq_delete_simple_port(seq_handle, out_port);
-    snd_seq_close(seq_handle);
+        snd_seq_delete_simple_port(seq_handle, out_port);
+        snd_seq_close(seq_handle);
 
-    seq_handle = NULL;
-  }
+        seq_handle = NULL;
+    }
 
-  alsa_open = 0;
+    alsa_open = 0;
 }
 
-static const void *alsa_registersong (const void *data, unsigned len)
+static const void *alsa_registersong(const void *data, unsigned len)
 {
-  midimem_t mf;
+    midimem_t mf;
 
-  mf.len = len;
-  mf.pos = 0;
-  mf.data = (const byte*)data;
+    mf.len = len;
+    mf.pos = 0;
+    mf.data = (const byte*)data;
 
-  midifile = MIDI_LoadFile (&mf);
+    midifile = MIDI_LoadFile(&mf);
 
-  if (!midifile)
-  {
-    lprintf (LO_WARN, "alsa_registersong: Failed to load MIDI.\n");
-    return NULL;
-  }
-  
-  events = MIDI_GenerateFlatList (midifile);
-  if (!events)
-  {
-    MIDI_FreeFile (midifile);
-    return NULL;
-  }
-  eventpos = 0;
+    if(!midifile)
+    {
+        lprintf(LO_WARN, "alsa_registersong: Failed to load MIDI.\n");
+        return NULL;
+    }
 
-  // implicit 120BPM (this is correct to spec)
-  //spmc = compute_spmc (MIDI_GetFileTimeDivision (midifile), 500000, 1000);
-  spmc = MIDI_spmc (midifile, NULL, 1000);
+    events = MIDI_GenerateFlatList(midifile);
 
-  // handle not used
-  return data;
+    if(!events)
+    {
+        MIDI_FreeFile(midifile);
+        return NULL;
+    }
+
+    eventpos = 0;
+
+    // implicit 120BPM (this is correct to spec)
+    //spmc = compute_spmc (MIDI_GetFileTimeDivision (midifile), 500000, 1000);
+    spmc = MIDI_spmc(midifile, NULL, 1000);
+
+    // handle not used
+    return data;
 }
 
 static int channelvol[16];
 
-static void alsa_setchvolume (int ch, int v, unsigned long when)
+static void alsa_setchvolume(int ch, int v, unsigned long when)
 {
-  channelvol[ch] = v;
-  alsa_midi_write_control(when, ch, 7, channelvol[ch] * alsa_volume / 15);
-  alsa_midi_evt_flush();
+    channelvol[ch] = v;
+    alsa_midi_write_control(when, ch, 7, channelvol[ch] * alsa_volume / 15);
+    alsa_midi_evt_flush();
 }
 
-static void alsa_refreshvolume (void)
+static void alsa_refreshvolume(void)
 {
-  int i;
+    int i;
 
-  for (i = 0; i < 16; i ++)
-    alsa_midi_write_control_now(i, 7, channelvol[i] * alsa_volume / 15);
+    for(i = 0; i < 16; i ++)
+        alsa_midi_write_control_now(i, 7, channelvol[i] * alsa_volume / 15);
 
-  alsa_midi_evt_flush();
+    alsa_midi_evt_flush();
 }
 
-static void alsa_clearchvolume (void)
+static void alsa_clearchvolume(void)
 {
-  int i;
-  for (i = 0; i < 16; i++)
-    channelvol[i] = 127; // default: max
+    int i;
+
+    for(i = 0; i < 16; i++)
+        channelvol[i] = 127; // default: max
 }
 
-static void alsa_setvolume (int v)
-{ 
-  static int firsttime = 1;
+static void alsa_setvolume(int v)
+{
+    static int firsttime = 1;
 
-  if (alsa_volume == v && !firsttime)
-    return;
-  firsttime = 0;
+    if(alsa_volume == v && !firsttime)
+        return;
 
-  alsa_volume = v;
+    firsttime = 0;
 
-  alsa_refreshvolume ();
+    alsa_volume = v;
+
+    alsa_refreshvolume();
 }
 
 
-static void alsa_unregistersong (const void *handle)
+static void alsa_unregistersong(const void *handle)
 {
-  if (events)
-  {
-    MIDI_DestroyFlatList (events);
-    events = NULL;
-  }
-  if (midifile)
-  {
-    MIDI_FreeFile (midifile);
-    midifile = NULL;
-  }
+    if(events)
+    {
+        MIDI_DestroyFlatList(events);
+        events = NULL;
+    }
+
+    if(midifile)
+    {
+        MIDI_FreeFile(midifile);
+        midifile = NULL;
+    }
 }
 
-static void alsa_pause (void)
+static void alsa_pause(void)
 {
-  int i;
-  alsa_paused = 1;
-  alsa_midi_all_notes_off();
+    int i;
+    alsa_paused = 1;
+    alsa_midi_all_notes_off();
 
-  snd_seq_stop_queue(seq_handle, out_queue, 0);
+    snd_seq_stop_queue(seq_handle, out_queue, 0);
 }
 
-static void alsa_resume (void)
+static void alsa_resume(void)
 {
-  alsa_paused = 0;
-  trackstart = alsa_now ();
+    alsa_paused = 0;
+    trackstart = alsa_now();
 
-  snd_seq_continue_queue(seq_handle, out_queue, 0);
+    snd_seq_continue_queue(seq_handle, out_queue, 0);
 }
 
-static void alsa_play (const void *handle, int looping)
+static void alsa_play(const void *handle, int looping)
 {
-  snd_seq_queue_timer_t *timer;
-  int status;
+    snd_seq_queue_timer_t *timer;
+    int status;
 
-  // reinit queue
+    // reinit queue
 
-  if (!alsa_first_connected)
-  {
-    // connect to default port if haven't connected at least once yet
-    alsa_midi_init_connect_default_port();
-  }
+    if(!alsa_first_connected)
+    {
+        // connect to default port if haven't connected at least once yet
+        alsa_midi_init_connect_default_port();
+    }
 
-  if (out_queue) {
-    snd_seq_free_queue(seq_handle, out_queue);
-    snd_seq_queue_status_free(queue_status);
-  }
+    if(out_queue)
+    {
+        snd_seq_free_queue(seq_handle, out_queue);
+        snd_seq_queue_status_free(queue_status);
+    }
 
-  // make queue
-  out_queue = snd_seq_alloc_named_queue(seq_handle, "prboom music queue");
-  
-  snd_seq_queue_status_malloc(&queue_status);
+    // make queue
+    out_queue = snd_seq_alloc_named_queue(seq_handle, "prboom music queue");
 
-  // set queue resolution
+    snd_seq_queue_status_malloc(&queue_status);
 
-  snd_seq_queue_timer_malloc(&timer);
+    // set queue resolution
 
-  status = snd_seq_get_queue_timer(seq_handle, out_queue, timer);
+    snd_seq_queue_timer_malloc(&timer);
 
-  if (status < 0)
-  {
-    lprintf(LO_WARN, "alsa_play: error getting sched queue timer: %s\n", snd_strerror(status));
+    status = snd_seq_get_queue_timer(seq_handle, out_queue, timer);
+
+    if(status < 0)
+    {
+        lprintf(LO_WARN, "alsa_play: error getting sched queue timer: %s\n", snd_strerror(status));
+
+        snd_seq_queue_timer_free(timer);
+        goto finish;
+    }
+
+    snd_seq_queue_timer_set_resolution(timer, 1000000 / 32); // 1000000 ns = 1 ms, so this is 1/32 ms
+
+    status = snd_seq_set_queue_timer(seq_handle, out_queue, timer);
+
+    if(status < 0)
+    {
+        lprintf(LO_WARN, "alsa_play: error setting sched queue timer with new resolution: %s\n", snd_strerror(status));
+
+        snd_seq_queue_timer_free(timer);
+        goto finish;
+    }
+
+    lprintf(LO_INFO, "alsa_play: success\n");
 
     snd_seq_queue_timer_free(timer);
-    goto finish;
-  }
-
-  snd_seq_queue_timer_set_resolution(timer, 1000000 / 32); // 1000000 ns = 1 ms, so this is 1/32 ms
-
-  status = snd_seq_set_queue_timer(seq_handle, out_queue, timer);
-
-  if (status < 0)
-  {
-    lprintf(LO_WARN, "alsa_play: error setting sched queue timer with new resolution: %s\n", snd_strerror(status));
-
-    snd_seq_queue_timer_free(timer);
-    goto finish;
-  }
-
-  lprintf(LO_INFO, "alsa_play: success\n");
-
-  snd_seq_queue_timer_free(timer);
 
 finish:
-  // initialize state stuff
-  eventpos = 0;
-  alsa_looping = looping;
-  alsa_playing = 1;
+    // initialize state stuff
+    eventpos = 0;
+    alsa_looping = looping;
+    alsa_playing = 1;
     //alsa_paused = 0;
-  alsa_delta = 0.0;
-  alsa_clearchvolume ();
-  alsa_refreshvolume ();
-  trackstart = alsa_now ();
+    alsa_delta = 0.0;
+    alsa_clearchvolume();
+    alsa_refreshvolume();
+    trackstart = alsa_now();
 
-  // start scheduling queue
-  snd_seq_start_queue(seq_handle, out_queue, 0);
+    // start scheduling queue
+    snd_seq_start_queue(seq_handle, out_queue, 0);
 }
 
 
-static void alsa_midi_writesysex (unsigned long when, int etype, unsigned char *data, int len)
+static void alsa_midi_writesysex(unsigned long when, int etype, unsigned char *data, int len)
 {
-  // sysex code is untested
-  // it's possible to use an auto-resizing buffer here, but a malformed
-  // midi file could make it grow arbitrarily large (since it must grow
-  // until it hits an 0xf7 terminator)
-  if (len + sysexbufflen > SYSEX_BUFF_SIZE)
-  {
-    lprintf (LO_WARN, "alsaplayer: ignoring large or malformed sysex message\n");
-    sysexbufflen = 0;
-    return;
-  }
-  memcpy (sysexbuff + sysexbufflen, data, len);
-  sysexbufflen += len;
-  if (sysexbuff[sysexbufflen - 1] == 0xf7) // terminator
-  {
-    alsa_midi_evt_start(when);
-    snd_seq_ev_set_sysex(&seq_ev, sysexbufflen, sysexbuff);
-    alsa_midi_evt_finish();
-
-    sysexbufflen = 0;
-  }
-}  
-
-static void alsa_stop (void)
-{
-  int i;
-  alsa_playing = 0;
-  
-
-  // songs can be stopped at any time, so reset everything
-  for (i = 0; i < 16; i++)
-  {
-    alsa_midi_write_control_now(i, 123, 0); // all notes off
-    alsa_midi_write_control_now(i, 121, 0); // reset all parameters
-
-    // RPN sequence to adjust pitch bend range (RPN value 0x0000)
-    alsa_midi_write_control_now(i, 0x65, 0x00);
-    alsa_midi_write_control_now(i, 0x64, 0x00);
-    // reset pitch bend range to central tuning +/- 2 semitones and 0 cents
-    alsa_midi_write_control_now(i, 0x06, 0x02);
-    alsa_midi_write_control_now(i, 0x26, 0x00);
-    // end of RPN sequence
-    alsa_midi_write_control_now(i, 0x64, 0x7f);
-    alsa_midi_write_control_now(i, 0x65, 0x7f);
-  }
-  alsa_midi_evt_flush();
-  // abort any partial sysex
-  sysexbufflen = 0;
-
-  snd_seq_stop_queue(seq_handle, out_queue, 0);
-}
-
-static void alsa_render (void *vdest, unsigned bufflen)
-{
-  // wherever you see samples in here, think milliseconds
-
-  unsigned long newtime = alsa_now();
-  unsigned long length = newtime - trackstart;
-
-  //timerpos = newtime;
-  unsigned long when;
-
-  midi_event_t *currevent;
-  
-  unsigned sampleswritten = 0;
-  unsigned samples;
-
-  memset (vdest, 0, bufflen * 4);
-
-
-
-  if (!alsa_playing || alsa_paused)
-    return;
-
-  
-  while (1)
-  {
-    double eventdelta;
-    currevent = events[eventpos];
-    
-    // how many samples away event is
-    eventdelta = currevent->delta_time * spmc;
-
-
-    // how many we will render (rounding down); include delta offset
-    samples = (unsigned) (eventdelta + alsa_delta);
-
-
-    if (samples + sampleswritten > length)
-    { // overshoot; render some samples without processing an event
-      break;
-    }
-
-
-    sampleswritten += samples;
-    alsa_delta -= samples;
- 
-    
-    // process event
-    when = trackstart + sampleswritten;
-    switch (currevent->event_type)
+    // sysex code is untested
+    // it's possible to use an auto-resizing buffer here, but a malformed
+    // midi file could make it grow arbitrarily large (since it must grow
+    // until it hits an 0xf7 terminator)
+    if(len + sysexbufflen > SYSEX_BUFF_SIZE)
     {
-      case MIDI_EVENT_SYSEX:
-      case MIDI_EVENT_SYSEX_SPLIT:        
-        alsa_midi_writesysex (when, currevent->event_type, currevent->data.sysex.data, currevent->data.sysex.length);
-        break;
-      case MIDI_EVENT_META: // tempo is the only meta message we're interested in
-        if (currevent->data.meta.type == MIDI_META_SET_TEMPO)
-          spmc = MIDI_spmc (midifile, currevent, 1000);
-        else if (currevent->data.meta.type == MIDI_META_END_OF_TRACK)
-        {
-          if (alsa_looping)
-          {
-            int i;
-            eventpos = 0;
-            alsa_delta += eventdelta;
-            // fix buggy songs that forget to terminate notes held over loop point
-            // sdl_mixer does this as well
-            for (i = 0; i < 16; i++)
-              alsa_midi_write_control(when, i, 123, 0); // all notes off
-            continue;
-          }
-          // stop
-          alsa_stop ();
-          return;
-        }
-        break; // not interested in most metas
-      case MIDI_EVENT_CONTROLLER:
-        if (currevent->data.channel.param1 == 7)
-        { // volume event
-          alsa_setchvolume (currevent->data.channel.channel, currevent->data.channel.param2, when);
-          break;
-        } // fall through
-      default:
-        alsa_midi_write_event (when, currevent->event_type, currevent->data.channel.channel, currevent->data.channel.param1, currevent->data.channel.param2);
-        break;
-      
+        lprintf(LO_WARN, "alsaplayer: ignoring large or malformed sysex message\n");
+        sysexbufflen = 0;
+        return;
     }
-    // if the event was a "reset all controllers", we need to additionally re-fix the volume (which itself was reset)
-    if (currevent->event_type == MIDI_EVENT_CONTROLLER && currevent->data.channel.param1 == 121)
-      alsa_setchvolume (currevent->data.channel.channel, 127, when);
 
-    // event processed so advance midiclock
-    alsa_delta += eventdelta;
-    eventpos++;
+    memcpy(sysexbuff + sysexbufflen, data, len);
+    sysexbufflen += len;
 
-  }
+    if(sysexbuff[sysexbufflen - 1] == 0xf7)  // terminator
+    {
+        alsa_midi_evt_start(when);
+        snd_seq_ev_set_sysex(&seq_ev, sysexbufflen, sysexbuff);
+        alsa_midi_evt_finish();
 
-  if (samples + sampleswritten > length)
-  { // broke due to next event being past the end of current render buffer
-    // finish buffer, return
-    samples = length - sampleswritten;
-    alsa_delta -= samples; // save offset
-  }
+        sysexbufflen = 0;
+    }
+}
 
-  trackstart = newtime;
+static void alsa_stop(void)
+{
+    int i;
+    alsa_playing = 0;
 
-  alsa_midi_evt_flush();
-}  
+
+    // songs can be stopped at any time, so reset everything
+    for(i = 0; i < 16; i++)
+    {
+        alsa_midi_write_control_now(i, 123, 0); // all notes off
+        alsa_midi_write_control_now(i, 121, 0); // reset all parameters
+
+        // RPN sequence to adjust pitch bend range (RPN value 0x0000)
+        alsa_midi_write_control_now(i, 0x65, 0x00);
+        alsa_midi_write_control_now(i, 0x64, 0x00);
+        // reset pitch bend range to central tuning +/- 2 semitones and 0 cents
+        alsa_midi_write_control_now(i, 0x06, 0x02);
+        alsa_midi_write_control_now(i, 0x26, 0x00);
+        // end of RPN sequence
+        alsa_midi_write_control_now(i, 0x64, 0x7f);
+        alsa_midi_write_control_now(i, 0x65, 0x7f);
+    }
+
+    alsa_midi_evt_flush();
+    // abort any partial sysex
+    sysexbufflen = 0;
+
+    snd_seq_stop_queue(seq_handle, out_queue, 0);
+}
+
+static void alsa_render(void *vdest, unsigned bufflen)
+{
+    // wherever you see samples in here, think milliseconds
+
+    unsigned long newtime = alsa_now();
+    unsigned long length = newtime - trackstart;
+
+    //timerpos = newtime;
+    unsigned long when;
+
+    midi_event_t *currevent;
+
+    unsigned sampleswritten = 0;
+    unsigned samples;
+
+    memset(vdest, 0, bufflen * 4);
+
+
+
+    if(!alsa_playing || alsa_paused)
+        return;
+
+
+    while(1)
+    {
+        double eventdelta;
+        currevent = events[eventpos];
+
+        // how many samples away event is
+        eventdelta = currevent->delta_time * spmc;
+
+
+        // how many we will render (rounding down); include delta offset
+        samples = (unsigned)(eventdelta + alsa_delta);
+
+
+        if(samples + sampleswritten > length)
+        {
+            // overshoot; render some samples without processing an event
+            break;
+        }
+
+
+        sampleswritten += samples;
+        alsa_delta -= samples;
+
+
+        // process event
+        when = trackstart + sampleswritten;
+
+        switch(currevent->event_type)
+        {
+        case MIDI_EVENT_SYSEX:
+        case MIDI_EVENT_SYSEX_SPLIT:
+            alsa_midi_writesysex(when, currevent->event_type, currevent->data.sysex.data, currevent->data.sysex.length);
+            break;
+
+        case MIDI_EVENT_META: // tempo is the only meta message we're interested in
+            if(currevent->data.meta.type == MIDI_META_SET_TEMPO)
+                spmc = MIDI_spmc(midifile, currevent, 1000);
+            else if(currevent->data.meta.type == MIDI_META_END_OF_TRACK)
+            {
+                if(alsa_looping)
+                {
+                    int i;
+                    eventpos = 0;
+                    alsa_delta += eventdelta;
+
+                    // fix buggy songs that forget to terminate notes held over loop point
+                    // sdl_mixer does this as well
+                    for(i = 0; i < 16; i++)
+                        alsa_midi_write_control(when, i, 123, 0); // all notes off
+
+                    continue;
+                }
+
+                // stop
+                alsa_stop();
+                return;
+            }
+
+            break; // not interested in most metas
+
+        case MIDI_EVENT_CONTROLLER:
+            if(currevent->data.channel.param1 == 7)
+            {
+                // volume event
+                alsa_setchvolume(currevent->data.channel.channel, currevent->data.channel.param2, when);
+                break;
+            } // fall through
+
+        default:
+            alsa_midi_write_event(when, currevent->event_type, currevent->data.channel.channel, currevent->data.channel.param1, currevent->data.channel.param2);
+            break;
+
+        }
+
+        // if the event was a "reset all controllers", we need to additionally re-fix the volume (which itself was reset)
+        if(currevent->event_type == MIDI_EVENT_CONTROLLER && currevent->data.channel.param1 == 121)
+            alsa_setchvolume(currevent->data.channel.channel, 127, when);
+
+        // event processed so advance midiclock
+        alsa_delta += eventdelta;
+        eventpos++;
+
+    }
+
+    if(samples + sampleswritten > length)
+    {
+        // broke due to next event being past the end of current render buffer
+        // finish buffer, return
+        samples = length - sampleswritten;
+        alsa_delta -= samples; // save offset
+    }
+
+    trackstart = newtime;
+
+    alsa_midi_evt_flush();
+}
 
 const music_player_t alsa_player =
 {
-  alsa_name,
-  alsa_init,
-  alsa_shutdown,
-  alsa_setvolume,
-  alsa_pause,
-  alsa_resume,
-  alsa_registersong,
-  alsa_unregistersong,
-  alsa_play,
-  alsa_stop,
-  alsa_render
+    alsa_name,
+    alsa_init,
+    alsa_shutdown,
+    alsa_setvolume,
+    alsa_pause,
+    alsa_resume,
+    alsa_registersong,
+    alsa_unregistersong,
+    alsa_play,
+    alsa_stop,
+    alsa_render
 };
 
 

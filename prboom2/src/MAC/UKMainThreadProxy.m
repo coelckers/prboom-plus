@@ -1,15 +1,15 @@
 /* =============================================================================
 	FILE:		UKMainThreadProxy.h
 	PROJECT:	UKMainThreadProxy
-    
+
     PURPOSE:    Send a message to object theObject to [theObject mainThreadProxy]
                 instead and the message will be received on the main thread by
                 theObject.
 
     COPYRIGHT:  (c) 2004 M. Uli Kusterer, all rights reserved.
-    
+
 	AUTHORS:	M. Uli Kusterer - UK
-    
+
     LICENSES:   GPL, Modified BSD
 
 	REVISIONS:
@@ -27,53 +27,56 @@
 
 -(id)	initWithTarget: (id)targ
 {
-	self = [super init];
-	if( self )
-		target = targ;
-	
-	return self;
+    self = [super init];
+
+    if(self)
+        target = targ;
+
+    return self;
 }
 
 -(id)	performSelector: (SEL)itemAction
 {
-	BOOL	does = [super respondsToSelector: itemAction];
-	if( does )
-		return [super performSelector: itemAction];
-	
-	if( ![target respondsToSelector: itemAction] )
-		[self doesNotRecognizeSelector: itemAction];
-	
-	[target retain];
-	[target performSelectorOnMainThread: itemAction withObject: nil waitUntilDone: YES];
-	[target release];
-	
-	return nil;
+    BOOL	does = [super respondsToSelector: itemAction];
+
+    if(does)
+        return [super performSelector: itemAction];
+
+    if(![target respondsToSelector: itemAction])
+        [self doesNotRecognizeSelector: itemAction];
+
+    [target retain];
+    [target performSelectorOnMainThread: itemAction withObject: nil waitUntilDone: YES];
+    [target release];
+
+    return nil;
 }
 
 
 -(id)	performSelector: (SEL)itemAction withObject: (id)obj
 {
-	BOOL	does = [super respondsToSelector: itemAction];
-	if( does )
-		return [super performSelector: itemAction withObject: obj];
-	
-	if( ![target respondsToSelector: itemAction] )
-		[self doesNotRecognizeSelector: itemAction];
-	
-	[target retain];
-	[obj retain];
-	[target performSelectorOnMainThread: itemAction withObject: obj waitUntilDone: YES];
-	[obj release];
-	[target release];
-	
-	return nil;
+    BOOL	does = [super respondsToSelector: itemAction];
+
+    if(does)
+        return [super performSelector: itemAction withObject: obj];
+
+    if(![target respondsToSelector: itemAction])
+        [self doesNotRecognizeSelector: itemAction];
+
+    [target retain];
+    [obj retain];
+    [target performSelectorOnMainThread: itemAction withObject: obj waitUntilDone: YES];
+    [obj release];
+    [target release];
+
+    return nil;
 }
 
 -(BOOL)	respondsToSelector: (SEL)itemAction
 {
-	BOOL	does = [super respondsToSelector: itemAction];
-	
-	return( does || [target respondsToSelector: itemAction] );
+    BOOL	does = [super respondsToSelector: itemAction];
+
+    return(does || [target respondsToSelector: itemAction]);
 }
 
 
@@ -83,53 +86,53 @@
 
 -(NSMethodSignature*)	methodSignatureForSelector: (SEL)itemAction
 {
-	NSMethodSignature*	sig = [super methodSignatureForSelector: itemAction];
+    NSMethodSignature*	sig = [super methodSignatureForSelector: itemAction];
 
-	if( sig )
-		return sig;
-	
-	return [target methodSignatureForSelector: itemAction];
+    if(sig)
+        return sig;
+
+    return [target methodSignatureForSelector: itemAction];
 }
 
 -(void)	forwardInvocation: (NSInvocation*)invocation
 {
     SEL itemAction = [invocation selector];
 
-    if( [target respondsToSelector: itemAction] )
-	{
-		[invocation retainArguments];
-		[target retain];
-		[invocation performSelectorOnMainThread: @selector(invokeWithTarget:) withObject: target waitUntilDone: YES];
-		[target release];
-	}
-	else
+    if([target respondsToSelector: itemAction])
+    {
+        [invocation retainArguments];
+        [target retain];
+        [invocation performSelectorOnMainThread: @selector(invokeWithTarget:) withObject: target waitUntilDone: YES];
+        [target release];
+    }
+    else
         [self doesNotRecognizeSelector: itemAction];
 }
 
 
 -(id)	mainThreadProxy     // Just in case someone accidentally sends this message to a main thread proxy.
 {
-	return self;
+    return self;
 }
 
 -(id)	copyMainThreadProxy	// Just in case someone accidentally sends this message to a main thread proxy.
 {
-	return [self retain];
+    return [self retain];
 }
 
 @end
 
 
-@implementation NSObject (UKMainThreadProxy)
+@implementation NSObject(UKMainThreadProxy)
 
 -(id)	mainThreadProxy
 {
-	return [[[UKMainThreadProxy alloc] initWithTarget: self] autorelease];
+    return [[[UKMainThreadProxy alloc] initWithTarget: self] autorelease];
 }
 
 -(id)	copyMainThreadProxy
 {
-	return [[UKMainThreadProxy alloc] initWithTarget: self];
+    return [[UKMainThreadProxy alloc] initWithTarget: self];
 }
 
 @end

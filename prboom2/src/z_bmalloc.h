@@ -34,12 +34,13 @@
 #ifndef __Z_BMALLOC__
 #define __Z_BMALLOC__
 
-struct block_memory_alloc_s {
-  void  *firstpool;
-  size_t size;
-  size_t perpool;
-  int    tag;
-  const char *desc;
+struct block_memory_alloc_s
+{
+    void  *firstpool;
+    size_t size;
+    size_t perpool;
+    int    tag;
+    const char *desc;
 };
 
 #define DECLARE_BLOCK_MEMORY_ALLOC_ZONE(name) extern struct block_memory_alloc_s name
@@ -50,7 +51,11 @@ struct block_memory_alloc_s name = { NULL, size, num, tag, desc}
 void* Z_BMalloc(struct block_memory_alloc_s *pzone);
 
 inline static void* Z_BCalloc(struct block_memory_alloc_s *pzone)
-{ void *p = Z_BMalloc(pzone); memset(p,0,pzone->size); return p; }
+{
+    void *p = Z_BMalloc(pzone);
+    memset(p, 0, pzone->size);
+    return p;
+}
 
 void Z_BFree(struct block_memory_alloc_s *pzone, void* p);
 

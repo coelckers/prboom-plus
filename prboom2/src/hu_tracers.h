@@ -39,40 +39,40 @@
 
 typedef enum
 {
-  TRACE_HEALTH,
-  TRACE_PICKUP,
-  TRACE_CROSS,
-  TRACE_DAMAGE,
+    TRACE_HEALTH,
+    TRACE_PICKUP,
+    TRACE_CROSS,
+    TRACE_DAMAGE,
 
-  NUMTRACES
+    NUMTRACES
 } tracertype_t;
 
 typedef struct
 {
-  int index;
-  char value[16];
-  int data1;
+    int index;
+    char value[16];
+    int data1;
 } traceitem_t;
 
 typedef void (*TRACERFUNC)(tracertype_t index);
 typedef struct traceslist_s
 {
-  traceitem_t items[MAXTRACEITEMS];
-  int count;
+    traceitem_t items[MAXTRACEITEMS];
+    int count;
 
-  char hudstr[80];
-  char cmd[32];
-  char prefix[32];
-  TRACERFUNC ApplyFunc;
-  TRACERFUNC ResetFunc;
+    char hudstr[80];
+    char cmd[32];
+    char prefix[32];
+    TRACERFUNC ApplyFunc;
+    TRACERFUNC ResetFunc;
 } traceslist_t;
 
 typedef struct traceslistinit_s
 {
-  char cmd[32];
-  char prefix[32];
-  TRACERFUNC ApplyFunc;
-  TRACERFUNC ResetFunc;
+    char cmd[32];
+    char prefix[32];
+    TRACERFUNC ApplyFunc;
+    TRACERFUNC ResetFunc;
 } traceslistinit_t;
 
 extern traceslist_t traces[];

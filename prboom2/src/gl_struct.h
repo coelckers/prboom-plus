@@ -38,36 +38,38 @@
 
 extern int nodesVersion;
 
-typedef enum {
-  filter_nearest,
-  filter_linear,
-  filter_nearest_mipmap_nearest,
-  filter_nearest_mipmap_linear,
-  filter_linear_mipmap_nearest,
-  filter_linear_mipmap_linear,
+typedef enum
+{
+    filter_nearest,
+    filter_linear,
+    filter_nearest_mipmap_nearest,
+    filter_nearest_mipmap_linear,
+    filter_linear_mipmap_nearest,
+    filter_linear_mipmap_linear,
 
-  filter_count
+    filter_count
 } filter_texture_mode_t;
 
-typedef enum {
-  skytype_auto,
-  skytype_none,
-  skytype_standard,
-  skytype_skydome,
-  skytype_screen,
+typedef enum
+{
+    skytype_auto,
+    skytype_none,
+    skytype_standard,
+    skytype_skydome,
+    skytype_screen,
 
-  skytype_count
+    skytype_count
 } skytype_t;
 
 #define MAX_GLGAMMA 32
 typedef enum
 {
-  gl_lightmode_glboom,
-  gl_lightmode_gzdoom,
-  gl_lightmode_fogbased,
-  gl_lightmode_shaders,
+    gl_lightmode_glboom,
+    gl_lightmode_gzdoom,
+    gl_lightmode_fogbased,
+    gl_lightmode_shaders,
 
-  gl_lightmode_last
+    gl_lightmode_last
 } gl_lightmode_t;
 
 extern int gl_skymode;
@@ -155,12 +157,12 @@ int gld_PrecacheGUIPatches(void);
 //HQ resize
 typedef enum
 {
-  hq_scale_none,
-  hq_scale_2x,
-  hq_scale_3x,
-  hq_scale_4x,
-  
-  hq_scale_max
+    hq_scale_none,
+    hq_scale_2x,
+    hq_scale_3x,
+    hq_scale_4x,
+
+    hq_scale_max
 } gl_hqresizemode_t;
 extern const char *gl_hqresizemodes[];
 extern int gl_texture_hqresize;
@@ -185,17 +187,17 @@ sector_t* GetBestBleedSector(sector_t* source, int ceiling);
 //shadows
 typedef struct shadow_params_s
 {
-  int enable;
-  int loaded;
+    int enable;
+    int loaded;
 
-  GLuint tex_id;
-  int width;
-  int height;
+    GLuint tex_id;
+    int width;
+    int height;
 
-  int max_radius;
-  int max_dist;
-  float factor;
-  float bias;
+    int max_radius;
+    int max_dist;
+    float factor;
+    float bias;
 } simple_shadow_params_t;
 
 extern simple_shadow_params_t simple_shadows;
@@ -242,20 +244,20 @@ void gld_Draw8InGL(void);
 //motion blur
 typedef struct motion_blur_params_s
 {
-  int enabled;
+    int enabled;
 
-  const char *str_min_angle;
-  const char *str_min_speed;
-  const char *str_att_a;
-  const char *str_att_b;
-  const char *str_att_c;
+    const char *str_min_angle;
+    const char *str_min_speed;
+    const char *str_att_a;
+    const char *str_att_b;
+    const char *str_att_c;
 
-  float curr_speed_pow2;
-  float minspeed_pow2;
-  int minangle;
-  float att_a;
-  float att_b;
-  float att_c;
+    float curr_speed_pow2;
+    float minspeed_pow2;
+    int minangle;
+    float att_a;
+    float att_b;
+    float att_c;
 } motion_blur_params_t;
 
 extern int gl_use_motionblur;
@@ -264,37 +266,37 @@ extern motion_blur_params_t motion_blur;
 // Nice map
 enum
 {
-  am_icon_shadow,
+    am_icon_shadow,
 
-  am_icon_corpse,
-  am_icon_normal,
-  am_icon_health,
-  am_icon_armor,
-  am_icon_ammo,
-  am_icon_key,
-  am_icon_power,
-  am_icon_weap,
+    am_icon_corpse,
+    am_icon_normal,
+    am_icon_health,
+    am_icon_armor,
+    am_icon_ammo,
+    am_icon_key,
+    am_icon_power,
+    am_icon_weap,
 
-  am_icon_arrow,
-  am_icon_monster,
-  am_icon_player,
-  am_icon_mark,
-  am_icon_bullet,
+    am_icon_arrow,
+    am_icon_monster,
+    am_icon_player,
+    am_icon_mark,
+    am_icon_bullet,
 
-  am_icon_count
+    am_icon_count
 };
 
 typedef struct am_icon_s
 {
-  GLuint tex_id;
-  const char* name;
-  int lumpnum;
+    GLuint tex_id;
+    const char* name;
+    int lumpnum;
 } am_icon_t;
 extern am_icon_t am_icons[];
 
 void gld_InitMapPics(void);
 void gld_AddNiceThing(int type, float x, float y, float radius, float angle,
-                     unsigned char r, unsigned char g, unsigned char b, unsigned char a);
+                      unsigned char r, unsigned char g, unsigned char b, unsigned char a);
 void gld_DrawNiceThings(int fx, int fy, int fw, int fh);
 void gld_ClearNiceThings(void);
 

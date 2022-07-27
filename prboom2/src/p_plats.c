@@ -56,130 +56,136 @@ platlist_t *activeplats;       // killough 2/14/98: made global again
 
 void T_PlatRaise(plat_t* plat)
 {
-  result_e      res;
+    result_e      res;
 
-  // handle plat moving, up, down, waiting, or in stasis,
-  switch(plat->status)
-  {
+    // handle plat moving, up, down, waiting, or in stasis,
+    switch(plat->status)
+    {
     case up: // plat moving up
-      res = T_MovePlane(plat->sector,plat->speed,plat->high,plat->crush,0,1);
+        res = T_MovePlane(plat->sector, plat->speed, plat->high, plat->crush, 0, 1);
 
-      // if a pure raise type, make the plat moving sound
-      if (plat->type == raiseAndChange
-          || plat->type == raiseToNearestAndChange)
-      {
-        if (!(leveltime&7))
-          S_StartSound((mobj_t *)&plat->sector->soundorg, sfx_stnmov);
-      }
-
-      // if encountered an obstacle, and not a crush type, reverse direction
-      if (res == crushed && (!plat->crush))
-      {
-        plat->count = plat->wait;
-        plat->status = down;
-        S_StartSound((mobj_t *)&plat->sector->soundorg, sfx_pstart);
-
-        if (demo_compatibility &&
-            (plat->type == raiseToNearestAndChange ||
-             plat->type == raiseAndChange))
+        // if a pure raise type, make the plat moving sound
+        if(plat->type == raiseAndChange
+                || plat->type == raiseToNearestAndChange)
         {
-          // For these types vanilla did not initialize plat->low in EV_DoPlat,
-          // so they may descend to any depth, or not at all.
-          // See https://sourceforge.net/p/prboom-plus/bugs/211/ .
-          lprintf(LO_WARN, "T_PlatRaise: raise-and-change type has reversed "
-                  "direction in compatibility mode - may lead to desync\n"
-                  " gametic: %d sector: %d complevel: %d\n",
-                  gametic, plat->sector->iSectorID, compatibility_level);
+            if(!(leveltime & 7))
+                S_StartSound((mobj_t *)&plat->sector->soundorg, sfx_stnmov);
         }
-      }
-      else  // else handle reaching end of up stroke
-      {
-        if (res == pastdest) // end of stroke
+
+        // if encountered an obstacle, and not a crush type, reverse direction
+        if(res == crushed && (!plat->crush))
         {
-          // if not an instant toggle type, wait, make plat stop sound
-          if (plat->type!=toggleUpDn)
-          {
             plat->count = plat->wait;
-            plat->status = waiting;
-            S_StartSound((mobj_t *)&plat->sector->soundorg, sfx_pstop);
-          }
-          else // else go into stasis awaiting next toggle activation
-          {
-            plat->oldstatus = plat->status;//jff 3/14/98 after action wait
-            plat->status = in_stasis;      //for reactivation of toggle
-          }
+            plat->status = down;
+            S_StartSound((mobj_t *)&plat->sector->soundorg, sfx_pstart);
 
-          // lift types and pure raise types are done at end of up stroke
-          // only the perpetual type waits then goes back up
-          switch(plat->type)
-          {
-            case blazeDWUS:
-            case downWaitUpStay:
-            case raiseAndChange:
-            case raiseToNearestAndChange:
-            case genLift:
-              P_RemoveActivePlat(plat);     // killough
-            default:
-              break;
-          }
+            if(demo_compatibility &&
+                    (plat->type == raiseToNearestAndChange ||
+                     plat->type == raiseAndChange))
+            {
+                // For these types vanilla did not initialize plat->low in EV_DoPlat,
+                // so they may descend to any depth, or not at all.
+                // See https://sourceforge.net/p/prboom-plus/bugs/211/ .
+                lprintf(LO_WARN, "T_PlatRaise: raise-and-change type has reversed "
+                        "direction in compatibility mode - may lead to desync\n"
+                        " gametic: %d sector: %d complevel: %d\n",
+                        gametic, plat->sector->iSectorID, compatibility_level);
+            }
         }
-      }
-      break;
+        else  // else handle reaching end of up stroke
+        {
+            if(res == pastdest)  // end of stroke
+            {
+                // if not an instant toggle type, wait, make plat stop sound
+                if(plat->type != toggleUpDn)
+                {
+                    plat->count = plat->wait;
+                    plat->status = waiting;
+                    S_StartSound((mobj_t *)&plat->sector->soundorg, sfx_pstop);
+                }
+                else // else go into stasis awaiting next toggle activation
+                {
+                    plat->oldstatus = plat->status;//jff 3/14/98 after action wait
+                    plat->status = in_stasis;      //for reactivation of toggle
+                }
+
+                // lift types and pure raise types are done at end of up stroke
+                // only the perpetual type waits then goes back up
+                switch(plat->type)
+                {
+                case blazeDWUS:
+                case downWaitUpStay:
+                case raiseAndChange:
+                case raiseToNearestAndChange:
+                case genLift:
+                    P_RemoveActivePlat(plat);     // killough
+
+                default:
+                    break;
+                }
+            }
+        }
+
+        break;
 
     case down: // plat moving down
-      res = T_MovePlane(plat->sector,plat->speed,plat->low,false,0,-1);
+        res = T_MovePlane(plat->sector, plat->speed, plat->low, false, 0, -1);
 
-      // handle reaching end of down stroke
-      if (res == pastdest)
-      {
-        // if not an instant toggle, start waiting, make plat stop sound
-        if (plat->type!=toggleUpDn) //jff 3/14/98 toggle up down
-        {                           // is silent, instant, no waiting
-          plat->count = plat->wait;
-          plat->status = waiting;
-          S_StartSound((mobj_t *)&plat->sector->soundorg,sfx_pstop);
-        }
-        else // instant toggles go into stasis awaiting next activation
+        // handle reaching end of down stroke
+        if(res == pastdest)
         {
-          plat->oldstatus = plat->status;//jff 3/14/98 after action wait
-          plat->status = in_stasis;      //for reactivation of toggle
+            // if not an instant toggle, start waiting, make plat stop sound
+            if(plat->type != toggleUpDn) //jff 3/14/98 toggle up down
+            {
+                // is silent, instant, no waiting
+                plat->count = plat->wait;
+                plat->status = waiting;
+                S_StartSound((mobj_t *)&plat->sector->soundorg, sfx_pstop);
+            }
+            else // instant toggles go into stasis awaiting next activation
+            {
+                plat->oldstatus = plat->status;//jff 3/14/98 after action wait
+                plat->status = in_stasis;      //for reactivation of toggle
+            }
+
+            //jff 1/26/98 remove the plat if it bounced so it can be tried again
+            //only affects plats that raise and bounce
+            //killough 1/31/98: relax compatibility to demo_compatibility
+
+            // remove the plat if its a pure raise type
+            if(!comp[comp_floors])
+            {
+                switch(plat->type)
+                {
+                case raiseAndChange:
+                case raiseToNearestAndChange:
+                    P_RemoveActivePlat(plat);
+
+                default:
+                    break;
+                }
+            }
         }
 
-        //jff 1/26/98 remove the plat if it bounced so it can be tried again
-        //only affects plats that raise and bounce
-        //killough 1/31/98: relax compatibility to demo_compatibility
-
-        // remove the plat if its a pure raise type
-        if (!comp[comp_floors])
-        {
-          switch(plat->type)
-          {
-            case raiseAndChange:
-            case raiseToNearestAndChange:
-              P_RemoveActivePlat(plat);
-            default:
-              break;
-          }
-        }
-      }
-      break;
+        break;
 
     case waiting: // plat is waiting
-      if (!--plat->count)  // downcount and check for delay elapsed
-      {
-        if (plat->sector->floorheight == plat->low)
-          plat->status = up;     // if at bottom, start up
-        else
-          plat->status = down;   // if at top, start down
+        if(!--plat->count)   // downcount and check for delay elapsed
+        {
+            if(plat->sector->floorheight == plat->low)
+                plat->status = up;     // if at bottom, start up
+            else
+                plat->status = down;   // if at top, start down
 
-        // make plat start sound
-        S_StartSound((mobj_t *)&plat->sector->soundorg,sfx_pstart);
-      }
-      break; //jff 1/27/98 don't pickup code added later to in_stasis
+            // make plat start sound
+            S_StartSound((mobj_t *)&plat->sector->soundorg, sfx_pstart);
+        }
+
+        break; //jff 1/27/98 don't pickup code added later to in_stasis
 
     case in_stasis: // do nothing if in stasis
-      break;
-  }
+        break;
+    }
 }
 
 
@@ -193,150 +199,176 @@ void T_PlatRaise(plat_t* plat)
 // Returns true if a thinker is started, or restarted from stasis
 //
 int EV_DoPlat
-( line_t*       line,
-  plattype_e    type,
-  int           amount )
+(line_t*       line,
+ plattype_e    type,
+ int           amount)
 {
-  plat_t* plat;
-  int             secnum;
-  int             rtn;
-  sector_t*       sec;
+    plat_t* plat;
+    int             secnum;
+    int             rtn;
+    sector_t*       sec;
 
-  secnum = -1;
-  rtn = 0;
+    secnum = -1;
+    rtn = 0;
 
-  if (ProcessNoTagLines(line, &sec, &secnum)) {if (zerotag_manual) goto manual_plat; else {return rtn;}};//e6y
-  // Activate all <type> plats that are in_stasis
-  switch(type)
-  {
-    case perpetualRaise:
-      P_ActivateInStasis(line->tag);
-      break;
+    if(ProcessNoTagLines(line, &sec, &secnum))
+    {
+        if(zerotag_manual) goto manual_plat;
+        else
+        {
+            return rtn;
+        }
+    };//e6y
 
-    case toggleUpDn:
-      P_ActivateInStasis(line->tag);
-      rtn=1;
-      break;
-
-    default:
-      break;
-  }
-
-  // act on all sectors tagged the same as the activating linedef
-  while ((secnum = P_FindSectorFromLineTag(line,secnum)) >= 0)
-  {
-    sec = &sectors[secnum];
-
-manual_plat://e6y
-    // don't start a second floor function if already moving
-    if (P_SectorActive(floor_special,sec)) {//jff 2/23/98 multiple thinkers
-      if (!zerotag_manual) continue; else {return rtn;}};//e6y
-
-    // Create a thinker
-    rtn = 1;
-    plat = Z_Malloc( sizeof(*plat), PU_LEVSPEC, 0);
-    memset(plat, 0, sizeof(*plat));
-    P_AddThinker(&plat->thinker);
-
-    plat->type = type;
-    plat->sector = sec;
-    plat->sector->floordata = plat; //jff 2/23/98 multiple thinkers
-    plat->thinker.function = T_PlatRaise;
-    plat->crush = false;
-    plat->tag = line->tag;
-
-    //jff 1/26/98 Avoid raise plat bouncing a head off a ceiling and then
-    //going down forever -- default low to plat height when triggered
-    plat->low = sec->floorheight;
-
-    // set up plat according to type
+    // Activate all <type> plats that are in_stasis
     switch(type)
     {
-      case raiseToNearestAndChange:
-        plat->speed = PLATSPEED/2;
-        sec->floorpic = sides[line->sidenum[0]].sector->floorpic;
-        plat->high = P_FindNextHighestFloor(sec,sec->floorheight);
-        plat->wait = 0;
-        plat->status = up;
-        sec->special = 0;
-        //jff 3/14/98 clear old field as well
-        sec->oldspecial = 0;
-
-        S_StartSound((mobj_t *)&sec->soundorg,sfx_stnmov);
+    case perpetualRaise:
+        P_ActivateInStasis(line->tag);
         break;
 
-      case raiseAndChange:
-        plat->speed = PLATSPEED/2;
-        sec->floorpic = sides[line->sidenum[0]].sector->floorpic;
-        plat->high = sec->floorheight + amount*FRACUNIT;
-        plat->wait = 0;
-        plat->status = up;
-
-        S_StartSound((mobj_t *)&sec->soundorg,sfx_stnmov);
+    case toggleUpDn:
+        P_ActivateInStasis(line->tag);
+        rtn = 1;
         break;
 
-      case downWaitUpStay:
-        plat->speed = PLATSPEED * 4;
-        plat->low = P_FindLowestFloorSurrounding(sec);
-
-        if (plat->low > sec->floorheight)
-          plat->low = sec->floorheight;
-
-        plat->high = sec->floorheight;
-        plat->wait = 35*PLATWAIT;
-        plat->status = down;
-        S_StartSound((mobj_t *)&sec->soundorg,sfx_pstart);
-        break;
-
-      case blazeDWUS:
-        plat->speed = PLATSPEED * 8;
-        plat->low = P_FindLowestFloorSurrounding(sec);
-
-        if (plat->low > sec->floorheight)
-          plat->low = sec->floorheight;
-
-        plat->high = sec->floorheight;
-        plat->wait = 35*PLATWAIT;
-        plat->status = down;
-        S_StartSound((mobj_t *)&sec->soundorg,sfx_pstart);
-        break;
-
-      case perpetualRaise:
-        plat->speed = PLATSPEED;
-        plat->low = P_FindLowestFloorSurrounding(sec);
-
-        if (plat->low > sec->floorheight)
-          plat->low = sec->floorheight;
-
-        plat->high = P_FindHighestFloorSurrounding(sec);
-
-        if (plat->high < sec->floorheight)
-          plat->high = sec->floorheight;
-
-        plat->wait = 35*PLATWAIT;
-        plat->status = P_Random(pr_plats)&1;
-
-        S_StartSound((mobj_t *)&sec->soundorg,sfx_pstart);
-        break;
-
-      case toggleUpDn: //jff 3/14/98 add new type to support instant toggle
-        plat->speed = PLATSPEED;  //not used
-        plat->wait = 35*PLATWAIT; //not used
-        plat->crush = true; //jff 3/14/98 crush anything in the way
-
-        // set up toggling between ceiling, floor inclusive
-        plat->low = sec->ceilingheight;
-        plat->high = sec->floorheight;
-        plat->status =  down;
-        break;
-
-      default:
+    default:
         break;
     }
-    P_AddActivePlat(plat);  // add plat to list of active plats
-    if (zerotag_manual) return rtn; //e6y
-  }
-  return rtn;
+
+    // act on all sectors tagged the same as the activating linedef
+    while((secnum = P_FindSectorFromLineTag(line, secnum)) >= 0)
+    {
+        sec = &sectors[secnum];
+
+manual_plat://e6y
+
+        // don't start a second floor function if already moving
+        if(P_SectorActive(floor_special, sec))  //jff 2/23/98 multiple thinkers
+        {
+            if(!zerotag_manual) continue;
+            else
+            {
+                return rtn;
+            }
+        };//e6y
+
+        // Create a thinker
+        rtn = 1;
+
+        plat = Z_Malloc(sizeof(*plat), PU_LEVSPEC, 0);
+
+        memset(plat, 0, sizeof(*plat));
+
+        P_AddThinker(&plat->thinker);
+
+        plat->type = type;
+
+        plat->sector = sec;
+
+        plat->sector->floordata = plat; //jff 2/23/98 multiple thinkers
+
+        plat->thinker.function = T_PlatRaise;
+
+        plat->crush = false;
+
+        plat->tag = line->tag;
+
+        //jff 1/26/98 Avoid raise plat bouncing a head off a ceiling and then
+        //going down forever -- default low to plat height when triggered
+        plat->low = sec->floorheight;
+
+        // set up plat according to type
+        switch(type)
+        {
+        case raiseToNearestAndChange:
+            plat->speed = PLATSPEED / 2;
+            sec->floorpic = sides[line->sidenum[0]].sector->floorpic;
+            plat->high = P_FindNextHighestFloor(sec, sec->floorheight);
+            plat->wait = 0;
+            plat->status = up;
+            sec->special = 0;
+            //jff 3/14/98 clear old field as well
+            sec->oldspecial = 0;
+
+            S_StartSound((mobj_t *)&sec->soundorg, sfx_stnmov);
+            break;
+
+        case raiseAndChange:
+            plat->speed = PLATSPEED / 2;
+            sec->floorpic = sides[line->sidenum[0]].sector->floorpic;
+            plat->high = sec->floorheight + amount * FRACUNIT;
+            plat->wait = 0;
+            plat->status = up;
+
+            S_StartSound((mobj_t *)&sec->soundorg, sfx_stnmov);
+            break;
+
+        case downWaitUpStay:
+            plat->speed = PLATSPEED * 4;
+            plat->low = P_FindLowestFloorSurrounding(sec);
+
+            if(plat->low > sec->floorheight)
+                plat->low = sec->floorheight;
+
+            plat->high = sec->floorheight;
+            plat->wait = 35 * PLATWAIT;
+            plat->status = down;
+            S_StartSound((mobj_t *)&sec->soundorg, sfx_pstart);
+            break;
+
+        case blazeDWUS:
+            plat->speed = PLATSPEED * 8;
+            plat->low = P_FindLowestFloorSurrounding(sec);
+
+            if(plat->low > sec->floorheight)
+                plat->low = sec->floorheight;
+
+            plat->high = sec->floorheight;
+            plat->wait = 35 * PLATWAIT;
+            plat->status = down;
+            S_StartSound((mobj_t *)&sec->soundorg, sfx_pstart);
+            break;
+
+        case perpetualRaise:
+            plat->speed = PLATSPEED;
+            plat->low = P_FindLowestFloorSurrounding(sec);
+
+            if(plat->low > sec->floorheight)
+                plat->low = sec->floorheight;
+
+            plat->high = P_FindHighestFloorSurrounding(sec);
+
+            if(plat->high < sec->floorheight)
+                plat->high = sec->floorheight;
+
+            plat->wait = 35 * PLATWAIT;
+            plat->status = P_Random(pr_plats) & 1;
+
+            S_StartSound((mobj_t *)&sec->soundorg, sfx_pstart);
+            break;
+
+        case toggleUpDn: //jff 3/14/98 add new type to support instant toggle
+            plat->speed = PLATSPEED;  //not used
+            plat->wait = 35 * PLATWAIT; //not used
+            plat->crush = true; //jff 3/14/98 crush anything in the way
+
+            // set up toggling between ceiling, floor inclusive
+            plat->low = sec->ceilingheight;
+            plat->high = sec->floorheight;
+            plat->status =  down;
+            break;
+
+        default:
+            break;
+        }
+
+        P_AddActivePlat(plat);  // add plat to list of active plats
+
+        if(zerotag_manual) return rtn;  //e6y
+    }
+
+    return rtn;
 }
 
 // The following were all rewritten by Lee Killough
@@ -358,19 +390,22 @@ manual_plat://e6y
 //
 void P_ActivateInStasis(int tag)
 {
-  platlist_t *pl;
-  for (pl=activeplats; pl; pl=pl->next)   // search the active plats
-  {
-    plat_t *plat = pl->plat;              // for one in stasis with right tag
-    if (plat->tag == tag && plat->status == in_stasis)
+    platlist_t *pl;
+
+    for(pl = activeplats; pl; pl = pl->next) // search the active plats
     {
-      if (plat->type==toggleUpDn) //jff 3/14/98 reactivate toggle type
-        plat->status = plat->oldstatus==up? down : up;
-      else
-        plat->status = plat->oldstatus;
-      plat->thinker.function = T_PlatRaise;
+        plat_t *plat = pl->plat;              // for one in stasis with right tag
+
+        if(plat->tag == tag && plat->status == in_stasis)
+        {
+            if(plat->type == toggleUpDn) //jff 3/14/98 reactivate toggle type
+                plat->status = plat->oldstatus == up ? down : up;
+            else
+                plat->status = plat->oldstatus;
+
+            plat->thinker.function = T_PlatRaise;
+        }
     }
-  }
 }
 
 //
@@ -385,18 +420,21 @@ void P_ActivateInStasis(int tag)
 //
 int EV_StopPlat(line_t* line)
 {
-  platlist_t *pl;
-  for (pl=activeplats; pl; pl=pl->next)  // search the active plats
-  {
-    plat_t *plat = pl->plat;             // for one with the tag not in stasis
-    if (plat->status != in_stasis && plat->tag == line->tag)
+    platlist_t *pl;
+
+    for(pl = activeplats; pl; pl = pl->next) // search the active plats
     {
-      plat->oldstatus = plat->status;    // put it in stasis
-      plat->status = in_stasis;
-      plat->thinker.function = NULL;
+        plat_t *plat = pl->plat;             // for one with the tag not in stasis
+
+        if(plat->status != in_stasis && plat->tag == line->tag)
+        {
+            plat->oldstatus = plat->status;    // put it in stasis
+            plat->status = in_stasis;
+            plat->thinker.function = NULL;
+        }
     }
-  }
-  return 1;
+
+    return 1;
 }
 
 //
@@ -409,13 +447,15 @@ int EV_StopPlat(line_t* line)
 //
 void P_AddActivePlat(plat_t* plat)
 {
-  platlist_t *list = malloc(sizeof *list);
-  list->plat = plat;
-  plat->list = list;
-  if ((list->next = activeplats))
-    list->next->prev = &list->next;
-  list->prev = &activeplats;
-  activeplats = list;
+    platlist_t *list = malloc(sizeof * list);
+    list->plat = plat;
+    plat->list = list;
+
+    if((list->next = activeplats))
+        list->next->prev = &list->next;
+
+    list->prev = &activeplats;
+    activeplats = list;
 }
 
 //
@@ -428,12 +468,14 @@ void P_AddActivePlat(plat_t* plat)
 //
 void P_RemoveActivePlat(plat_t* plat)
 {
-  platlist_t *list = plat->list;
-  plat->sector->floordata = NULL; //jff 2/23/98 multiple thinkers
-  P_RemoveThinker(&plat->thinker);
-  if ((*list->prev = list->next))
-    list->next->prev = list->prev;
-  free(list);
+    platlist_t *list = plat->list;
+    plat->sector->floordata = NULL; //jff 2/23/98 multiple thinkers
+    P_RemoveThinker(&plat->thinker);
+
+    if((*list->prev = list->next))
+        list->next->prev = list->prev;
+
+    free(list);
 }
 
 //
@@ -445,10 +487,10 @@ void P_RemoveActivePlat(plat_t* plat)
 //
 void P_RemoveAllActivePlats(void)
 {
-  while (activeplats)
-  {
-    platlist_t *next = activeplats->next;
-    free(activeplats);
-    activeplats = next;
-  }
+    while(activeplats)
+    {
+        platlist_t *next = activeplats->next;
+        free(activeplats);
+        activeplats = next;
+    }
 }

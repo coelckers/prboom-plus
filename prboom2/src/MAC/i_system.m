@@ -56,97 +56,98 @@
 
 static NSString *libraryDir(void)
 {
-  return [@"~/Library/Application Support/PrBoom-Plus" stringByExpandingTildeInPath];
+    return [@"~/Library/Application Support/PrBoom-Plus" stringByExpandingTildeInPath];
 }
 
 static char *NSStringToCString(NSString *str)
 {
-  char *cStr = malloc([str lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 1);
-  strcpy(cStr, [str UTF8String]);
-  return cStr;
+    char *cStr = malloc([str lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 1);
+    strcpy(cStr, [str UTF8String]);
+    return cStr;
 }
 
 static char *NSStringToCStringStatic(NSString *str)
 {
-  static char *cStr = 0;
-  static size_t cStrLen = 0;
+    static char *cStr = 0;
+    static size_t cStrLen = 0;
 
-  int len = [str lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 1;
+    int len = [str lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 1;
 
-  if(!cStr)
-  {
-    cStr = malloc(len);
-    cStrLen = len;
-  }
-  else if(cStrLen < len)
-  {
-    free(cStr);
-    cStr = malloc(len);
-    cStrLen = len;
-  }
+    if(!cStr)
+    {
+        cStr = malloc(len);
+        cStrLen = len;
+    }
+    else if(cStrLen < len)
+    {
+        free(cStr);
+        cStr = malloc(len);
+        cStrLen = len;
+    }
 
-  strcpy(cStr, [str UTF8String]);
-  return cStr;
+    strcpy(cStr, [str UTF8String]);
+    return cStr;
 }
 
 static char *macExeDir = 0;
 const char *I_DoomExeDir(void)
 {
-  if(macExeDir)
+    if(macExeDir)
+        return macExeDir;
+
+    NSString *exeDir = libraryDir();
+    [[NSFileManager defaultManager] createDirectoryAtPath:exeDir attributes:nil];
+
+    macExeDir = NSStringToCString(exeDir);
     return macExeDir;
-
-  NSString *exeDir = libraryDir();
-  [[NSFileManager defaultManager] createDirectoryAtPath:exeDir attributes:nil];
-
-  macExeDir = NSStringToCString(exeDir);
-  return macExeDir;
 }
 
 const char* I_GetTempDir(void)
 {
-  if(macExeDir)
+    if(macExeDir)
+        return macExeDir;
+
+    NSString *exeDir = libraryDir();
+    [[NSFileManager defaultManager] createDirectoryAtPath:exeDir attributes:nil];
+
+    macExeDir = NSStringToCString(exeDir);
     return macExeDir;
-
-  NSString *exeDir = libraryDir();
-  [[NSFileManager defaultManager] createDirectoryAtPath:exeDir attributes:nil];
-
-  macExeDir = NSStringToCString(exeDir);
-  return macExeDir;
 }
 
 char *I_FindFileInternal(const char *wf_name, const char *ext, bool isStatic)
 {
-  NSArray *paths = [NSArray arrayWithObject:libraryDir()];
-  paths = [paths arrayByAddingObject: [[NSBundle mainBundle] resourcePath]];
-  paths = [paths arrayByAddingObject: @""];
+    NSArray *paths = [NSArray arrayWithObject:libraryDir()];
+    paths = [paths arrayByAddingObject: [[NSBundle mainBundle] resourcePath]];
+    paths = [paths arrayByAddingObject: @""];
 
-  char *retval = 0;
-  int i;
-  for(i = 0; !retval && (i < [paths count]); ++i)
-  {
-    NSString *path = [NSString stringWithFormat:@"%@/%@",
-                      [paths objectAtIndex:i],
-                      [NSString stringWithUTF8String:wf_name]];
+    char *retval = 0;
+    int i;
 
-
-    if([[NSFileManager defaultManager] isReadableFileAtPath:path])
+    for(i = 0; !retval && (i < [paths count]); ++i)
     {
-      if(isStatic)
-        retval = NSStringToCStringStatic(path);
-      else
-        retval = NSStringToCString(path);
-    }
-  }
+        NSString *path = [NSString stringWithFormat:@"%@/%@",
+                                   [paths objectAtIndex:i],
+                                   [NSString stringWithUTF8String:wf_name]];
 
-  return retval;
+
+        if([[NSFileManager defaultManager] isReadableFileAtPath:path])
+        {
+            if(isStatic)
+                retval = NSStringToCStringStatic(path);
+            else
+                retval = NSStringToCString(path);
+        }
+    }
+
+    return retval;
 }
 
 char *I_FindFile(const char *wf_name, const char *ext)
 {
-  return I_FindFileInternal(wf_name, ext, false);
+    return I_FindFileInternal(wf_name, ext, false);
 }
 
 const char *I_FindFile2(const char *wf_name, const char *ext)
 {
-  return I_FindFileInternal(wf_name, ext, true);
+    return I_FindFileInternal(wf_name, ext, true);
 }

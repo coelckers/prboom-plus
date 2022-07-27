@@ -30,7 +30,7 @@
  *
  * DESCRIPTION:
  *      Game completion, final screen animation.
- *      This is an alternative version for UMAPINFO defined 
+ *      This is an alternative version for UMAPINFO defined
  *      intermission so that the feature can be cleanly implemented
  *      without worrying about demo sync implications
  *
@@ -47,7 +47,7 @@
 #include "d_deh.h"  // Ty 03/22/98 - externalizations
 #include "f_finale.h" // CPhipps - hmm...
 
-void F_StartCast (void);
+void F_StartCast(void);
 void F_TextWrite(void);
 void F_BunnyScroll(void);
 
@@ -64,25 +64,25 @@ extern dboolean secretexit;
 
 void FMI_StartFinale(void)
 {
-	if (gamemapinfo->intertextsecret && secretexit && gamemapinfo->intertextsecret[0] != '-') // '-' means that any default intermission was cleared.
-	{
-		finaletext = gamemapinfo->intertextsecret;
-	}
-	else if (gamemapinfo->intertext && !secretexit && gamemapinfo->intertext[0] != '-') // '-' means that any default intermission was cleared.
-	{
-		finaletext = gamemapinfo->intertext;
-	}
+    if(gamemapinfo->intertextsecret && secretexit && gamemapinfo->intertextsecret[0] != '-')  // '-' means that any default intermission was cleared.
+    {
+        finaletext = gamemapinfo->intertextsecret;
+    }
+    else if(gamemapinfo->intertext && !secretexit && gamemapinfo->intertext[0] != '-')  // '-' means that any default intermission was cleared.
+    {
+        finaletext = gamemapinfo->intertext;
+    }
 
-	if (!finaletext) finaletext = "The End";	// this is to avoid a crash on a missing text in the last map.
+    if(!finaletext) finaletext = "The End";	// this is to avoid a crash on a missing text in the last map.
 
-	if (gamemapinfo->interbackdrop[0])
-	{
-		finaleflat = gamemapinfo->interbackdrop;
-	}
+    if(gamemapinfo->interbackdrop[0])
+    {
+        finaleflat = gamemapinfo->interbackdrop;
+    }
 
-	if (!finaleflat) finaleflat = "FLOOR4_8";	// use a single fallback for all maps.
+    if(!finaleflat) finaleflat = "FLOOR4_8";	// use a single fallback for all maps.
 
-	using_FMI = true;
+    using_FMI = true;
 }
 
 
@@ -103,50 +103,55 @@ void FMI_StartFinale(void)
 
 void FMI_Ticker(void)
 {
-	int i;
-	if (!demo_compatibility) WI_checkForAccelerate();  // killough 3/28/98: check for acceleration
-	else for (i = 0; i < MAXPLAYERS; i++)	if (players[i].cmd.buttons) goto next_level;      // go on to the next level
+    int i;
 
-  // advance animation
-	finalecount++;
+    if(!demo_compatibility) WI_checkForAccelerate();   // killough 3/28/98: check for acceleration
+    else for(i = 0; i < MAXPLAYERS; i++)	if(players[i].cmd.buttons) goto next_level;        // go on to the next level
 
-	if (!finalestage)
-	{
-		float speed = demo_compatibility ? TEXTSPEED : Get_TextSpeed();
-		/* killough 2/28/98: changed to allow acceleration */
-		if (finalecount > strlen(finaletext)*speed +
-			(midstage ? NEWTEXTWAIT : TEXTWAIT) ||
-			(midstage && acceleratestage)) {
+    // advance animation
+    finalecount++;
 
-		next_level:
-			if (gamemapinfo->endpic[0] && (strcmp(gamemapinfo->endpic, "-") != 0))
-			{
-				if (!stricmp(gamemapinfo->endpic, "$CAST"))
-				{
-					F_StartCast();
-					using_FMI = false;
-				}
-				else
-				{
-					finalecount = 0;
-					finalestage = 1;
-					wipegamestate = -1;         // force a wipe
-					if (!stricmp(gamemapinfo->endpic, "$BUNNY"))
-					{
-						S_StartMusic(mus_bunny);
-					}
-					else if (!stricmp(gamemapinfo->endpic, "!"))
-					{
-						using_FMI = false;
-					}
-				}
-			}
-			else
-			{
-				gameaction = ga_worlddone;  // next level, e.g. MAP07
-			}
-		}
-	}
+    if(!finalestage)
+    {
+        float speed = demo_compatibility ? TEXTSPEED : Get_TextSpeed();
+
+        /* killough 2/28/98: changed to allow acceleration */
+        if(finalecount > strlen(finaletext)*speed +
+                (midstage ? NEWTEXTWAIT : TEXTWAIT) ||
+                (midstage && acceleratestage))
+        {
+
+next_level:
+
+            if(gamemapinfo->endpic[0] && (strcmp(gamemapinfo->endpic, "-") != 0))
+            {
+                if(!stricmp(gamemapinfo->endpic, "$CAST"))
+                {
+                    F_StartCast();
+                    using_FMI = false;
+                }
+                else
+                {
+                    finalecount = 0;
+                    finalestage = 1;
+                    wipegamestate = -1;         // force a wipe
+
+                    if(!stricmp(gamemapinfo->endpic, "$BUNNY"))
+                    {
+                        S_StartMusic(mus_bunny);
+                    }
+                    else if(!stricmp(gamemapinfo->endpic, "!"))
+                    {
+                        using_FMI = false;
+                    }
+                }
+            }
+            else
+            {
+                gameaction = ga_worlddone;  // next level, e.g. MAP07
+            }
+        }
+    }
 }
 
 
@@ -155,18 +160,18 @@ void FMI_Ticker(void)
 //
 void FMI_Drawer(void)
 {
-	if (!finalestage || !gamemapinfo->endpic[0] || (strcmp(gamemapinfo->endpic, "-") == 0))
-	{
-		F_TextWrite();
-	}
-	else if (strcmp(gamemapinfo->endpic, "$BUNNY") == 0)
-	{
-		F_BunnyScroll();
-	}
-	else
-	{
-		// e6y: wide-res
-		V_FillBorder(-1, 0);
-		V_DrawNamePatch(0, 0, 0, gamemapinfo->endpic, CR_DEFAULT, VPT_STRETCH);
-	}
+    if(!finalestage || !gamemapinfo->endpic[0] || (strcmp(gamemapinfo->endpic, "-") == 0))
+    {
+        F_TextWrite();
+    }
+    else if(strcmp(gamemapinfo->endpic, "$BUNNY") == 0)
+    {
+        F_BunnyScroll();
+    }
+    else
+    {
+        // e6y: wide-res
+        V_FillBorder(-1, 0);
+        V_DrawNamePatch(0, 0, 0, gamemapinfo->endpic, CR_DEFAULT, VPT_STRETCH);
+    }
 }

@@ -65,46 +65,46 @@ static Uint16 gl_oldHardwareGamma[3][256];
 //
 void gld_CheckHardwareGamma(void)
 {
-  gl_DeviceSupportsGamma = (-1 != SDL_GetWindowGammaRamp(sdl_window, gl_oldHardwareGamma[0], gl_oldHardwareGamma[1], gl_oldHardwareGamma[2]));
+    gl_DeviceSupportsGamma = (-1 != SDL_GetWindowGammaRamp(sdl_window, gl_oldHardwareGamma[0], gl_oldHardwareGamma[1], gl_oldHardwareGamma[2]));
 
-  if (gl_DeviceSupportsGamma)
-  {
-    //
-    // do a sanity check on the gamma values
-    //
-    if (
-      (HIBYTE(gl_oldHardwareGamma[0][255]) <= HIBYTE(gl_oldHardwareGamma[0][0])) ||
-      (HIBYTE(gl_oldHardwareGamma[1][255]) <= HIBYTE(gl_oldHardwareGamma[1][0])) ||
-      (HIBYTE(gl_oldHardwareGamma[2][255]) <= HIBYTE(gl_oldHardwareGamma[2][0])))
+    if(gl_DeviceSupportsGamma)
     {
-      gl_DeviceSupportsGamma = false;
+        //
+        // do a sanity check on the gamma values
+        //
+        if(
+            (HIBYTE(gl_oldHardwareGamma[0][255]) <= HIBYTE(gl_oldHardwareGamma[0][0])) ||
+            (HIBYTE(gl_oldHardwareGamma[1][255]) <= HIBYTE(gl_oldHardwareGamma[1][0])) ||
+            (HIBYTE(gl_oldHardwareGamma[2][255]) <= HIBYTE(gl_oldHardwareGamma[2][0])))
+        {
+            gl_DeviceSupportsGamma = false;
+        }
+
+        //
+        // make sure that we didn't have a prior crash in the game, and if so we need to
+        // restore the gamma values to at least a linear value
+        //
+        if((HIBYTE(gl_oldHardwareGamma[0][181]) == 255))
+            //if ((HIBYTE(gl_oldHardwareGamma[0][247]) == 255))
+        {
+            int g;
+
+            lprintf(LO_WARN, "gld_CheckHardwareGamma: suspicious gamma tables, using linear ramp for restoration\n");
+
+            for(g = 0; g < 255; g++)
+            {
+                gl_oldHardwareGamma[0][g] = g << 8;
+                gl_oldHardwareGamma[1][g] = g << 8;
+                gl_oldHardwareGamma[2][g] = g << 8;
+            }
+        }
+
     }
 
-    //
-    // make sure that we didn't have a prior crash in the game, and if so we need to
-    // restore the gamma values to at least a linear value
-    //
-    if ((HIBYTE(gl_oldHardwareGamma[0][181]) == 255))
-    //if ((HIBYTE(gl_oldHardwareGamma[0][247]) == 255))
+    if(!gl_DeviceSupportsGamma)
     {
-      int g;
-
-      lprintf(LO_WARN, "gld_CheckHardwareGamma: suspicious gamma tables, using linear ramp for restoration\n");
-
-      for ( g = 0; g < 255; g++ )
-      {
-        gl_oldHardwareGamma[0][g] = g << 8;
-        gl_oldHardwareGamma[1][g] = g << 8;
-        gl_oldHardwareGamma[2][g] = g << 8;
-      }
+        lprintf(LO_WARN, "gld_CheckHardwareGamma: device has broken gamma support\n");
     }
-
-  }
-
-  if (!gl_DeviceSupportsGamma)
-  {
-    lprintf(LO_WARN, "gld_CheckHardwareGamma: device has broken gamma support\n");
-  }
 }
 
 //
@@ -114,89 +114,90 @@ void gld_CheckHardwareGamma(void)
 //
 int gld_SetGammaRamp(int gamma)
 {
-  int succeeded = false;
-  static int first = true;
-  float g = (BETWEEN(0, MAX_GLGAMMA, gamma)) / 10.0f + 1.0f;
-  Uint16 gammatable[256];
+    int succeeded = false;
+    static int first = true;
+    float g = (BETWEEN(0, MAX_GLGAMMA, gamma)) / 10.0f + 1.0f;
+    Uint16 gammatable[256];
 
-  if (!gl_DeviceSupportsGamma)
-    return false;
+    if(!gl_DeviceSupportsGamma)
+        return false;
 
-  if (gamma == -1)
-  {
-    succeeded = (SDL_SetWindowGammaRamp(sdl_window, gl_oldHardwareGamma[0], gl_oldHardwareGamma[1], gl_oldHardwareGamma[2]) != -1);
-  }
-  else
-  {
-    if (first && desired_fullscreen)
+    if(gamma == -1)
     {
-      // From GZDoom:
-      //
-      // Fix for Radeon 9000, possibly other R200s: When the device is
-      // reset, it resets the gamma ramp, but the driver apparently keeps a
-      // cached copy of the ramp that it doesn't update, so when
-      // SetGammaRamp is called later to handle the NeedGammaUpdate flag,
-      // it doesn't do anything, because the gamma ramp is the same as the
-      // one passed in the last call, even though the visible gamma ramp 
-      // actually has changed.
-      //
-      // So here we force the gamma ramp to something absolutely horrible and
-      // trust that we will be able to properly set the gamma later
-      first = false;
-      memset(gammatable, 0, sizeof(gammatable));
-      SDL_SetWindowGammaRamp(sdl_window, NULL, NULL, gammatable);
+        succeeded = (SDL_SetWindowGammaRamp(sdl_window, gl_oldHardwareGamma[0], gl_oldHardwareGamma[1], gl_oldHardwareGamma[2]) != -1);
+    }
+    else
+    {
+        if(first && desired_fullscreen)
+        {
+            // From GZDoom:
+            //
+            // Fix for Radeon 9000, possibly other R200s: When the device is
+            // reset, it resets the gamma ramp, but the driver apparently keeps a
+            // cached copy of the ramp that it doesn't update, so when
+            // SetGammaRamp is called later to handle the NeedGammaUpdate flag,
+            // it doesn't do anything, because the gamma ramp is the same as the
+            // one passed in the last call, even though the visible gamma ramp
+            // actually has changed.
+            //
+            // So here we force the gamma ramp to something absolutely horrible and
+            // trust that we will be able to properly set the gamma later
+            first = false;
+            memset(gammatable, 0, sizeof(gammatable));
+            SDL_SetWindowGammaRamp(sdl_window, NULL, NULL, gammatable);
+        }
+
+        SDL_CalculateGammaRamp(g, gammatable);
+
+        // has no effect sometimes on Intel Graphics
+        // do it twice!
+        SDL_SetWindowGammaRamp(sdl_window, gammatable, gammatable, gammatable);
+        succeeded = (SDL_SetWindowGammaRamp(sdl_window, gammatable, gammatable, gammatable) != -1);
+
+        if(!succeeded)
+        {
+            lprintf(LO_WARN, "gld_SetGammaRamp: hardware gamma adjustment is not supported\n");
+            gl_lightmode = gl_lightmode_glboom;
+        }
     }
 
-    SDL_CalculateGammaRamp(g, gammatable);
-
-    // has no effect sometimes on Intel Graphics
-    // do it twice!
-    SDL_SetWindowGammaRamp(sdl_window, gammatable, gammatable, gammatable);
-    succeeded = (SDL_SetWindowGammaRamp(sdl_window, gammatable, gammatable, gammatable) != -1);
-    if (!succeeded)
-    {
-      lprintf(LO_WARN, "gld_SetGammaRamp: hardware gamma adjustment is not supported\n");
-      gl_lightmode = gl_lightmode_glboom;
-    }
-  }
-
-  return succeeded;
+    return succeeded;
 }
 
 // gld_ResetGammaRamp
 // Restoring the gamma values to a linear value and exit
 void gld_ResetGammaRamp(void)
 {
-  if (M_CheckParm("-resetgamma"))
-  {
-    if (gld_SetGammaRamp(1))
+    if(M_CheckParm("-resetgamma"))
     {
-      lprintf(LO_WARN, "gld_ResetGammaRamp: suspicious gamma tables, using linear ramp for restoration\n");
-      _exit(0);
+        if(gld_SetGammaRamp(1))
+        {
+            lprintf(LO_WARN, "gld_ResetGammaRamp: suspicious gamma tables, using linear ramp for restoration\n");
+            _exit(0);
+        }
     }
-  }
 }
 
 void gld_ApplyGammaRamp(byte *buf, int pitch, int width, int height)
 {
-  if (gl_hardware_gamma)
-  {
-    int w, h;
-    byte *pixel;
-    Uint16 r[256], g[256], b[256];
-
-    SDL_GetWindowGammaRamp(sdl_window, &r[0], &g[0], &b[0]);
-
-    for (h = 0; h < height; h++)
+    if(gl_hardware_gamma)
     {
-      for (w = 0; w < width; w++)
-      {
-        pixel = buf + h * pitch + 3 * w;
+        int w, h;
+        byte *pixel;
+        Uint16 r[256], g[256], b[256];
 
-        *(pixel + 0) = (byte)(r[*(pixel + 0)] >> 8);
-        *(pixel + 1) = (byte)(g[*(pixel + 1)] >> 8);
-        *(pixel + 2) = (byte)(b[*(pixel + 2)] >> 8);
-      }
+        SDL_GetWindowGammaRamp(sdl_window, &r[0], &g[0], &b[0]);
+
+        for(h = 0; h < height; h++)
+        {
+            for(w = 0; w < width; w++)
+            {
+                pixel = buf + h * pitch + 3 * w;
+
+                *(pixel + 0) = (byte)(r[*(pixel + 0)] >> 8);
+                *(pixel + 1) = (byte)(g[*(pixel + 1)] >> 8);
+                *(pixel + 2) = (byte)(b[*(pixel + 2)] >> 8);
+            }
+        }
     }
-  }
 }

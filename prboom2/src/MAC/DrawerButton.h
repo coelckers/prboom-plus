@@ -4,7 +4,7 @@
 
 @interface DrawerButton : NSButton
 {
-	IBOutlet id drawer;
+    IBOutlet id drawer;
 }
 
 - (void)drawerDidClose:(NSNotification *)notification;

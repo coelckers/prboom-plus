@@ -1,7 +1,7 @@
 //
 // 03/10/2006 James Haley
 //
-// For this module only: 
+// For this module only:
 // This code is public domain. No change sufficient enough to constitute a
 // significant or original work has been made, and thus it remains as such.
 //
@@ -24,10 +24,10 @@
 
 struct dirent
 {
-   long		  d_ino;    /* Always zero. */
-   unsigned short d_reclen; /* Always zero. */
-   unsigned short d_namlen; /* Length of name in d_name. */
-   char           d_name[FILENAME_MAX]; /* File name. */
+    long		  d_ino;    /* Always zero. */
+    unsigned short d_reclen; /* Always zero. */
+    unsigned short d_namlen; /* Length of name in d_name. */
+    char           d_name[FILENAME_MAX]; /* File name. */
 };
 
 /*
@@ -37,27 +37,27 @@ struct dirent
  */
 typedef struct
 {
-   /* disk transfer area for this dir */
-   struct _finddata_t dd_dta;
+    /* disk transfer area for this dir */
+    struct _finddata_t dd_dta;
 
-   /* dirent struct to return from dir (NOTE: this makes this thread
-    * safe as long as only one thread uses a particular DIR struct at
-    * a time) */
-   struct dirent dd_dir;
+    /* dirent struct to return from dir (NOTE: this makes this thread
+     * safe as long as only one thread uses a particular DIR struct at
+     * a time) */
+    struct dirent dd_dir;
 
-   /* _findnext handle */
-   intptr_t	dd_handle;
+    /* _findnext handle */
+    intptr_t	dd_handle;
 
-   /*
-    * Status of search:
-    *   0 = not started yet (next entry to read is first entry)
-    *  -1 = off the end
-    *   positive = 0 based index of next entry
-    */
-   int dd_stat;
+    /*
+     * Status of search:
+     *   0 = not started yet (next entry to read is first entry)
+     *  -1 = off the end
+     *   positive = 0 based index of next entry
+     */
+    int dd_stat;
 
-   /* given path for dir with search pattern (struct is extended) */
-   char dd_name[1];
+    /* given path for dir with search pattern (struct is extended) */
+    char dd_name[1];
 } DIR;
 
 DIR *opendir(const char *);

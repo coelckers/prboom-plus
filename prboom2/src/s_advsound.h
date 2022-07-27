@@ -49,11 +49,11 @@
 
 typedef struct musinfo_s
 {
-  mobj_t *mapthing;
-  mobj_t *lastmapthing;
-  int tics;
-  int current_item;
-  int items[MAX_MUS_ENTRIES];
+    mobj_t *mapthing;
+    mobj_t *lastmapthing;
+    int tics;
+    int current_item;
+    int items[MAX_MUS_ENTRIES];
 } musinfo_t;
 
 extern musicinfo_t *mus_playing;

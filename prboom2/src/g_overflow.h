@@ -40,24 +40,24 @@
 
 typedef struct overrun_param_s
 {
-  int warn;
-  int emulate;
-  int footer;
-  int footer_emulate;
-  int promted;
-  int shit_happens;
+    int warn;
+    int emulate;
+    int footer;
+    int footer_emulate;
+    int promted;
+    int shit_happens;
 } overrun_param_t;
 
 typedef enum overrun_list_s
 {
-  OVERFLOW_SPECHIT,
-  OVERFLOW_REJECT,
-  OVERFLOW_INTERCEPT,
-  OVERFLOW_PLYERINGAME,
-  OVERFLOW_DONUT,
-  OVERFLOW_MISSEDBACKSIDE,
+    OVERFLOW_SPECHIT,
+    OVERFLOW_REJECT,
+    OVERFLOW_INTERCEPT,
+    OVERFLOW_PLYERINGAME,
+    OVERFLOW_DONUT,
+    OVERFLOW_MISSEDBACKSIDE,
 
-  OVERFLOW_MAX //last
+    OVERFLOW_MAX //last
 } overrun_list_t;
 
 extern int overflows_enabled;
@@ -104,17 +104,17 @@ int PlayeringameOverrun(const mapthing_t* mthing);
 
 typedef struct spechit_overrun_param_s
 {
-  line_t *line;
+    line_t *line;
 
-  line_t ***spechit;
-  int *numspechit;
+    line_t ***spechit;
+    int *numspechit;
 
-  fixed_t *tmbbox;
-  fixed_t *tmfloorz;
-  fixed_t *tmceilingz;
+    fixed_t *tmbbox;
+    fixed_t *tmfloorz;
+    fixed_t *tmceilingz;
 
-  dboolean *crushchange;
-  dboolean *nofit;
+    dboolean *crushchange;
+    dboolean *nofit;
 } spechit_overrun_param_t;
 
 extern unsigned int spechit_baseaddr;

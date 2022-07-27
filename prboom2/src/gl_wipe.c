@@ -48,106 +48,113 @@ static GLuint wipe_scr_end_tex = 0;
 
 GLuint CaptureScreenAsTexID(void)
 {
-  GLuint id;
+    GLuint id;
 
-  gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
- 
-  glGenTextures(1, &id);
-  glBindTexture(GL_TEXTURE_2D, id);
-  
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
 
-  glTexImage2D(GL_TEXTURE_2D, 0, 3, 
-    gld_GetTexDimension(SCREENWIDTH), gld_GetTexDimension(SCREENHEIGHT), 
-    0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+    glGenTextures(1, &id);
+    glBindTexture(GL_TEXTURE_2D, id);
 
-  glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, SCREENWIDTH, SCREENHEIGHT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-  return id;
+    glTexImage2D(GL_TEXTURE_2D, 0, 3,
+                 gld_GetTexDimension(SCREENWIDTH), gld_GetTexDimension(SCREENHEIGHT),
+                 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+
+    glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, SCREENWIDTH, SCREENHEIGHT);
+
+    return id;
 }
 
 int gld_wipe_doMelt(int ticks, int *y_lookup)
 {
-  int i;
-  int total_w, total_h;
-  float fU1, fU2, fV1, fV2;
+    int i;
+    int total_w, total_h;
+    float fU1, fU2, fV1, fV2;
 
-  total_w = gld_GetTexDimension(SCREENWIDTH);
-  total_h = gld_GetTexDimension(SCREENHEIGHT);
+    total_w = gld_GetTexDimension(SCREENWIDTH);
+    total_h = gld_GetTexDimension(SCREENHEIGHT);
 
-  fU1 = 0.0f;
-  fV1 = (float)SCREENHEIGHT / (float)total_h;
-  fU2 = (float)SCREENWIDTH / (float)total_w;
-  fV2 = 0.0f;
-  
-  gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
-  
-  glBindTexture(GL_TEXTURE_2D, wipe_scr_end_tex);
-  glColor3f(1.0f, 1.0f, 1.0f);
+    fU1 = 0.0f;
+    fV1 = (float)SCREENHEIGHT / (float)total_h;
+    fU2 = (float)SCREENWIDTH / (float)total_w;
+    fV2 = 0.0f;
 
-  glBegin(GL_TRIANGLE_STRIP);
-  {
-    glTexCoord2f(fU1, fV1); glVertex2f(0.0f, 0.0f);
-    glTexCoord2f(fU1, fV2); glVertex2f(0.0f, (float)SCREENHEIGHT);
-    glTexCoord2f(fU2, fV1); glVertex2f((float)SCREENWIDTH, 0.0f);
-    glTexCoord2f(fU2, fV2); glVertex2f((float)SCREENWIDTH, (float)SCREENHEIGHT);
-  }
-  glEnd();
-  
-  glBindTexture(GL_TEXTURE_2D, wipe_scr_start_tex);
-  glColor3f(1.0f, 1.0f, 1.0f);
-  
-  glBegin(GL_QUAD_STRIP);
-  
-  for (i=0; i <= SCREENWIDTH; i++)
-  {
-    int yoffs = MAX(0, y_lookup[i]);
-    
-    float tx = (float) i / total_w;
-    float sx = (float) i;
-    float sy = (float) yoffs;
-    
-    glTexCoord2f(tx, fV1); glVertex2f(sx, sy);
-    glTexCoord2f(tx, fV2); glVertex2f(sx, sy + (float)SCREENHEIGHT);
-  }
-  
-  glEnd();
-  
-  return 0;
+    gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
+
+    glBindTexture(GL_TEXTURE_2D, wipe_scr_end_tex);
+    glColor3f(1.0f, 1.0f, 1.0f);
+
+    glBegin(GL_TRIANGLE_STRIP);
+    {
+        glTexCoord2f(fU1, fV1);
+        glVertex2f(0.0f, 0.0f);
+        glTexCoord2f(fU1, fV2);
+        glVertex2f(0.0f, (float)SCREENHEIGHT);
+        glTexCoord2f(fU2, fV1);
+        glVertex2f((float)SCREENWIDTH, 0.0f);
+        glTexCoord2f(fU2, fV2);
+        glVertex2f((float)SCREENWIDTH, (float)SCREENHEIGHT);
+    }
+    glEnd();
+
+    glBindTexture(GL_TEXTURE_2D, wipe_scr_start_tex);
+    glColor3f(1.0f, 1.0f, 1.0f);
+
+    glBegin(GL_QUAD_STRIP);
+
+    for(i = 0; i <= SCREENWIDTH; i++)
+    {
+        int yoffs = MAX(0, y_lookup[i]);
+
+        float tx = (float) i / total_w;
+        float sx = (float) i;
+        float sy = (float) yoffs;
+
+        glTexCoord2f(tx, fV1);
+        glVertex2f(sx, sy);
+        glTexCoord2f(tx, fV2);
+        glVertex2f(sx, sy + (float)SCREENHEIGHT);
+    }
+
+    glEnd();
+
+    return 0;
 }
 
 int gld_wipe_exitMelt(int ticks)
 {
-  if (wipe_scr_start_tex != 0)
-  {
-    glDeleteTextures(1, &wipe_scr_start_tex);
-    wipe_scr_start_tex = 0;
-  }
-  if (wipe_scr_end_tex != 0)
-  {
-    glDeleteTextures(1, &wipe_scr_end_tex);
-    wipe_scr_end_tex = 0;
-  }
+    if(wipe_scr_start_tex != 0)
+    {
+        glDeleteTextures(1, &wipe_scr_start_tex);
+        wipe_scr_start_tex = 0;
+    }
 
-  gld_ResetLastTexture();
+    if(wipe_scr_end_tex != 0)
+    {
+        glDeleteTextures(1, &wipe_scr_end_tex);
+        wipe_scr_end_tex = 0;
+    }
 
-  return 0;
+    gld_ResetLastTexture();
+
+    return 0;
 }
 
 int gld_wipe_StartScreen(void)
 {
-  wipe_scr_start_tex = CaptureScreenAsTexID();
+    wipe_scr_start_tex = CaptureScreenAsTexID();
 
-  return 0;
+    return 0;
 }
 
 int gld_wipe_EndScreen(void)
 {
-  glFlush();
-  wipe_scr_end_tex = CaptureScreenAsTexID();
+    glFlush();
+    wipe_scr_end_tex = CaptureScreenAsTexID();
 
-  return 0;
+    return 0;
 }

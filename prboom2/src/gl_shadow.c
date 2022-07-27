@@ -47,9 +47,9 @@ int gl_shadows_factor;
 
 simple_shadow_params_t simple_shadows =
 {
-  0, 0,
-  -1, 0, 0,
-  80, 1000, 0.5f, 0.0044f
+    0, 0,
+    -1, 0, 0,
+    80, 1000, 0.5f, 0.0044f
 };
 
 //===========================================================================
@@ -58,78 +58,81 @@ simple_shadow_params_t simple_shadows =
 //===========================================================================
 void gld_InitShadows(void)
 {
-  int lump;
-  
-  simple_shadows.loaded = false;
+    int lump;
 
-  simple_shadows.tex_id = -1;
-  simple_shadows.width = 0;
-  simple_shadows.height = 0;
+    simple_shadows.loaded = false;
 
-  simple_shadows.max_radius = 80;
-  simple_shadows.max_dist = gl_shadows_maxdist;
-  simple_shadows.factor = (float)gl_shadows_factor / 256.0f;
-  simple_shadows.bias = 0.0044f;
-  
-  lump = (W_CheckNumForName)("GLSHADOW", ns_prboom);
-  if (lump != -1)
-  {
-    SDL_PixelFormat fmt;
-    SDL_Surface *surf = NULL;
-    SDL_Surface *surf_raw;
-    surf_raw = SDL_LoadBMP_RW(SDL_RWFromConstMem(W_CacheLumpNum(lump), W_LumpLength(lump)), 1);
-    W_UnlockLumpNum(lump);
+    simple_shadows.tex_id = -1;
+    simple_shadows.width = 0;
+    simple_shadows.height = 0;
 
-    fmt = *surf_raw->format;
-    fmt.BitsPerPixel = 24;
-    fmt.BytesPerPixel = 3;
+    simple_shadows.max_radius = 80;
+    simple_shadows.max_dist = gl_shadows_maxdist;
+    simple_shadows.factor = (float)gl_shadows_factor / 256.0f;
+    simple_shadows.bias = 0.0044f;
 
-    surf = SDL_ConvertSurface(surf_raw, &fmt, surf_raw->flags);
-    SDL_FreeSurface(surf_raw);
-    if (surf)
+    lump = (W_CheckNumForName)("GLSHADOW", ns_prboom);
+
+    if(lump != -1)
     {
-      glGenTextures(1, &simple_shadows.tex_id);
-      glBindTexture(GL_TEXTURE_2D, simple_shadows.tex_id);
+        SDL_PixelFormat fmt;
+        SDL_Surface *surf = NULL;
+        SDL_Surface *surf_raw;
+        surf_raw = SDL_LoadBMP_RW(SDL_RWFromConstMem(W_CacheLumpNum(lump), W_LumpLength(lump)), 1);
+        W_UnlockLumpNum(lump);
 
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, surf->w, surf->h, 0, GL_RGB, GL_UNSIGNED_BYTE, surf->pixels);
+        fmt = *surf_raw->format;
+        fmt.BitsPerPixel = 24;
+        fmt.BytesPerPixel = 3;
 
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-      if (gl_ext_texture_filter_anisotropic)
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLfloat)(1<<gl_texture_filter_anisotropic));
+        surf = SDL_ConvertSurface(surf_raw, &fmt, surf_raw->flags);
+        SDL_FreeSurface(surf_raw);
 
-      simple_shadows.loaded = true;
-      simple_shadows.width = surf->w;
-      simple_shadows.height = surf->h;
+        if(surf)
+        {
+            glGenTextures(1, &simple_shadows.tex_id);
+            glBindTexture(GL_TEXTURE_2D, simple_shadows.tex_id);
 
-      SDL_FreeSurface(surf);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, surf->w, surf->h, 0, GL_RGB, GL_UNSIGNED_BYTE, surf->pixels);
+
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
+            if(gl_ext_texture_filter_anisotropic)
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLfloat)(1 << gl_texture_filter_anisotropic));
+
+            simple_shadows.loaded = true;
+            simple_shadows.width = surf->w;
+            simple_shadows.height = surf->h;
+
+            SDL_FreeSurface(surf);
+        }
     }
-  }
 
-  if (simple_shadows.enable && !simple_shadows.loaded)
-  {
-    lprintf(LO_INFO, "gld_InitShadows: failed to initialise shadow texture");
-  }
+    if(simple_shadows.enable && !simple_shadows.loaded)
+    {
+        lprintf(LO_INFO, "gld_InitShadows: failed to initialise shadow texture");
+    }
 }
 
 static void gld_DrawShadow(GLShadow *shadow)
 {
-  glColor3f(shadow->light, shadow->light, shadow->light);
+    glColor3f(shadow->light, shadow->light, shadow->light);
 
-  glBegin(GL_TRIANGLE_FAN);
+    glBegin(GL_TRIANGLE_FAN);
 
-  glTexCoord2f(1.0f, 0.0f);
-  glVertex3f(shadow->x + shadow->radius, shadow->z, shadow->y - shadow->radius);
-  glTexCoord2f(0.0f, 0.0f);
-  glVertex3f(shadow->x - shadow->radius, shadow->z, shadow->y - shadow->radius);
-  glTexCoord2f(0.0f, 1.0f);
-  glVertex3f(shadow->x - shadow->radius, shadow->z, shadow->y + shadow->radius);
-  glTexCoord2f(1.0f, 1.0f);
-  glVertex3f(shadow->x + shadow->radius, shadow->z, shadow->y + shadow->radius);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(shadow->x + shadow->radius, shadow->z, shadow->y - shadow->radius);
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(shadow->x - shadow->radius, shadow->z, shadow->y - shadow->radius);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(shadow->x - shadow->radius, shadow->z, shadow->y + shadow->radius);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(shadow->x + shadow->radius, shadow->z, shadow->y + shadow->radius);
 
-  glEnd();
+    glEnd();
 }
 
 //===========================================================================
@@ -138,92 +141,99 @@ static void gld_DrawShadow(GLShadow *shadow)
 //===========================================================================
 void gld_ProcessThingShadow(mobj_t *mo)
 {
-  int dist;
-  float height, moh, halfmoh;
-  sector_t *sec = mo->subsector->sector;
-  int radius, z;
-  fixed_t fz;
-  GLShadow shadow;
+    int dist;
+    float height, moh, halfmoh;
+    sector_t *sec = mo->subsector->sector;
+    int radius, z;
+    fixed_t fz;
+    GLShadow shadow;
 
-  if (!simple_shadows.enable || !simple_shadows.loaded)
-    return;
+    if(!simple_shadows.enable || !simple_shadows.loaded)
+        return;
 
-  // Should this mobj have a shadow?
-  if (mo->flags & (MF_SHADOW|MF_NOBLOCKMAP|MF_NOSECTOR))
-    return;
+    // Should this mobj have a shadow?
+    if(mo->flags & (MF_SHADOW | MF_NOBLOCKMAP | MF_NOSECTOR))
+        return;
 
-  if (mo->frame & FF_FULLBRIGHT)
-    return;
-  
-  // Don't render mobj shadows on sky floors.
-  if (mo->subsector->sector->floorpic == skyflatnum)
-    return;
+    if(mo->frame & FF_FULLBRIGHT)
+        return;
 
-  if (sectorloops[sec->iSectorID].loopcount <= 0)
-    return;
+    // Don't render mobj shadows on sky floors.
+    if(mo->subsector->sector->floorpic == skyflatnum)
+        return;
 
-  // Is this too far?
-  dist = P_AproxDistance((mo->x >> 16) - (viewx >> 16), (mo->y >> 16) - (viewy >> 16));
-  if (dist > simple_shadows.max_dist)
-    return;
+    if(sectorloops[sec->iSectorID].loopcount <= 0)
+        return;
 
-  // Check the height.
-  if (sec->heightsec != -1)
-    z = sectors[sec->heightsec].floorheight;
-  else
-    z = sec->floorheight;
-  
-  // below visible floor
-  if (!paused && movement_smooth)
-  {
-    fz = mo->PrevZ + FixedMul (tic_vars.frac, mo->z - mo->PrevZ);
-  }
-  else
-  {
-    fz = mo->z;
-  }
-  if (fz < z)
-    return;
+    // Is this too far?
+    dist = P_AproxDistance((mo->x >> 16) - (viewx >> 16), (mo->y >> 16) - (viewy >> 16));
 
-  height = (fz - z) / (float)FRACUNIT;
-  moh = mo->height / (float)FRACUNIT;
-  if(!moh)
-    moh = 1;
-  
-  // Too high above floor.
-  if(height > moh)
-    return;
+    if(dist > simple_shadows.max_dist)
+        return;
 
-  // Calculate the strength of the shadow.
+    // Check the height.
+    if(sec->heightsec != -1)
+        z = sectors[sec->heightsec].floorheight;
+    else
+        z = sec->floorheight;
 
-  shadow.light = simple_shadows.factor * sec->lightlevel / 255.0f;
-  
-  halfmoh = moh * 0.5f;
-  if(height > halfmoh)
-    shadow.light *= 1 - (height - halfmoh) / (moh - halfmoh);
-  
-  // Can't be seen.
-  if(shadow.light <= 0)
-    return;
+    // below visible floor
+    if(!paused && movement_smooth)
+    {
+        fz = mo->PrevZ + FixedMul(tic_vars.frac, mo->z - mo->PrevZ);
+    }
+    else
+    {
+        fz = mo->z;
+    }
 
-  if(shadow.light > 1)
-    shadow.light = 1;
+    if(fz < z)
+        return;
 
-  // Calculate the radius of the shadow.
-  radius = mo->info->radius >> 16;
-  if (radius > mo->patch_width >> 1)
-    radius = mo->patch_width >> 1;
-  if(radius > simple_shadows.max_radius)
-    radius = simple_shadows.max_radius;
-  if(!radius)
-    return;
+    height = (fz - z) / (float)FRACUNIT;
+    moh = mo->height / (float)FRACUNIT;
 
-  shadow.radius = radius / MAP_COEFF;
-  shadow.x = -mo->x / MAP_SCALE;
-  shadow.y = mo->y / MAP_SCALE;
-  shadow.z = mo->subsector->sector->floorheight / MAP_SCALE + 0.2f / MAP_COEFF;
+    if(!moh)
+        moh = 1;
 
-  gld_AddDrawItem(GLDIT_SHADOW, &shadow);
+    // Too high above floor.
+    if(height > moh)
+        return;
+
+    // Calculate the strength of the shadow.
+
+    shadow.light = simple_shadows.factor * sec->lightlevel / 255.0f;
+
+    halfmoh = moh * 0.5f;
+
+    if(height > halfmoh)
+        shadow.light *= 1 - (height - halfmoh) / (moh - halfmoh);
+
+    // Can't be seen.
+    if(shadow.light <= 0)
+        return;
+
+    if(shadow.light > 1)
+        shadow.light = 1;
+
+    // Calculate the radius of the shadow.
+    radius = mo->info->radius >> 16;
+
+    if(radius > mo->patch_width >> 1)
+        radius = mo->patch_width >> 1;
+
+    if(radius > simple_shadows.max_radius)
+        radius = simple_shadows.max_radius;
+
+    if(!radius)
+        return;
+
+    shadow.radius = radius / MAP_COEFF;
+    shadow.x = -mo->x / MAP_SCALE;
+    shadow.y = mo->y / MAP_SCALE;
+    shadow.z = mo->subsector->sector->floorheight / MAP_SCALE + 0.2f / MAP_COEFF;
+
+    gld_AddDrawItem(GLDIT_SHADOW, &shadow);
 }
 
 //===========================================================================
@@ -231,47 +241,47 @@ void gld_ProcessThingShadow(mobj_t *mo)
 //===========================================================================
 void gld_RenderShadows(void)
 {
-  int i;
+    int i;
 
-  if (!simple_shadows.enable || !simple_shadows.loaded || players[displayplayer].fixedcolormap)
-    return;
+    if(!simple_shadows.enable || !simple_shadows.loaded || players[displayplayer].fixedcolormap)
+        return;
 
-  if (gld_drawinfo.num_items[GLDIT_SHADOW] <= 0)
-    return;
+    if(gld_drawinfo.num_items[GLDIT_SHADOW] <= 0)
+        return;
 
-  if (!gl_ztrick)
-  {
-    glDepthRange(simple_shadows.bias, 1);
-  }
+    if(!gl_ztrick)
+    {
+        glDepthRange(simple_shadows.bias, 1);
+    }
 
-  gl_EnableFog(false);
+    gl_EnableFog(false);
 
-  glDepthMask(GL_FALSE);
-  glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
+    glDepthMask(GL_FALSE);
+    glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
 
-  // Apply a modelview shift.
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
+    // Apply a modelview shift.
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
 
-  // Scale towards the viewpoint to avoid Z-fighting.
-  glTranslatef(xCamera, zCamera, yCamera);
-  glScalef(0.99f, 0.99f, 0.99f);
-  glTranslatef(-xCamera, -zCamera, -yCamera);
+    // Scale towards the viewpoint to avoid Z-fighting.
+    glTranslatef(xCamera, zCamera, yCamera);
+    glScalef(0.99f, 0.99f, 0.99f);
+    glTranslatef(-xCamera, -zCamera, -yCamera);
 
-  glBindTexture(GL_TEXTURE_2D, simple_shadows.tex_id);
-  gld_ResetLastTexture();
+    glBindTexture(GL_TEXTURE_2D, simple_shadows.tex_id);
+    gld_ResetLastTexture();
 
-  for (i = gld_drawinfo.num_items[GLDIT_SHADOW] - 1; i >= 0; i--)
-  {
-    gld_DrawShadow(gld_drawinfo.items[GLDIT_SHADOW][i].item.shadow);
-  }
+    for(i = gld_drawinfo.num_items[GLDIT_SHADOW] - 1; i >= 0; i--)
+    {
+        gld_DrawShadow(gld_drawinfo.items[GLDIT_SHADOW][i].item.shadow);
+    }
 
-  if (!gl_ztrick)
-  {
-    glDepthRange(0, 1);
-  }
+    if(!gl_ztrick)
+    {
+        glDepthRange(0, 1);
+    }
 
-  glPopMatrix();
-  glDepthMask(GL_TRUE);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glPopMatrix();
+    glDepthMask(GL_TRUE);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }

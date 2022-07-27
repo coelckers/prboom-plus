@@ -4,52 +4,52 @@
 
 @interface LauncherApp : NSObject
 {
-	IBOutlet id window;
+    IBOutlet id window;
 
-	// Game
-	IBOutlet id compatibilityLevelButton;
-	IBOutlet id gameButton;
-	IBOutlet id launchButton;
-	IBOutlet id gameMenu;
+    // Game
+    IBOutlet id compatibilityLevelButton;
+    IBOutlet id gameButton;
+    IBOutlet id launchButton;
+    IBOutlet id gameMenu;
 
-	// Options
-	IBOutlet id respawnMonstersButton;
-	IBOutlet id fastMonstersButton;
-	IBOutlet id noMonstersButton;
+    // Options
+    IBOutlet id respawnMonstersButton;
+    IBOutlet id fastMonstersButton;
+    IBOutlet id noMonstersButton;
 
-	IBOutlet id fullscreenButton;
-	IBOutlet id resolutionComboBox;
-	IBOutlet id graphicsModeComboBox;
+    IBOutlet id fullscreenButton;
+    IBOutlet id resolutionComboBox;
+    IBOutlet id graphicsModeComboBox;
 
-	// Debug options
-	IBOutlet id disableGraphicsButton;
-	IBOutlet id disableJoystickButton;
-	IBOutlet id disableMouseButton;
-	IBOutlet id disableMusicButton;
-	IBOutlet id disableSoundButton;
-	IBOutlet id disableSoundEffectsButton;
-	IBOutlet id configFileButtonController;
+    // Debug options
+    IBOutlet id disableGraphicsButton;
+    IBOutlet id disableJoystickButton;
+    IBOutlet id disableMouseButton;
+    IBOutlet id disableMusicButton;
+    IBOutlet id disableSoundButton;
+    IBOutlet id disableSoundEffectsButton;
+    IBOutlet id configFileButtonController;
 
-	// Demo options
-	IBOutlet id noDemoButton;
-	IBOutlet id playDemoButton;
-	IBOutlet id fastDemoButton;
-	IBOutlet id timeDemoButton;
-	IBOutlet id demoMatrix;
+    // Demo options
+    IBOutlet id noDemoButton;
+    IBOutlet id playDemoButton;
+    IBOutlet id fastDemoButton;
+    IBOutlet id timeDemoButton;
+    IBOutlet id demoMatrix;
 
-	IBOutlet id ffToLevelField;
-	IBOutlet id demoFileButtonController;
+    IBOutlet id ffToLevelField;
+    IBOutlet id demoFileButtonController;
 
-	// Wad options
-	IBOutlet id wadViewController;
+    // Wad options
+    IBOutlet id wadViewController;
 
-	// Drawers
-	IBOutlet id wadDrawer;
-	IBOutlet id demoDrawer;
-	IBOutlet id debugDrawer;
+    // Drawers
+    IBOutlet id wadDrawer;
+    IBOutlet id demoDrawer;
+    IBOutlet id debugDrawer;
 
-	// Console
-	IBOutlet id consoleController;
+    // Console
+    IBOutlet id consoleController;
 }
 
 - (NSString *)wadPath;
@@ -65,7 +65,7 @@
 - (NSString *)selectedWad;
 - (void)updateGameWad;
 - (void)watcher:(id)watcher receivedNotification:(NSString *)notification
-        forPath:(NSString *)path;
+    forPath:(NSString *)path;
 
 // Game
 - (void)tryToLaunch;

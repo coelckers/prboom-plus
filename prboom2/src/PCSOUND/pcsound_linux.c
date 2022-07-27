@@ -1,4 +1,4 @@
-// Emacs style mode select   -*- C++ -*- 
+// Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
 // Copyright(C) 2007 Simon Howard
@@ -56,12 +56,12 @@ static int SoundThread(void *unused)
     int frequency;
     int duration;
     int cycles;
-    
-    while (sound_thread_running)
+
+    while(sound_thread_running)
     {
         callback(&duration, &frequency);
 
-        if (frequency != 0) 
+        if(frequency != 0)
         {
             cycles = PCSOUND_8253_FREQUENCY / frequency;
         }
@@ -84,7 +84,7 @@ static int PCSound_Linux_Init(pcsound_callback_func callback_func)
 
     console_handle = open(CONSOLE_DEVICE, O_WRONLY);
 
-    if (console_handle == -1)
+    if(console_handle == -1)
     {
         // Don't have permissions for the console device?
 
@@ -93,7 +93,7 @@ static int PCSound_Linux_Init(pcsound_callback_func callback_func)
         return 0;
     }
 
-    if (ioctl(console_handle, KIOCSOUND, 0) < 0)
+    if(ioctl(console_handle, KIOCSOUND, 0) < 0)
     {
         // KIOCSOUND not supported: non-PC linux?
 
@@ -102,12 +102,12 @@ static int PCSound_Linux_Init(pcsound_callback_func callback_func)
     }
 
     // Start a thread up to generate PC speaker output
-    
+
     callback = callback_func;
     sound_thread_running = 1;
 
     sound_thread_handle = SDL_CreateThread(SoundThread, "sound_thread_handle", NULL);
-    
+
     return 1;
 }
 

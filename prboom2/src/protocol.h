@@ -37,40 +37,48 @@
 #include "d_ticcmd.h"
 #include "m_swap.h"
 
-enum packet_type_e {
-  PKT_INIT,    // initial packet to server
-  PKT_SETUP,   // game information packet
-  PKT_GO,      // game has started
-  PKT_TICC,    // tics from client
-  PKT_TICS,    // tics from server
-  PKT_RETRANS, // Request for retransmission
-  PKT_EXTRA,   // Extra info packet
-  PKT_QUIT,    // Player quit game
-  PKT_DOWN,    // Server downed
-  PKT_WAD,     // Wad file request
-  PKT_BACKOFF, // Request for client back-off
+enum packet_type_e
+{
+    PKT_INIT,    // initial packet to server
+    PKT_SETUP,   // game information packet
+    PKT_GO,      // game has started
+    PKT_TICC,    // tics from client
+    PKT_TICS,    // tics from server
+    PKT_RETRANS, // Request for retransmission
+    PKT_EXTRA,   // Extra info packet
+    PKT_QUIT,    // Player quit game
+    PKT_DOWN,    // Server downed
+    PKT_WAD,     // Wad file request
+    PKT_BACKOFF, // Request for client back-off
 };
 
-typedef struct {
-  byte checksum;       // Simple checksum of the entire packet
-  byte type;           /* Type of packet */
-  byte reserved[2];	/* Was random in prboom <=2.2.4, now 0 */
-  unsigned tic;        // Timestamp
+typedef struct
+{
+    byte checksum;       // Simple checksum of the entire packet
+    byte type;           /* Type of packet */
+    byte reserved[2];	/* Was random in prboom <=2.2.4, now 0 */
+    unsigned tic;        // Timestamp
 } PACKEDATTR packet_header_t;
 
 static inline void packet_set(packet_header_t* p, enum packet_type_e t, unsigned long tic)
-{ p->tic = doom_htonl(tic); p->type = t; p->reserved[0] = 0; p->reserved[1] = 0; }
+{
+    p->tic = doom_htonl(tic);
+    p->type = t;
+    p->reserved[0] = 0;
+    p->reserved[1] = 0;
+}
 
 #ifndef GAME_OPTIONS_SIZE
 // From g_game.h
 #define GAME_OPTIONS_SIZE 64
 #endif
 
-struct setup_packet_s {
-  byte players, yourplayer, skill, episode, level, deathmatch, complevel, ticdup, extratic;
-  byte game_options[GAME_OPTIONS_SIZE];
-  byte numwads;
-  byte wadnames[1]; // Actually longer
+struct setup_packet_s
+{
+    byte players, yourplayer, skill, episode, level, deathmatch, complevel, ticdup, extratic;
+    byte game_options[GAME_OPTIONS_SIZE];
+    byte numwads;
+    byte wadnames[1]; // Actually longer
 };
 
 /* cph - convert network byte stream to usable ticcmd_t and visa-versa
@@ -81,21 +89,21 @@ struct setup_packet_s {
  */
 inline static void RawToTic(ticcmd_t* dst, const void* src)
 {
-  memcpy(dst,src,sizeof *dst);
-  dst->angleturn = doom_ntohs(dst->angleturn);
-  dst->consistancy = doom_ntohs(dst->consistancy);
+    memcpy(dst, src, sizeof * dst);
+    dst->angleturn = doom_ntohs(dst->angleturn);
+    dst->consistancy = doom_ntohs(dst->consistancy);
 }
 
 inline static void TicToRaw(void* dst, const ticcmd_t* src)
 {
-  /* We have to make a copy of the source struct, then do byte swaps,
-   * and fnially copy to the destination (can't do the swaps in the
-   * destination, because it might not be aligned).
-   */
-  ticcmd_t tmp = *src;
-  tmp.angleturn = doom_ntohs(tmp.angleturn);
-  tmp.consistancy = doom_ntohs(tmp.consistancy);
-  memcpy(dst,&tmp,sizeof tmp);
+    /* We have to make a copy of the source struct, then do byte swaps,
+     * and fnially copy to the destination (can't do the swaps in the
+     * destination, because it might not be aligned).
+     */
+    ticcmd_t tmp = *src;
+    tmp.angleturn = doom_ntohs(tmp.angleturn);
+    tmp.consistancy = doom_ntohs(tmp.consistancy);
+    memcpy(dst, &tmp, sizeof tmp);
 }
 
 #endif // __PROTOCOL__

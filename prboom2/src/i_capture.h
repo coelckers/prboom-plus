@@ -51,13 +51,13 @@ extern int capturing_video;
 
 // init and open sound, video pipes
 // fn is filename passed from command line, typically final output file
-void I_CapturePrep (const char *fn);
+void I_CapturePrep(const char *fn);
 
 // capture a single frame of video (and corresponding audio length)
 // and send it to pipes
-void I_CaptureFrame (void);
+void I_CaptureFrame(void);
 
 // close pipes, call muxcommand, finalize
-void I_CaptureFinish (void);
+void I_CaptureFinish(void);
 
 #endif

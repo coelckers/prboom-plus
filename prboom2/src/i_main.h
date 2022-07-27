@@ -42,14 +42,14 @@
 
 typedef enum
 {
-  EXEPTION_NONE,
-  EXEPTION_glFramebufferTexture2DEXT,
-  EXEPTION_MAX
+    EXEPTION_NONE,
+    EXEPTION_glFramebufferTexture2DEXT,
+    EXEPTION_MAX
 } ExeptionsList_t;
 
 typedef struct
 {
-  const char * error_message;
+    const char * error_message;
 } ExeptionParam_t;
 
 extern ExeptionParam_t ExeptionsParams[];

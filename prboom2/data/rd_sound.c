@@ -26,28 +26,28 @@
 
 struct wav_header
 {
-  char riff[4];
-  unsigned int size;
-  char wave[4];
-  char fmt[4];
-  unsigned int fmtlen;
-  unsigned short fmttag;
-  unsigned short channels;
-  unsigned int samplerate;
-  unsigned int byterate;
-  unsigned short blockalign;
-  unsigned short bits;
-  char data[4];
-  unsigned int datalen;
-  char samples[1];
+    char riff[4];
+    unsigned int size;
+    char wave[4];
+    char fmt[4];
+    unsigned int fmtlen;
+    unsigned short fmttag;
+    unsigned short channels;
+    unsigned int samplerate;
+    unsigned int byterate;
+    unsigned short blockalign;
+    unsigned short bits;
+    char data[4];
+    unsigned int datalen;
+    char samples[1];
 } ATTR((packed));
 
 struct doom_sound_header
 {
-  unsigned short log2bits;
-  unsigned short rate;
-  unsigned int length;
-  char samples[1];
+    unsigned short log2bits;
+    unsigned short rate;
+    unsigned int length;
+    char samples[1];
 } ATTR((packed));
 
 #ifdef _MSC_VER
@@ -56,26 +56,26 @@ struct doom_sound_header
 
 size_t wav_to_doom(void **lumpdata, const char *filename)
 {
-  void *data;
-  size_t size = read_or_die(&data, filename);
-  struct wav_header *header = data;
-  struct doom_sound_header *out;
+    void *data;
+    size_t size = read_or_die(&data, filename);
+    struct wav_header *header = data;
+    struct doom_sound_header *out;
 
-  if (size < sizeof(*header) - 1
-      || memcmp(header->riff, "RIFF", 4) != 0
-      || memcmp(header->wave, "WAVE", 4) != 0)
-    die("Invalid WAV file: %s\n", filename);
+    if(size < sizeof(*header) - 1
+            || memcmp(header->riff, "RIFF", 4) != 0
+            || memcmp(header->wave, "WAVE", 4) != 0)
+        die("Invalid WAV file: %s\n", filename);
 
-  size = sizeof(*out) - 1 + LONG(header->datalen);
-  out = xmalloc(size);
+    size = sizeof(*out) - 1 + LONG(header->datalen);
+    out = xmalloc(size);
 
-  out->log2bits = 3;
-  out->rate = SHORT(LONG(header->samplerate));
-  out->length = header->datalen;
-  memmove(out->samples, header->samples, LONG(header->datalen));
+    out->log2bits = 3;
+    out->rate = SHORT(LONG(header->samplerate));
+    out->length = header->datalen;
+    memmove(out->samples, header->samples, LONG(header->datalen));
 
-  free(data);
+    free(data);
 
-  *lumpdata = out;
-  return size;
+    *lumpdata = out;
+    return size;
 }

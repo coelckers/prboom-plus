@@ -64,170 +64,174 @@ static GLShader* gld_LoadShader(const char *vpname, const char *fpname);
 
 int glsl_Init(void)
 {
-  static int init = false;
+    static int init = false;
 
-  //if (!init)
-  {
-    init = true;
-
-    if (!gl_arb_shader_objects)
+    //if (!init)
     {
-      lprintf(LO_WARN, "glsl_Init: shaders expects OpenGL 2.0\n");
-    }
-    else
-    {
-      sh_main = gld_LoadShader("glvp", "glfp");
-    }
-  }
+        init = true;
 
-  return (sh_main != NULL);
+        if(!gl_arb_shader_objects)
+        {
+            lprintf(LO_WARN, "glsl_Init: shaders expects OpenGL 2.0\n");
+        }
+        else
+        {
+            sh_main = gld_LoadShader("glvp", "glfp");
+        }
+    }
+
+    return (sh_main != NULL);
 }
 
 static int ReadLump(const char *filename, const char *lumpname, unsigned char **buffer)
 {
-  FILE *file = NULL;
-  int size = 0;
-  const unsigned char *data;
-  int lump;
+    FILE *file = NULL;
+    int size = 0;
+    const unsigned char *data;
+    int lump;
 
-  file = fopen(filename, "r");
-  if (file)
-  {
-    fseek(file, 0, SEEK_END);
-    size = ftell(file);
-    fseek(file, 0, SEEK_SET);
-    *buffer = malloc(size + 1);
-    size = fread(*buffer, 1, size, file);
-    if (size > 0)
+    file = fopen(filename, "r");
+
+    if(file)
     {
-      (*buffer)[size] = 0;
+        fseek(file, 0, SEEK_END);
+        size = ftell(file);
+        fseek(file, 0, SEEK_SET);
+        *buffer = malloc(size + 1);
+        size = fread(*buffer, 1, size, file);
+
+        if(size > 0)
+        {
+            (*buffer)[size] = 0;
+        }
+
+        fclose(file);
     }
-    fclose(file);
-  }
-  else
-  {
-    char name[9];
-    char* p;
-
-    strncpy(name, lumpname, 9);
-    name[8] = 0;
-    for(p = name; *p; p++)
-      *p = toupper(*p);
-
-    lump = (W_CheckNumForName)(name, ns_prboom);
-
-    if (lump != -1)
+    else
     {
-      size = W_LumpLength(lump);
-      data = W_CacheLumpNum(lump);
-      *buffer = calloc(1, size + 1);
-      memcpy (*buffer, data, size);
-      (*buffer)[size] = 0;
-      W_UnlockLumpNum(lump);
-    }
-  }
+        char name[9];
+        char* p;
 
-  return size;
+        strncpy(name, lumpname, 9);
+        name[8] = 0;
+
+        for(p = name; *p; p++)
+            *p = toupper(*p);
+
+        lump = (W_CheckNumForName)(name, ns_prboom);
+
+        if(lump != -1)
+        {
+            size = W_LumpLength(lump);
+            data = W_CacheLumpNum(lump);
+            *buffer = calloc(1, size + 1);
+            memcpy(*buffer, data, size);
+            (*buffer)[size] = 0;
+            W_UnlockLumpNum(lump);
+        }
+    }
+
+    return size;
 }
 
 static GLShader* gld_LoadShader(const char *vpname, const char *fpname)
 {
 #define buffer_size 2048
-  int idx;
-  int linked;
-  char buffer[buffer_size];
-  char *vp_data = NULL;
-  char *fp_data = NULL;
-  int vp_size, fp_size;
-  size_t vp_fnlen, fp_fnlen;
-  char *filename = NULL;
-  GLShader* shader = NULL;
+    int idx;
+    int linked;
+    char buffer[buffer_size];
+    char *vp_data = NULL;
+    char *fp_data = NULL;
+    int vp_size, fp_size;
+    size_t vp_fnlen, fp_fnlen;
+    char *filename = NULL;
+    GLShader* shader = NULL;
 
-  vp_fnlen = doom_snprintf(NULL, 0, "%s/shaders/%s.txt", I_DoomExeDir(), vpname);
-  fp_fnlen = doom_snprintf(NULL, 0, "%s/shaders/%s.txt", I_DoomExeDir(), fpname);
-  filename = malloc(MAX(vp_fnlen, fp_fnlen) + 1);
+    vp_fnlen = doom_snprintf(NULL, 0, "%s/shaders/%s.txt", I_DoomExeDir(), vpname);
+    fp_fnlen = doom_snprintf(NULL, 0, "%s/shaders/%s.txt", I_DoomExeDir(), fpname);
+    filename = malloc(MAX(vp_fnlen, fp_fnlen) + 1);
 
-  sprintf(filename, "%s/shaders/%s.txt", I_DoomExeDir(), vpname);
-  vp_size = ReadLump(filename, vpname, &vp_data);
+    sprintf(filename, "%s/shaders/%s.txt", I_DoomExeDir(), vpname);
+    vp_size = ReadLump(filename, vpname, &vp_data);
 
-  sprintf(filename, "%s/shaders/%s.txt", I_DoomExeDir(), fpname);
-  fp_size = ReadLump(filename, fpname, &fp_data);
-  
-  if (vp_data && fp_data)
-  {
-    shader = calloc(1, sizeof(GLShader));
+    sprintf(filename, "%s/shaders/%s.txt", I_DoomExeDir(), fpname);
+    fp_size = ReadLump(filename, fpname, &fp_data);
 
-    shader->hVertProg = GLEXT_glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
-    shader->hFragProg = GLEXT_glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);	
-
-    GLEXT_glShaderSourceARB(shader->hVertProg, 1, &vp_data, &vp_size);
-    GLEXT_glShaderSourceARB(shader->hFragProg, 1, &fp_data, &fp_size);
-
-    GLEXT_glCompileShaderARB(shader->hVertProg);
-    GLEXT_glCompileShaderARB(shader->hFragProg);
-
-    shader->hShader = GLEXT_glCreateProgramObjectARB();
-
-    GLEXT_glAttachObjectARB(shader->hShader, shader->hVertProg);
-    GLEXT_glAttachObjectARB(shader->hShader, shader->hFragProg);
-
-    GLEXT_glLinkProgramARB(shader->hShader);
-
-    GLEXT_glGetInfoLogARB(shader->hShader, buffer_size, NULL, buffer);
-
-    GLEXT_glGetObjectParameterivARB(shader->hShader, GL_OBJECT_LINK_STATUS_ARB, &linked);
-
-    if (linked)
+    if(vp_data && fp_data)
     {
-      lprintf(LO_INFO, "gld_LoadShader: Shader \"%s+%s\" compiled OK: %s\n", vpname, fpname, buffer);
+        shader = calloc(1, sizeof(GLShader));
 
-      shader->lightlevel_index = GLEXT_glGetUniformLocationARB(shader->hShader, "lightlevel");
+        shader->hVertProg = GLEXT_glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
+        shader->hFragProg = GLEXT_glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
 
-      GLEXT_glUseProgramObjectARB(shader->hShader);
+        GLEXT_glShaderSourceARB(shader->hVertProg, 1, &vp_data, &vp_size);
+        GLEXT_glShaderSourceARB(shader->hFragProg, 1, &fp_data, &fp_size);
 
-      idx = GLEXT_glGetUniformLocationARB(shader->hShader, "tex");
-      GLEXT_glUniform1iARB(idx, 0);
+        GLEXT_glCompileShaderARB(shader->hVertProg);
+        GLEXT_glCompileShaderARB(shader->hFragProg);
 
-      GLEXT_glUseProgramObjectARB(0);
+        shader->hShader = GLEXT_glCreateProgramObjectARB();
+
+        GLEXT_glAttachObjectARB(shader->hShader, shader->hVertProg);
+        GLEXT_glAttachObjectARB(shader->hShader, shader->hFragProg);
+
+        GLEXT_glLinkProgramARB(shader->hShader);
+
+        GLEXT_glGetInfoLogARB(shader->hShader, buffer_size, NULL, buffer);
+
+        GLEXT_glGetObjectParameterivARB(shader->hShader, GL_OBJECT_LINK_STATUS_ARB, &linked);
+
+        if(linked)
+        {
+            lprintf(LO_INFO, "gld_LoadShader: Shader \"%s+%s\" compiled OK: %s\n", vpname, fpname, buffer);
+
+            shader->lightlevel_index = GLEXT_glGetUniformLocationARB(shader->hShader, "lightlevel");
+
+            GLEXT_glUseProgramObjectARB(shader->hShader);
+
+            idx = GLEXT_glGetUniformLocationARB(shader->hShader, "tex");
+            GLEXT_glUniform1iARB(idx, 0);
+
+            GLEXT_glUseProgramObjectARB(0);
+        }
+        else
+        {
+            lprintf(LO_ERROR, "gld_LoadShader: Error compiling shader \"%s+%s\": %s\n", vpname, fpname, buffer);
+            free(shader);
+            shader = NULL;
+        }
     }
-    else
-    {
-      lprintf(LO_ERROR, "gld_LoadShader: Error compiling shader \"%s+%s\": %s\n", vpname, fpname, buffer);
-      free(shader);
-      shader = NULL;
-    }
-  }
 
-  free(filename);
-  free(vp_data);
-  free(fp_data);
+    free(filename);
+    free(vp_data);
+    free(fp_data);
 
-  return shader;
+    return shader;
 }
 
 void glsl_SetActiveShader(GLShader *shader)
 {
-  if (gl_lightmode == gl_lightmode_shaders)
-  {
-    if (shader != active_shader)
+    if(gl_lightmode == gl_lightmode_shaders)
     {
-      GLEXT_glUseProgramObjectARB((shader ? shader->hShader : 0));
-      active_shader = shader;
+        if(shader != active_shader)
+        {
+            GLEXT_glUseProgramObjectARB((shader ? shader->hShader : 0));
+            active_shader = shader;
+        }
     }
-  }
 }
 
 void glsl_SetLightLevel(float lightlevel)
 {
-  if (sh_main)
-  {
-    GLEXT_glUniform1fARB(sh_main->lightlevel_index, lightlevel);
-  }
+    if(sh_main)
+    {
+        GLEXT_glUniform1fARB(sh_main->lightlevel_index, lightlevel);
+    }
 }
 
 int glsl_IsActive(void)
 {
-  return (gl_lightmode == gl_lightmode_shaders && sh_main);
+    return (gl_lightmode == gl_lightmode_shaders && sh_main);
 }
 
 #endif // USE_SHADERS

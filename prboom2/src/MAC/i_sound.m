@@ -82,161 +82,179 @@ int inLoopedMode = YES;
 
 void I_ShutdownMusic(void)
 {
-  if(movie)
-  {
-    [movie release];
-    movie = 0;
-  }
+    if(movie)
+    {
+        [movie release];
+        movie = 0;
+    }
 
-  if (music_tmp) {
-    unlink(music_tmp);
-    lprintf(LO_DEBUG, "I_ShutdownMusic: removing %s\n", music_tmp);
-    free(music_tmp);
-  }
+    if(music_tmp)
+    {
+        unlink(music_tmp);
+        lprintf(LO_DEBUG, "I_ShutdownMusic: removing %s\n", music_tmp);
+        free(music_tmp);
+    }
 }
 
 void I_InitMusic(void)
 {
-  music_tmp = strdup("/tmp/prboom-music-XXXXXX");
-  {
-    int fd = mkstemp(music_tmp);
-    if (fd<0)
+    music_tmp = strdup("/tmp/prboom-music-XXXXXX");
     {
-      lprintf(LO_ERROR, "I_InitMusic: failed to create music temp file %s", music_tmp);
-      unlink(music_tmp);
-      free(music_tmp);
-      return;
+        int fd = mkstemp(music_tmp);
+
+        if(fd < 0)
+        {
+            lprintf(LO_ERROR, "I_InitMusic: failed to create music temp file %s", music_tmp);
+            unlink(music_tmp);
+            free(music_tmp);
+            return;
+        }
+
+        close(fd);
     }
-    close(fd);
-  }
-  music_tmp = realloc(music_tmp, strlen(music_tmp) + 4);
-  strcat(music_tmp, ".mid");
-  I_AtExit(I_ShutdownMusic, true);
+    music_tmp = realloc(music_tmp, strlen(music_tmp) + 4);
+    strcat(music_tmp, ".mid");
+    I_AtExit(I_ShutdownMusic, true);
 }
 
 void I_PlaySong(int handle, int looping)
 {
-  inLoopedMode = looping ? YES : NO;
+    inLoopedMode = looping ? YES : NO;
 
-  [movie gotoBeginning];
-  [movie setAttribute:[NSNumber numberWithBool:inLoopedMode]
-         forKey:QTMovieLoopsAttribute];
-  [movie setVolume:movieVolume];
-  [movie play];
+    [movie gotoBeginning];
+    [movie setAttribute:[NSNumber numberWithBool:inLoopedMode]
+           forKey:QTMovieLoopsAttribute];
+    [movie setVolume:movieVolume];
+    [movie play];
 }
 
 void I_UpdateMusic(void)
 {
 }
 
-void I_PauseSong (int handle)
+void I_PauseSong(int handle)
 {
-  if(!movie) return;
-  [movie stop];
+    if(!movie) return;
+
+    [movie stop];
 }
 
-void I_ResumeSong (int handle)
+void I_ResumeSong(int handle)
 {
-  if(!movie) return;
-  [movie play];
+    if(!movie) return;
+
+    [movie play];
 }
 
 void I_StopSong(int handle)
 {
-  if(!movie) return;
-  [movie stop];
+    if(!movie) return;
+
+    [movie stop];
 }
 
 void I_UnRegisterSong(int handle)
 {
-  if(!movie) return;
-  [movie stop];
-  [movie release];
-  movie = 0;
+    if(!movie) return;
+
+    [movie stop];
+    [movie release];
+    movie = 0;
 }
 
 int I_RegisterSong(const void *data, size_t len)
 {
-  FILE *midfile;
-  bool MidiIsReady = false;
+    FILE *midfile;
+    bool MidiIsReady = false;
 
-  if ( music_tmp == NULL )
-    return 0;
-  midfile = fopen(music_tmp, "wb");
-  if ( midfile == NULL ) {
-    lprintf(LO_ERROR,"Couldn't write MIDI to %s\n", music_tmp);
-    return 0;
-  }
-  /* Convert MUS chunk to MIDI? */
-  if ( memcmp(data, "MUS", 3) == 0 )
-  {
-    // e6y
-    // New mus -> mid conversion code thanks to Ben Ryves <benryves@benryves.com>
-    // This plays back a lot of music closer to Vanilla Doom - eg. tnt.wad map02
-    void *outbuf;
-    size_t outbuf_len;
-    int result;
+    if(music_tmp == NULL)
+        return 0;
 
-    MEMFILE *instream = mem_fopen_read((void*)data, len);
-    MEMFILE *outstream = mem_fopen_write();
+    midfile = fopen(music_tmp, "wb");
 
-    result = mus2mid(instream, outstream);
-
-    if (result == 0)
+    if(midfile == NULL)
     {
-      mem_get_buf(outstream, &outbuf, &outbuf_len);
-      MidiIsReady = M_WriteFile(music_tmp, outbuf, outbuf_len);
+        lprintf(LO_ERROR, "Couldn't write MIDI to %s\n", music_tmp);
+        return 0;
     }
 
-    mem_fclose(instream);
-    mem_fclose(outstream);
-  } else {
-    MidiIsReady = fwrite(data, len, 1, midfile) == 1;
-  }
-  fclose(midfile);
+    /* Convert MUS chunk to MIDI? */
+    if(memcmp(data, "MUS", 3) == 0)
+    {
+        // e6y
+        // New mus -> mid conversion code thanks to Ben Ryves <benryves@benryves.com>
+        // This plays back a lot of music closer to Vanilla Doom - eg. tnt.wad map02
+        void *outbuf;
+        size_t outbuf_len;
+        int result;
 
-  if (!MidiIsReady)
-  {
-    lprintf(LO_ERROR,"Couldn't write MIDI to %s\n", music_tmp);
-    return 0;
-  }
+        MEMFILE *instream = mem_fopen_read((void*)data, len);
+        MEMFILE *outstream = mem_fopen_write();
 
-  /* Now play in QTKit */
-  NSError *error = 0;
-  if(movie)
-  {
-  	[movie stop];
-  	[movie release];
-  }
-  movie = [QTMovie movieWithFile:[NSString stringWithUTF8String:music_tmp]
-                   error:&error];
-  if(error)
-  {
-    lprintf(LO_ERROR,"Failed to create QTMovie: %s",
-            [[error localizedDescription] UTF8String]);
-    return 0;
-  }
+        result = mus2mid(instream, outstream);
 
-  [movie retain];
+        if(result == 0)
+        {
+            mem_get_buf(outstream, &outbuf, &outbuf_len);
+            MidiIsReady = M_WriteFile(music_tmp, outbuf, outbuf_len);
+        }
 
-  [movie gotoBeginning];
-  [movie setAttribute:[NSNumber numberWithBool:inLoopedMode]
-         forKey:QTMovieLoopsAttribute];
-  [movie setVolume:movieVolume];
-  [movie play];
+        mem_fclose(instream);
+        mem_fclose(outstream);
+    }
+    else
+    {
+        MidiIsReady = fwrite(data, len, 1, midfile) == 1;
+    }
 
-  return 1;
+    fclose(midfile);
+
+    if(!MidiIsReady)
+    {
+        lprintf(LO_ERROR, "Couldn't write MIDI to %s\n", music_tmp);
+        return 0;
+    }
+
+    /* Now play in QTKit */
+    NSError *error = 0;
+
+    if(movie)
+    {
+        [movie stop];
+        [movie release];
+    }
+
+    movie = [QTMovie movieWithFile:[NSString stringWithUTF8String:music_tmp]
+                     error:&error];
+
+    if(error)
+    {
+        lprintf(LO_ERROR, "Failed to create QTMovie: %s",
+                [[error localizedDescription] UTF8String]);
+        return 0;
+    }
+
+    [movie retain];
+
+    [movie gotoBeginning];
+    [movie setAttribute:[NSNumber numberWithBool:inLoopedMode]
+           forKey:QTMovieLoopsAttribute];
+    [movie setVolume:movieVolume];
+    [movie play];
+
+    return 1;
 }
 
-int I_RegisterMusic( const char* filename, musicinfo_t *song )
+int I_RegisterMusic(const char* filename, musicinfo_t *song)
 {
-  // TODO
-  return 1;
+    // TODO
+    return 1;
 }
 
 void I_SetMusicVolume(int value)
 {
-  movieVolume = (float)value / 15.0;
-  if(movie)
-    [movie setVolume:movieVolume];
+    movieVolume = (float)value / 15.0;
+
+    if(movie)
+        [movie setVolume:movieVolume];
 }

@@ -102,57 +102,60 @@ int usegamma;
  * cphipps - constness of crdef_t stuff fixed
  */
 
-typedef struct {
-  const char *name;
-  const byte **map;
+typedef struct
+{
+    const char *name;
+    const byte **map;
 } crdef_t;
 
 // killough 5/2/98: table-driven approach
-static const crdef_t crdefs[] = {
-  {"CRBRICK",  &colrngs[CR_BRICK ]},
-  {"CRTAN",    &colrngs[CR_TAN   ]},
-  {"CRGRAY",   &colrngs[CR_GRAY  ]},
-  {"CRGREEN",  &colrngs[CR_GREEN ]},
-  {"CRBROWN",  &colrngs[CR_BROWN ]},
-  {"CRGOLD",   &colrngs[CR_GOLD  ]},
-  {"CRRED",    &colrngs[CR_RED   ]},
-  {"CRBLUE",   &colrngs[CR_BLUE  ]},
-  {"CRORANGE", &colrngs[CR_ORANGE]},
-  {"CRYELLOW", &colrngs[CR_YELLOW]},
-  {"CRBLUE2",  &colrngs[CR_BLUE2]},
-  {"CRBLACK",  &colrngs[CR_BLACK]},
-  {"CRPURPLE", &colrngs[CR_PURPLE]},
-  {"CRWHITE",  &colrngs[CR_WHITE]},
-  {NULL}
+static const crdef_t crdefs[] =
+{
+    {"CRBRICK",  &colrngs[CR_BRICK ]},
+    {"CRTAN",    &colrngs[CR_TAN   ]},
+    {"CRGRAY",   &colrngs[CR_GRAY  ]},
+    {"CRGREEN",  &colrngs[CR_GREEN ]},
+    {"CRBROWN",  &colrngs[CR_BROWN ]},
+    {"CRGOLD",   &colrngs[CR_GOLD  ]},
+    {"CRRED",    &colrngs[CR_RED   ]},
+    {"CRBLUE",   &colrngs[CR_BLUE  ]},
+    {"CRORANGE", &colrngs[CR_ORANGE]},
+    {"CRYELLOW", &colrngs[CR_YELLOW]},
+    {"CRBLUE2",  &colrngs[CR_BLUE2]},
+    {"CRBLACK",  &colrngs[CR_BLACK]},
+    {"CRPURPLE", &colrngs[CR_PURPLE]},
+    {"CRWHITE",  &colrngs[CR_WHITE]},
+    {NULL}
 };
 
 // [FG] translate between blood color value as per EE spec
 //      and actual color translation table index
 
-static const int bloodcolor[] = {
-  CR_RED,    // 0 - Red (normal)
-  CR_GRAY,   // 1 - Grey
-  CR_GREEN,  // 2 - Green
-  CR_BLUE2,  // 3 - Blue
-  CR_YELLOW, // 4 - Yellow
-  CR_BLACK,  // 5 - Black
-  CR_PURPLE, // 6 - Purple
-  CR_WHITE,  // 7 - White
-  CR_ORANGE, // 8 - Orange
+static const int bloodcolor[] =
+{
+    CR_RED,    // 0 - Red (normal)
+    CR_GRAY,   // 1 - Grey
+    CR_GREEN,  // 2 - Green
+    CR_BLUE2,  // 3 - Blue
+    CR_YELLOW, // 4 - Yellow
+    CR_BLACK,  // 5 - Black
+    CR_PURPLE, // 6 - Purple
+    CR_WHITE,  // 7 - White
+    CR_ORANGE, // 8 - Orange
 };
 
 int V_BloodColor(int blood)
 {
-  if (blood < 0 || blood > 8)
-    blood = 0;
+    if(blood < 0 || blood > 8)
+        blood = 0;
 
-  return bloodcolor[blood];
+    return bloodcolor[blood];
 }
 
 // haleyjd: DOSDoom-style single translucency lookup-up table
-// generation code. This code has a 32k (plus a bit more) 
+// generation code. This code has a 32k (plus a bit more)
 // footprint but allows a much wider range of translucency effects
-// than BOOM-style translucency. This will be used for particles, 
+// than BOOM-style translucency. This will be used for particles,
 // for variable mapthing trans levels, and for screen patches.
 
 // haleyjd: Updated 06/21/08 to use 32k lookup, mainly to fix
@@ -167,66 +170,72 @@ byte RGB32k[32][32][32];
 
 void V_InitFlexTranTable(void)
 {
-  static int flexTranInit = false;
+    static int flexTranInit = false;
 
-  if (!flexTranInit)
-  {
-    int r, g, b, x, y, pos;
-    const unsigned char *palette = V_GetPlaypal();
-
-    // mark that we've initialized the flex tran table
-    flexTranInit = true;
-
-    // build RGB table
-    for(r = 0; r < 32; r++)
+    if(!flexTranInit)
     {
-      for(g = 0; g < 32; g++)
-      {
-        for(b = 0; b < 32; b++)
+        int r, g, b, x, y, pos;
+        const unsigned char *palette = V_GetPlaypal();
+
+        // mark that we've initialized the flex tran table
+        flexTranInit = true;
+
+        // build RGB table
+        for(r = 0; r < 32; r++)
         {
-          RGB32k[r][g][b] = V_BestColor(palette,
-            MAKECOLOR(r), MAKECOLOR(g), MAKECOLOR(b));
+            for(g = 0; g < 32; g++)
+            {
+                for(b = 0; b < 32; b++)
+                {
+                    RGB32k[r][g][b] = V_BestColor(palette,
+                                                  MAKECOLOR(r), MAKECOLOR(g), MAKECOLOR(b));
+                }
+            }
         }
-      }
-    }
 
-    // build lookup table
-    for(x = 0; x < 65; x++)
-    {
-      pos = 0;
-      for(y = 0; y < 256; y++)
-      {
-        Col2RGB8[x][y] =
-          (((palette[pos + 0] * x) >> 4) << 20) |
-          ((palette[pos + 1] * x) >> 4) |
-          (((palette[pos + 2] * x) >> 4) << 10);
+        // build lookup table
+        for(x = 0; x < 65; x++)
+        {
+            pos = 0;
 
-        pos += 3;
-      }
+            for(y = 0; y < 256; y++)
+            {
+                Col2RGB8[x][y] =
+                    (((palette[pos + 0] * x) >> 4) << 20) |
+                    ((palette[pos + 1] * x) >> 4) |
+                    (((palette[pos + 2] * x) >> 4) << 10);
+
+                pos += 3;
+            }
+        }
     }
-  }
 }
 
 // killough 5/2/98: tiny engine driven by table above
 void V_InitColorTranslation(void)
 {
-  register const crdef_t *p;
-  for (p=crdefs; p->name; p++)
-  {
-    *p->map = W_CacheLumpName(p->name);
-    if (p - crdefs == CR_DEFAULT)
-      continue;
-    if (gamemission == chex || gamemission == hacx)
+    register const crdef_t *p;
+
+    for(p = crdefs; p->name; p++)
     {
-      byte *temp = malloc(256);
-      memcpy (temp, *p->map, 256);
-      if (gamemission == chex)
-        memcpy (temp+112, *p->map+176, 16); // green range
-      else if (gamemission == hacx)
-        memcpy (temp+192, *p->map+176, 16); // blue range
-      *p->map = temp;
+        *p->map = W_CacheLumpName(p->name);
+
+        if(p - crdefs == CR_DEFAULT)
+            continue;
+
+        if(gamemission == chex || gamemission == hacx)
+        {
+            byte *temp = malloc(256);
+            memcpy(temp, *p->map, 256);
+
+            if(gamemission == chex)
+                memcpy(temp + 112, *p->map + 176, 16); // green range
+            else if(gamemission == hacx)
+                memcpy(temp + 192, *p->map + 176, 16); // blue range
+
+            *p->map = temp;
+        }
     }
-  }
 }
 
 //
@@ -242,43 +251,45 @@ void V_InitColorTranslation(void)
 // No return.
 //
 static void FUNC_V_CopyRect(int srcscrn, int destscrn,
-                int x, int y, int width, int height,
-                enum patch_translation_e flags)
+                            int x, int y, int width, int height,
+                            enum patch_translation_e flags)
 {
-  byte *src;
-  byte *dest;
-  int pixel_depth = V_GetPixelDepth();
+    byte *src;
+    byte *dest;
+    int pixel_depth = V_GetPixelDepth();
 
-  if (flags & VPT_STRETCH_MASK)
-  {
-    stretch_param_t *params;
-    int sx = x;
-    int sy = y;
+    if(flags & VPT_STRETCH_MASK)
+    {
+        stretch_param_t *params;
+        int sx = x;
+        int sy = y;
 
-    params = &stretch_params[flags & VPT_ALIGN_MASK];
+        params = &stretch_params[flags & VPT_ALIGN_MASK];
 
-    x  = params->video->x1lookup[x];
-    y  = params->video->y1lookup[y];
-    width  = params->video->x2lookup[sx + width - 1] - x + 1;
-    height = params->video->y2lookup[sy + height - 1] - y + 1;
-    x += params->deltax1;
-    y += params->deltay1;
-  }
+        x  = params->video->x1lookup[x];
+        y  = params->video->y1lookup[y];
+        width  = params->video->x2lookup[sx + width - 1] - x + 1;
+        height = params->video->y2lookup[sy + height - 1] - y + 1;
+        x += params->deltax1;
+        y += params->deltay1;
+    }
 
 #ifdef RANGECHECK
-  if (x < 0 || x + width > SCREENWIDTH ||
-      y < 0 || y + height > SCREENHEIGHT)
-    I_Error ("V_CopyRect: Bad arguments");
+
+    if(x < 0 || x + width > SCREENWIDTH ||
+            y < 0 || y + height > SCREENHEIGHT)
+        I_Error("V_CopyRect: Bad arguments");
+
 #endif
 
-  src = screens[srcscrn].data + screens[srcscrn].byte_pitch * y + x * pixel_depth;
-  dest = screens[destscrn].data + screens[destscrn].byte_pitch * y + x * pixel_depth;
+    src = screens[srcscrn].data + screens[srcscrn].byte_pitch * y + x * pixel_depth;
+    dest = screens[destscrn].data + screens[destscrn].byte_pitch * y + x * pixel_depth;
 
-  for ( ; height>0 ; height--)
+    for(; height > 0 ; height--)
     {
-      memcpy (dest, src, width * pixel_depth);
-      src += screens[srcscrn].byte_pitch;
-      dest += screens[destscrn].byte_pitch;
+        memcpy(dest, src, width * pixel_depth);
+        src += screens[srcscrn].byte_pitch;
+        dest += screens[destscrn].byte_pitch;
     }
 }
 
@@ -312,68 +323,78 @@ static void FUNC_V_CopyRect(int srcscrn, int destscrn,
 
 static void FUNC_V_FillFlat(int lump, int scrn, int x, int y, int width, int height, enum patch_translation_e flags)
 {
-  /* erase the entire screen to a tiled background */
-  const byte *data;
-  int sx, sy, w, h;
-  int i, j, pitch;
+    /* erase the entire screen to a tiled background */
+    const byte *data;
+    int sx, sy, w, h;
+    int i, j, pitch;
 
-  lump += firstflat;
+    lump += firstflat;
 
-  // killough 4/17/98:
-  data = W_CacheLumpNum(lump);
+    // killough 4/17/98:
+    data = W_CacheLumpNum(lump);
 
-  if (V_GetMode() == VID_MODE8) {
-    const byte *src, *src_p;
-    byte *dest, *dest_p;
-    pitch = screens[scrn].byte_pitch;
-
-    for (sy = y ; sy < y + height; sy += 64)
+    if(V_GetMode() == VID_MODE8)
     {
-      h = (y + height - sy < 64 ? y + height - sy : 64);
-      dest = screens[scrn].data + pitch * sy + x;
-      src = data + 64 * ((sy - y) % 64);
-      for (sx = x; sx < x + width; sx += 64)
-      {
-        src_p = src;
-        dest_p = dest;
-        w = (x + width - sx < 64 ? x + width - sx : 64);
-        for (j = 0; j < h; j++)
-        {
-          memcpy (dest_p, src_p, w);
-          dest_p += pitch;
-          src_p += 64;
-        }
-        dest += 64;
-      }
-    }
-  } else if (V_GetMode() == VID_MODE15) {
-    pitch = screens[scrn].short_pitch;
-    FILL_FLAT(unsigned short, pitch, VID_PAL15);
-  } else if (V_GetMode() == VID_MODE16) {
-    pitch = screens[scrn].short_pitch;
-    FILL_FLAT(unsigned short, pitch, VID_PAL16);
-  } else if (V_GetMode() == VID_MODE32) {
-    pitch = screens[scrn].int_pitch;
-    FILL_FLAT(unsigned int, pitch, VID_PAL32);
-  }
+        const byte *src, *src_p;
+        byte *dest, *dest_p;
+        pitch = screens[scrn].byte_pitch;
 
-  W_UnlockLumpNum(lump);
+        for(sy = y ; sy < y + height; sy += 64)
+        {
+            h = (y + height - sy < 64 ? y + height - sy : 64);
+            dest = screens[scrn].data + pitch * sy + x;
+            src = data + 64 * ((sy - y) % 64);
+
+            for(sx = x; sx < x + width; sx += 64)
+            {
+                src_p = src;
+                dest_p = dest;
+                w = (x + width - sx < 64 ? x + width - sx : 64);
+
+                for(j = 0; j < h; j++)
+                {
+                    memcpy(dest_p, src_p, w);
+                    dest_p += pitch;
+                    src_p += 64;
+                }
+
+                dest += 64;
+            }
+        }
+    }
+    else if(V_GetMode() == VID_MODE15)
+    {
+        pitch = screens[scrn].short_pitch;
+        FILL_FLAT(unsigned short, pitch, VID_PAL15);
+    }
+    else if(V_GetMode() == VID_MODE16)
+    {
+        pitch = screens[scrn].short_pitch;
+        FILL_FLAT(unsigned short, pitch, VID_PAL16);
+    }
+    else if(V_GetMode() == VID_MODE32)
+    {
+        pitch = screens[scrn].int_pitch;
+        FILL_FLAT(unsigned int, pitch, VID_PAL32);
+    }
+
+    W_UnlockLumpNum(lump);
 }
 
 static void FUNC_V_FillPatch(int lump, int scrn, int x, int y, int width, int height, enum patch_translation_e flags)
 {
-  int sx, sy, w, h;
+    int sx, sy, w, h;
 
-  w = R_NumPatchWidth(lump);
-  h = R_NumPatchHeight(lump);
+    w = R_NumPatchWidth(lump);
+    h = R_NumPatchHeight(lump);
 
-  for (sy = y; sy < y + height; sy += h)
-  {
-    for (sx = x; sx < x + width; sx += w)
+    for(sy = y; sy < y + height; sy += h)
     {
-      V_DrawNumPatch(sx, sy, scrn, lump, CR_DEFAULT, flags);
+        for(sx = x; sx < x + width; sx += w)
+        {
+            V_DrawNumPatch(sx, sy, scrn, lump, CR_DEFAULT, flags);
+        }
     }
-  }
 }
 
 /*
@@ -384,7 +405,7 @@ static void FUNC_V_FillPatch(int lump, int scrn, int x, int y, int width, int he
  */
 static void FUNC_V_DrawBackground(const char* flatname, int scrn)
 {
-  V_FillFlatName(flatname, scrn, 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_NONE);
+    V_FillFlatName(flatname, scrn, 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_NONE);
 }
 
 //
@@ -394,20 +415,21 @@ static void FUNC_V_DrawBackground(const char* flatname, int scrn)
 // No return
 //
 
-void V_Init (void)
+void V_Init(void)
 {
-  int  i;
+    int  i;
 
-  // reset the all
-  for (i = 0; i<NUM_SCREENS; i++) {
-    screens[i].data = NULL;
-    screens[i].not_on_heap = false;
-    screens[i].width = 0;
-    screens[i].height = 0;
-    screens[i].byte_pitch = 0;
-    screens[i].short_pitch = 0;
-    screens[i].int_pitch = 0;
-  }
+    // reset the all
+    for(i = 0; i < NUM_SCREENS; i++)
+    {
+        screens[i].data = NULL;
+        screens[i].not_on_heap = false;
+        screens[i].width = 0;
+        screens[i].height = 0;
+        screens[i].byte_pitch = 0;
+        screens[i].short_pitch = 0;
+        screens[i].int_pitch = 0;
+    }
 }
 
 //
@@ -423,294 +445,331 @@ void V_Init (void)
 //  means that their inner loops weren't so well optimised, so merging code may even speed them).
 //
 static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
-        int cm, enum patch_translation_e flags)
+                           int cm, enum patch_translation_e flags)
 {
-  const byte *trans;
+    const byte *trans;
 
-  stretch_param_t *params;
+    stretch_param_t *params;
 
-  if (cm<CR_LIMIT)
-    trans=colrngs[cm];
-  else
-    trans=translationtables + 256*((cm-CR_LIMIT)-1);
-  
-  if (!(flags & VPT_NOOFFSET))
-  {
-    y -= patch->topoffset;
-    x -= patch->leftoffset;
-  }
+    if(cm < CR_LIMIT)
+        trans = colrngs[cm];
+    else
+        trans = translationtables + 256 * ((cm - CR_LIMIT) - 1);
 
-  // CPhipps - auto-no-stretch if not high-res
-  if ((flags & VPT_STRETCH_MASK) && SCREEN_320x200)
-    flags &= ~VPT_STRETCH_MASK;
-
-  // e6y: wide-res
-  params = &stretch_params[flags & VPT_ALIGN_MASK];
-
-  // CPhipps - null translation pointer => no translation
-  if (!trans)
-    flags &= ~VPT_TRANS;
-
-  // [FG] automatically center wide patches without horizontal offset
-  if (patch->width > 320 && patch->leftoffset == 0)
-    x -= (patch->width - 320) / 2;
-
-  if (V_GetMode() == VID_MODE8 && !(flags & VPT_STRETCH_MASK)) {
-    int             col;
-    byte           *desttop = screens[scrn].data+y*screens[scrn].byte_pitch+x*V_GetPixelDepth();
-    int    w = patch->width;
-
-    if (y<0 || y+patch->height > ((flags & VPT_STRETCH) ? 200 :  SCREENHEIGHT)) {
-      // killough 1/19/98: improved error message:
-      lprintf(LO_WARN, "V_DrawMemPatch8: Patch (%d,%d)-(%d,%d) exceeds LFB in vertical direction (horizontal is clipped)\n"
-              "Bad V_DrawMemPatch8 (flags=%u)", x, y, x+patch->width, y+patch->height, flags);
-      return;
-    }
-
-    w--; // CPhipps - note: w = width-1 now, speeds up flipping
-
-    for (col=0 ; col<=w ; desttop++, col++, x++) {
-      int i;
-      const int colindex = (flags & VPT_FLIP) ? (w - col) : (col);
-      const rcolumn_t *column = R_GetPatchColumn(patch, colindex);
-
-      if (x < 0)
-        continue;
-      if (x >= SCREENWIDTH)
-        break;
-
-      // step through the posts in a column
-      for (i=0; i<column->numPosts; i++) {
-        const rpost_t *post = &column->posts[i];
-        // killough 2/21/98: Unrolled and performance-tuned
-
-        const byte *source = column->pixels + post->topdelta;
-        byte *dest = desttop + post->topdelta*screens[scrn].byte_pitch;
-        int count = post->length;
-
-        if (!(flags & VPT_TRANS)) {
-          if ((count-=4)>=0)
-            do {
-              register byte s0,s1;
-              s0 = source[0];
-              s1 = source[1];
-              dest[0] = s0;
-              dest[screens[scrn].byte_pitch] = s1;
-              dest += screens[scrn].byte_pitch*2;
-              s0 = source[2];
-              s1 = source[3];
-              source += 4;
-              dest[0] = s0;
-              dest[screens[scrn].byte_pitch] = s1;
-              dest += screens[scrn].byte_pitch*2;
-            } while ((count-=4)>=0);
-          if (count+=4)
-            do {
-              *dest = *source++;
-              dest += screens[scrn].byte_pitch;
-            } while (--count);
-        } else {
-          // CPhipps - merged translation code here
-          if ((count-=4)>=0)
-            do {
-              register byte s0,s1;
-              s0 = source[0];
-              s1 = source[1];
-              s0 = trans[s0];
-              s1 = trans[s1];
-              dest[0] = s0;
-              dest[screens[scrn].byte_pitch] = s1;
-              dest += screens[scrn].byte_pitch*2;
-              s0 = source[2];
-              s1 = source[3];
-              s0 = trans[s0];
-              s1 = trans[s1];
-              source += 4;
-              dest[0] = s0;
-              dest[screens[scrn].byte_pitch] = s1;
-              dest += screens[scrn].byte_pitch*2;
-            } while ((count-=4)>=0);
-          if (count+=4)
-            do {
-              *dest = trans[*source++];
-              dest += screens[scrn].byte_pitch;
-            } while (--count);
-        }
-      }
-    }
-  }
-  else {
-    // CPhipps - move stretched patch drawing code here
-    //         - reformat initialisers, move variables into inner blocks
-
-    int   col;
-    int   w = (patch->width << 16) - 1; // CPhipps - -1 for faster flipping
-    int   left, right, top, bottom;
-    int   DXI, DYI;
-    R_DrawColumn_f colfunc;
-    draw_column_vars_t dcvars;
-    draw_vars_t olddrawvars = drawvars;
-
-    R_SetDefaultDrawColumnVars(&dcvars);
-
-    drawvars.byte_topleft = screens[scrn].data;
-    drawvars.short_topleft = (unsigned short *)screens[scrn].data;
-    drawvars.int_topleft = (unsigned int *)screens[scrn].data;
-    drawvars.byte_pitch = screens[scrn].byte_pitch;
-    drawvars.short_pitch = screens[scrn].short_pitch;
-    drawvars.int_pitch = screens[scrn].int_pitch;
-
-    if (flags & VPT_TRANS) {
-      colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLATED, drawvars.filterpatch, RDRAW_FILTER_NONE);
-      dcvars.translation = trans;
-    } else {
-      colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_STANDARD, drawvars.filterpatch, RDRAW_FILTER_NONE);
-    }
-
-    //e6y: predefined arrays are used
-    if (!(flags & VPT_STRETCH_MASK))
+    if(!(flags & VPT_NOOFFSET))
     {
-      DXI = 1 << 16;
-      DYI = 1 << 16;
+        y -= patch->topoffset;
+        x -= patch->leftoffset;
+    }
 
-      left = x;
-      top = y;
-      right = x + patch->width - 1;
-      bottom = y + patch->height;
+    // CPhipps - auto-no-stretch if not high-res
+    if((flags & VPT_STRETCH_MASK) && SCREEN_320x200)
+        flags &= ~VPT_STRETCH_MASK;
+
+    // e6y: wide-res
+    params = &stretch_params[flags & VPT_ALIGN_MASK];
+
+    // CPhipps - null translation pointer => no translation
+    if(!trans)
+        flags &= ~VPT_TRANS;
+
+    // [FG] automatically center wide patches without horizontal offset
+    if(patch->width > 320 && patch->leftoffset == 0)
+        x -= (patch->width - 320) / 2;
+
+    if(V_GetMode() == VID_MODE8 && !(flags & VPT_STRETCH_MASK))
+    {
+        int             col;
+        byte           *desttop = screens[scrn].data + y * screens[scrn].byte_pitch + x * V_GetPixelDepth();
+        int    w = patch->width;
+
+        if(y < 0 || y + patch->height > ((flags & VPT_STRETCH) ? 200 :  SCREENHEIGHT))
+        {
+            // killough 1/19/98: improved error message:
+            lprintf(LO_WARN, "V_DrawMemPatch8: Patch (%d,%d)-(%d,%d) exceeds LFB in vertical direction (horizontal is clipped)\n"
+                    "Bad V_DrawMemPatch8 (flags=%u)", x, y, x + patch->width, y + patch->height, flags);
+            return;
+        }
+
+        w--; // CPhipps - note: w = width-1 now, speeds up flipping
+
+        for(col = 0 ; col <= w ; desttop++, col++, x++)
+        {
+            int i;
+            const int colindex = (flags & VPT_FLIP) ? (w - col) : (col);
+            const rcolumn_t *column = R_GetPatchColumn(patch, colindex);
+
+            if(x < 0)
+                continue;
+
+            if(x >= SCREENWIDTH)
+                break;
+
+            // step through the posts in a column
+            for(i = 0; i < column->numPosts; i++)
+            {
+                const rpost_t *post = &column->posts[i];
+                // killough 2/21/98: Unrolled and performance-tuned
+
+                const byte *source = column->pixels + post->topdelta;
+                byte *dest = desttop + post->topdelta * screens[scrn].byte_pitch;
+                int count = post->length;
+
+                if(!(flags & VPT_TRANS))
+                {
+                    if((count -= 4) >= 0)
+                        do
+                        {
+                            register byte s0, s1;
+                            s0 = source[0];
+                            s1 = source[1];
+                            dest[0] = s0;
+                            dest[screens[scrn].byte_pitch] = s1;
+                            dest += screens[scrn].byte_pitch * 2;
+                            s0 = source[2];
+                            s1 = source[3];
+                            source += 4;
+                            dest[0] = s0;
+                            dest[screens[scrn].byte_pitch] = s1;
+                            dest += screens[scrn].byte_pitch * 2;
+                        }
+                        while((count -= 4) >= 0);
+
+                    if(count += 4)
+                        do
+                        {
+                            *dest = *source++;
+                            dest += screens[scrn].byte_pitch;
+                        }
+                        while(--count);
+                }
+                else
+                {
+                    // CPhipps - merged translation code here
+                    if((count -= 4) >= 0)
+                        do
+                        {
+                            register byte s0, s1;
+                            s0 = source[0];
+                            s1 = source[1];
+                            s0 = trans[s0];
+                            s1 = trans[s1];
+                            dest[0] = s0;
+                            dest[screens[scrn].byte_pitch] = s1;
+                            dest += screens[scrn].byte_pitch * 2;
+                            s0 = source[2];
+                            s1 = source[3];
+                            s0 = trans[s0];
+                            s1 = trans[s1];
+                            source += 4;
+                            dest[0] = s0;
+                            dest[screens[scrn].byte_pitch] = s1;
+                            dest += screens[scrn].byte_pitch * 2;
+                        }
+                        while((count -= 4) >= 0);
+
+                    if(count += 4)
+                        do
+                        {
+                            *dest = trans[*source++];
+                            dest += screens[scrn].byte_pitch;
+                        }
+                        while(--count);
+                }
+            }
+        }
     }
     else
     {
-      DXI = params->video->xstep;
-      DYI = params->video->ystep;
+        // CPhipps - move stretched patch drawing code here
+        //         - reformat initialisers, move variables into inner blocks
 
-      //FIXME: Is it needed only for F_BunnyScroll?
+        int   col;
+        int   w = (patch->width << 16) - 1; // CPhipps - -1 for faster flipping
+        int   left, right, top, bottom;
+        int   DXI, DYI;
+        R_DrawColumn_f colfunc;
+        draw_column_vars_t dcvars;
+        draw_vars_t olddrawvars = drawvars;
 
-      left = (x < 0 || x > 320 ? (x * params->video->width) / 320 : params->video->x1lookup[x]);
-      top =  (y < 0 || y > 200 ? (y * params->video->height) / 200 : params->video->y1lookup[y]);
+        R_SetDefaultDrawColumnVars(&dcvars);
 
-      if (x + patch->width < 0 || x + patch->width > 320)
-        right = ( ((x + patch->width) * params->video->width - 1) / 320 );
-      else
-        right = params->video->x2lookup[x + patch->width - 1];
+        drawvars.byte_topleft = screens[scrn].data;
+        drawvars.short_topleft = (unsigned short *)screens[scrn].data;
+        drawvars.int_topleft = (unsigned int *)screens[scrn].data;
+        drawvars.byte_pitch = screens[scrn].byte_pitch;
+        drawvars.short_pitch = screens[scrn].short_pitch;
+        drawvars.int_pitch = screens[scrn].int_pitch;
 
-      if (y + patch->height < 0 || y + patch->height > 200)
-        bottom = ( ((y + patch->height - 0) * params->video->height) / 200 );
-      else
-        bottom = params->video->y2lookup[y + patch->height - 1];
-
-      left   += params->deltax1;
-      right  += params->deltax2;
-      top    += params->deltay1;
-      bottom += params->deltay1;
-    }
-
-    dcvars.texheight = patch->height;
-    dcvars.iscale = DYI;
-    dcvars.drawingmasked = MAX(patch->width, patch->height) > 8;
-    dcvars.edgetype = drawvars.patch_edges;
-
-    if (drawvars.filterpatch == RDRAW_FILTER_LINEAR) {
-      // bias the texture u coordinate
-      if (patch->flags&PATCH_ISNOTTILEABLE)
-        col = -(FRACUNIT>>1);
-      else
-        col = (patch->width<<FRACBITS)-(FRACUNIT>>1);
-    }
-    else {
-      col = 0;
-    }
-
-    for (dcvars.x=left; dcvars.x<=right; dcvars.x++, col+=DXI) {
-      int i;
-      const int colindex = (flags & VPT_FLIP) ? ((w - col)>>16): (col>>16);
-      const rcolumn_t *column = R_GetPatchColumn(patch, colindex);
-      const rcolumn_t *prevcolumn = R_GetPatchColumn(patch, colindex-1);
-      const rcolumn_t *nextcolumn = R_GetPatchColumn(patch, colindex+1);
-
-      // ignore this column if it's to the left of our clampRect
-      if (dcvars.x < 0)
-        continue;
-      if (dcvars.x >= SCREENWIDTH)
-        break;
-
-      dcvars.texu = ((flags & VPT_FLIP) ? ((patch->width<<FRACBITS)-col) : col) % (patch->width<<FRACBITS);
-
-      // step through the posts in a column
-      for (i=0; i<column->numPosts; i++) {
-        const rpost_t *post = &column->posts[i];
-        int yoffset = 0;
-
-        //e6y
-        if (!(flags & VPT_STRETCH_MASK))
+        if(flags & VPT_TRANS)
         {
-          dcvars.yl = y + post->topdelta;
-          dcvars.yh = ((((y + post->topdelta + post->length) << 16) - (FRACUNIT>>1))>>FRACBITS);
+            colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLATED, drawvars.filterpatch, RDRAW_FILTER_NONE);
+            dcvars.translation = trans;
         }
         else
         {
-          // e6y
-          // More accurate patch drawing from Eternity.
-          // Predefined arrays are used instead of dynamic calculation 
-          // of the top and bottom screen coordinates of a column.
-
-          int tmpy;
-          
-          tmpy = y + post->topdelta;
-          if (tmpy < 0 || tmpy > 200)
-            dcvars.yl = (tmpy * params->video->height) / 200 + params->deltay1;
-          else
-            dcvars.yl = params->video->y1lookup[tmpy] + params->deltay1;
-
-          tmpy = y + post->topdelta + post->length - 1;
-          if (tmpy < 0 || tmpy > 200)
-            dcvars.yh = (tmpy * params->video->height) / 200 + params->deltay1;
-          else
-            dcvars.yh = params->video->y2lookup[tmpy] + params->deltay1;
-        }
-        dcvars.edgeslope = post->slope;
-
-        if ((dcvars.yh < 0) || (dcvars.yh < top))
-          continue;
-        if ((dcvars.yl >= SCREENHEIGHT) || (dcvars.yl >= bottom))
-          continue;
-
-        if (dcvars.yh >= bottom) {
-          //dcvars.yh = bottom-1;
-          dcvars.edgeslope &= ~RDRAW_EDGESLOPE_BOT_MASK;
-        }
-        if (dcvars.yh >= SCREENHEIGHT) {
-          dcvars.yh = SCREENHEIGHT-1;
-          dcvars.edgeslope &= ~RDRAW_EDGESLOPE_BOT_MASK;
+            colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_STANDARD, drawvars.filterpatch, RDRAW_FILTER_NONE);
         }
 
-        if (dcvars.yl < 0) {
-          yoffset = 0-dcvars.yl;
-          dcvars.yl = 0;
-          dcvars.edgeslope &= ~RDRAW_EDGESLOPE_TOP_MASK;
+        //e6y: predefined arrays are used
+        if(!(flags & VPT_STRETCH_MASK))
+        {
+            DXI = 1 << 16;
+            DYI = 1 << 16;
+
+            left = x;
+            top = y;
+            right = x + patch->width - 1;
+            bottom = y + patch->height;
         }
-        if (dcvars.yl < top) {
-          yoffset = top-dcvars.yl;
-          dcvars.yl = top;
-          dcvars.edgeslope &= ~RDRAW_EDGESLOPE_TOP_MASK;
+        else
+        {
+            DXI = params->video->xstep;
+            DYI = params->video->ystep;
+
+            //FIXME: Is it needed only for F_BunnyScroll?
+
+            left = (x < 0 || x > 320 ? (x * params->video->width) / 320 : params->video->x1lookup[x]);
+            top = (y < 0 || y > 200 ? (y * params->video->height) / 200 : params->video->y1lookup[y]);
+
+            if(x + patch->width < 0 || x + patch->width > 320)
+                right = (((x + patch->width) * params->video->width - 1) / 320);
+            else
+                right = params->video->x2lookup[x + patch->width - 1];
+
+            if(y + patch->height < 0 || y + patch->height > 200)
+                bottom = (((y + patch->height - 0) * params->video->height) / 200);
+            else
+                bottom = params->video->y2lookup[y + patch->height - 1];
+
+            left   += params->deltax1;
+            right  += params->deltax2;
+            top    += params->deltay1;
+            bottom += params->deltay1;
         }
 
-        dcvars.source = column->pixels + post->topdelta + yoffset;
-        dcvars.prevsource = prevcolumn ? prevcolumn->pixels + post->topdelta + yoffset: dcvars.source;
-        dcvars.nextsource = nextcolumn ? nextcolumn->pixels + post->topdelta + yoffset: dcvars.source;
+        dcvars.texheight = patch->height;
+        dcvars.iscale = DYI;
+        dcvars.drawingmasked = MAX(patch->width, patch->height) > 8;
+        dcvars.edgetype = drawvars.patch_edges;
 
-        dcvars.texturemid = -((dcvars.yl-centery)*dcvars.iscale);
+        if(drawvars.filterpatch == RDRAW_FILTER_LINEAR)
+        {
+            // bias the texture u coordinate
+            if(patch->flags & PATCH_ISNOTTILEABLE)
+                col = -(FRACUNIT >> 1);
+            else
+                col = (patch->width << FRACBITS) - (FRACUNIT >> 1);
+        }
+        else
+        {
+            col = 0;
+        }
 
-        //e6y
-        dcvars.dy = params->deltay1;
-        dcvars.flags |= DRAW_COLUMN_ISPATCH; 
+        for(dcvars.x = left; dcvars.x <= right; dcvars.x++, col += DXI)
+        {
+            int i;
+            const int colindex = (flags & VPT_FLIP) ? ((w - col) >> 16) : (col >> 16);
+            const rcolumn_t *column = R_GetPatchColumn(patch, colindex);
+            const rcolumn_t *prevcolumn = R_GetPatchColumn(patch, colindex - 1);
+            const rcolumn_t *nextcolumn = R_GetPatchColumn(patch, colindex + 1);
 
-        colfunc(&dcvars);
-      }
+            // ignore this column if it's to the left of our clampRect
+            if(dcvars.x < 0)
+                continue;
+
+            if(dcvars.x >= SCREENWIDTH)
+                break;
+
+            dcvars.texu = ((flags & VPT_FLIP) ? ((patch->width << FRACBITS) - col) : col) % (patch->width << FRACBITS);
+
+            // step through the posts in a column
+            for(i = 0; i < column->numPosts; i++)
+            {
+                const rpost_t *post = &column->posts[i];
+                int yoffset = 0;
+
+                //e6y
+                if(!(flags & VPT_STRETCH_MASK))
+                {
+                    dcvars.yl = y + post->topdelta;
+                    dcvars.yh = ((((y + post->topdelta + post->length) << 16) - (FRACUNIT >> 1)) >> FRACBITS);
+                }
+                else
+                {
+                    // e6y
+                    // More accurate patch drawing from Eternity.
+                    // Predefined arrays are used instead of dynamic calculation
+                    // of the top and bottom screen coordinates of a column.
+
+                    int tmpy;
+
+                    tmpy = y + post->topdelta;
+
+                    if(tmpy < 0 || tmpy > 200)
+                        dcvars.yl = (tmpy * params->video->height) / 200 + params->deltay1;
+                    else
+                        dcvars.yl = params->video->y1lookup[tmpy] + params->deltay1;
+
+                    tmpy = y + post->topdelta + post->length - 1;
+
+                    if(tmpy < 0 || tmpy > 200)
+                        dcvars.yh = (tmpy * params->video->height) / 200 + params->deltay1;
+                    else
+                        dcvars.yh = params->video->y2lookup[tmpy] + params->deltay1;
+                }
+
+                dcvars.edgeslope = post->slope;
+
+                if((dcvars.yh < 0) || (dcvars.yh < top))
+                    continue;
+
+                if((dcvars.yl >= SCREENHEIGHT) || (dcvars.yl >= bottom))
+                    continue;
+
+                if(dcvars.yh >= bottom)
+                {
+                    //dcvars.yh = bottom-1;
+                    dcvars.edgeslope &= ~RDRAW_EDGESLOPE_BOT_MASK;
+                }
+
+                if(dcvars.yh >= SCREENHEIGHT)
+                {
+                    dcvars.yh = SCREENHEIGHT - 1;
+                    dcvars.edgeslope &= ~RDRAW_EDGESLOPE_BOT_MASK;
+                }
+
+                if(dcvars.yl < 0)
+                {
+                    yoffset = 0 - dcvars.yl;
+                    dcvars.yl = 0;
+                    dcvars.edgeslope &= ~RDRAW_EDGESLOPE_TOP_MASK;
+                }
+
+                if(dcvars.yl < top)
+                {
+                    yoffset = top - dcvars.yl;
+                    dcvars.yl = top;
+                    dcvars.edgeslope &= ~RDRAW_EDGESLOPE_TOP_MASK;
+                }
+
+                dcvars.source = column->pixels + post->topdelta + yoffset;
+                dcvars.prevsource = prevcolumn ? prevcolumn->pixels + post->topdelta + yoffset : dcvars.source;
+                dcvars.nextsource = nextcolumn ? nextcolumn->pixels + post->topdelta + yoffset : dcvars.source;
+
+                dcvars.texturemid = -((dcvars.yl - centery) * dcvars.iscale);
+
+                //e6y
+                dcvars.dy = params->deltay1;
+                dcvars.flags |= DRAW_COLUMN_ISPATCH;
+
+                colfunc(&dcvars);
+            }
+        }
+
+        R_ResetColumnBuffer();
+        drawvars = olddrawvars;
     }
-
-    R_ResetColumnBuffer();
-    drawvars = olddrawvars;
-  }
 }
 
 // CPhipps - some simple, useful wrappers for that function, for drawing patches from wads
@@ -720,17 +779,17 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
 // This inline is _only_ for the function below
 
 static void FUNC_V_DrawNumPatch(int x, int y, int scrn, int lump,
-         int cm, enum patch_translation_e flags)
+                                int cm, enum patch_translation_e flags)
 {
-  V_DrawMemPatch(x, y, scrn, R_CachePatchNum(lump), cm, flags);
-  R_UnlockPatchNum(lump);
+    V_DrawMemPatch(x, y, scrn, R_CachePatchNum(lump), cm, flags);
+    R_UnlockPatchNum(lump);
 }
 
 static void FUNC_V_DrawNumPatchPrecise(float x, float y, int scrn, int lump,
-         int cm, enum patch_translation_e flags)
+                                       int cm, enum patch_translation_e flags)
 {
-  V_DrawMemPatch((int)x, (int)y, scrn, R_CachePatchNum(lump), cm, flags);
-  R_UnlockPatchNum(lump);
+    V_DrawMemPatch((int)x, (int)y, scrn, R_CachePatchNum(lump), cm, flags);
+    R_UnlockPatchNum(lump);
 }
 
 unsigned short *V_Palette15 = NULL;
@@ -744,158 +803,196 @@ static int currentPaletteIndex = 0;
 //
 // V_UpdateTrueColorPalette
 //
-void V_UpdateTrueColorPalette(video_mode_t mode) {
-  int i, w, p;
-  byte r,g,b;
-  int nr,ng,nb;
-  float t;
-  int paletteNum = (V_GetMode() == VID_MODEGL ? 0 : currentPaletteIndex);
-  static int usegammaOnLastPaletteGeneration = -1;
-  
-  int pplump = W_GetNumForName("PLAYPAL");
-  int gtlump = (W_CheckNumForName)("GAMMATBL",ns_prboom);
-  const byte *pal = W_CacheLumpNum(pplump);
-  // opengl doesn't use the gamma
-  const byte *const gtable = 
-    (const byte *)W_CacheLumpNum(gtlump) + 
-    (V_GetMode() == VID_MODEGL ? 0 : 256*(usegamma))
-  ;
+void V_UpdateTrueColorPalette(video_mode_t mode)
+{
+    int i, w, p;
+    byte r, g, b;
+    int nr, ng, nb;
+    float t;
+    int paletteNum = (V_GetMode() == VID_MODEGL ? 0 : currentPaletteIndex);
+    static int usegammaOnLastPaletteGeneration = -1;
 
-  int numPals = W_LumpLength(pplump) / (3*256);
-  const float dontRoundAbove = 220;
-  float roundUpR, roundUpG, roundUpB;
-  
-  if (usegammaOnLastPaletteGeneration != usegamma) {
-    if (Palettes15) free(Palettes15);
-    if (Palettes16) free(Palettes16);
-    if (Palettes32) free(Palettes32);
-    Palettes15 = NULL;
-    Palettes16 = NULL;
-    Palettes32 = NULL;
-    usegammaOnLastPaletteGeneration = usegamma;      
-  }
-  
-  if (mode == VID_MODE32) {
-    if (!Palettes32) {
-      // set int palette
-      Palettes32 = malloc(numPals*256*sizeof(int)*VID_NUMCOLORWEIGHTS);
-      for (p=0; p<numPals; p++) {
-        for (i=0; i<256; i++) {
-          r = gtable[pal[(256*p+i)*3+0]];
-          g = gtable[pal[(256*p+i)*3+1]];
-          b = gtable[pal[(256*p+i)*3+2]];
-          
-          // ideally, we should always round up, but very bright colors
-          // overflow the blending adds, so they don't get rounded.
-          roundUpR = (r > dontRoundAbove) ? 0 : 0.5f;
-          roundUpG = (g > dontRoundAbove) ? 0 : 0.5f;
-          roundUpB = (b > dontRoundAbove) ? 0 : 0.5f;
-                  
-          for (w=0; w<VID_NUMCOLORWEIGHTS; w++) {
-            t = (float)(w)/(float)(VID_NUMCOLORWEIGHTS-1);
-            nr = (int)(r*t+roundUpR);
-            ng = (int)(g*t+roundUpG);
-            nb = (int)(b*t+roundUpB);
-            Palettes32[((p*256+i)*VID_NUMCOLORWEIGHTS)+w] = (
-              (nr<<16) | (ng<<8) | nb
-            );
-          }
-        }
-      }
+    int pplump = W_GetNumForName("PLAYPAL");
+    int gtlump = (W_CheckNumForName)("GAMMATBL", ns_prboom);
+    const byte *pal = W_CacheLumpNum(pplump);
+    // opengl doesn't use the gamma
+    const byte *const gtable =
+        (const byte *)W_CacheLumpNum(gtlump) +
+        (V_GetMode() == VID_MODEGL ? 0 : 256 * (usegamma))
+        ;
+
+    int numPals = W_LumpLength(pplump) / (3 * 256);
+    const float dontRoundAbove = 220;
+    float roundUpR, roundUpG, roundUpB;
+
+    if(usegammaOnLastPaletteGeneration != usegamma)
+    {
+        if(Palettes15) free(Palettes15);
+
+        if(Palettes16) free(Palettes16);
+
+        if(Palettes32) free(Palettes32);
+
+        Palettes15 = NULL;
+        Palettes16 = NULL;
+        Palettes32 = NULL;
+        usegammaOnLastPaletteGeneration = usegamma;
     }
-    V_Palette32 = Palettes32 + paletteNum*256*VID_NUMCOLORWEIGHTS;
-  }
-  else if (mode == VID_MODE16) {
-    if (!Palettes16) {
-      // set short palette
-      Palettes16 = malloc(numPals*256*sizeof(short)*VID_NUMCOLORWEIGHTS);
-      for (p=0; p<numPals; p++) {
-        for (i=0; i<256; i++) {
-          r = gtable[pal[(256*p+i)*3+0]];
-          g = gtable[pal[(256*p+i)*3+1]];
-          b = gtable[pal[(256*p+i)*3+2]];
-          
-          // ideally, we should always round up, but very bright colors
-          // overflow the blending adds, so they don't get rounded.
-          roundUpR = (r > dontRoundAbove) ? 0 : 0.5f;
-          roundUpG = (g > dontRoundAbove) ? 0 : 0.5f;
-          roundUpB = (b > dontRoundAbove) ? 0 : 0.5f;
-                   
-          for (w=0; w<VID_NUMCOLORWEIGHTS; w++) {
-            t = (float)(w)/(float)(VID_NUMCOLORWEIGHTS-1);
-            nr = (int)((r>>3)*t+roundUpR);
-            ng = (int)((g>>2)*t+roundUpG);
-            nb = (int)((b>>3)*t+roundUpB);
-            Palettes16[((p*256+i)*VID_NUMCOLORWEIGHTS)+w] = (
-              (nr<<11) | (ng<<5) | nb
-            );
-          }
+
+    if(mode == VID_MODE32)
+    {
+        if(!Palettes32)
+        {
+            // set int palette
+            Palettes32 = malloc(numPals * 256 * sizeof(int) * VID_NUMCOLORWEIGHTS);
+
+            for(p = 0; p < numPals; p++)
+            {
+                for(i = 0; i < 256; i++)
+                {
+                    r = gtable[pal[(256 * p + i) * 3 + 0]];
+                    g = gtable[pal[(256 * p + i) * 3 + 1]];
+                    b = gtable[pal[(256 * p + i) * 3 + 2]];
+
+                    // ideally, we should always round up, but very bright colors
+                    // overflow the blending adds, so they don't get rounded.
+                    roundUpR = (r > dontRoundAbove) ? 0 : 0.5f;
+                    roundUpG = (g > dontRoundAbove) ? 0 : 0.5f;
+                    roundUpB = (b > dontRoundAbove) ? 0 : 0.5f;
+
+                    for(w = 0; w < VID_NUMCOLORWEIGHTS; w++)
+                    {
+                        t = (float)(w) / (float)(VID_NUMCOLORWEIGHTS - 1);
+                        nr = (int)(r * t + roundUpR);
+                        ng = (int)(g * t + roundUpG);
+                        nb = (int)(b * t + roundUpB);
+                        Palettes32[((p * 256 + i)*VID_NUMCOLORWEIGHTS) + w] = (
+                                    (nr << 16) | (ng << 8) | nb
+                                );
+                    }
+                }
+            }
         }
-      }
+
+        V_Palette32 = Palettes32 + paletteNum * 256 * VID_NUMCOLORWEIGHTS;
     }
-    V_Palette16 = Palettes16 + paletteNum*256*VID_NUMCOLORWEIGHTS;
-  }
-  else if (mode == VID_MODE15) {
-    if (!Palettes15) {
-      // set short palette
-      Palettes15 = malloc(numPals*256*sizeof(short)*VID_NUMCOLORWEIGHTS);
-      for (p=0; p<numPals; p++) {
-        for (i=0; i<256; i++) {
-          r = gtable[pal[(256*p+i)*3+0]];
-          g = gtable[pal[(256*p+i)*3+1]];
-          b = gtable[pal[(256*p+i)*3+2]];
-          
-          // ideally, we should always round up, but very bright colors
-          // overflow the blending adds, so they don't get rounded.
-          roundUpR = (r > dontRoundAbove) ? 0 : 0.5f;
-          roundUpG = (g > dontRoundAbove) ? 0 : 0.5f;
-          roundUpB = (b > dontRoundAbove) ? 0 : 0.5f;
-                   
-          for (w=0; w<VID_NUMCOLORWEIGHTS; w++) {
-            t = (float)(w)/(float)(VID_NUMCOLORWEIGHTS-1);
-            nr = (int)((r>>3)*t+roundUpR);
-            ng = (int)((g>>3)*t+roundUpG);
-            nb = (int)((b>>3)*t+roundUpB);
-            Palettes15[((p*256+i)*VID_NUMCOLORWEIGHTS)+w] = (
-              (nr<<10) | (ng<<5) | nb
-            );
-          }
+    else if(mode == VID_MODE16)
+    {
+        if(!Palettes16)
+        {
+            // set short palette
+            Palettes16 = malloc(numPals * 256 * sizeof(short) * VID_NUMCOLORWEIGHTS);
+
+            for(p = 0; p < numPals; p++)
+            {
+                for(i = 0; i < 256; i++)
+                {
+                    r = gtable[pal[(256 * p + i) * 3 + 0]];
+                    g = gtable[pal[(256 * p + i) * 3 + 1]];
+                    b = gtable[pal[(256 * p + i) * 3 + 2]];
+
+                    // ideally, we should always round up, but very bright colors
+                    // overflow the blending adds, so they don't get rounded.
+                    roundUpR = (r > dontRoundAbove) ? 0 : 0.5f;
+                    roundUpG = (g > dontRoundAbove) ? 0 : 0.5f;
+                    roundUpB = (b > dontRoundAbove) ? 0 : 0.5f;
+
+                    for(w = 0; w < VID_NUMCOLORWEIGHTS; w++)
+                    {
+                        t = (float)(w) / (float)(VID_NUMCOLORWEIGHTS - 1);
+                        nr = (int)((r >> 3) * t + roundUpR);
+                        ng = (int)((g >> 2) * t + roundUpG);
+                        nb = (int)((b >> 3) * t + roundUpB);
+                        Palettes16[((p * 256 + i)*VID_NUMCOLORWEIGHTS) + w] = (
+                                    (nr << 11) | (ng << 5) | nb
+                                );
+                    }
+                }
+            }
         }
-      }
+
+        V_Palette16 = Palettes16 + paletteNum * 256 * VID_NUMCOLORWEIGHTS;
     }
-    V_Palette15 = Palettes15 + paletteNum*256*VID_NUMCOLORWEIGHTS;
-  }       
-   
-  W_UnlockLumpNum(pplump);
-  W_UnlockLumpNum(gtlump);
+    else if(mode == VID_MODE15)
+    {
+        if(!Palettes15)
+        {
+            // set short palette
+            Palettes15 = malloc(numPals * 256 * sizeof(short) * VID_NUMCOLORWEIGHTS);
+
+            for(p = 0; p < numPals; p++)
+            {
+                for(i = 0; i < 256; i++)
+                {
+                    r = gtable[pal[(256 * p + i) * 3 + 0]];
+                    g = gtable[pal[(256 * p + i) * 3 + 1]];
+                    b = gtable[pal[(256 * p + i) * 3 + 2]];
+
+                    // ideally, we should always round up, but very bright colors
+                    // overflow the blending adds, so they don't get rounded.
+                    roundUpR = (r > dontRoundAbove) ? 0 : 0.5f;
+                    roundUpG = (g > dontRoundAbove) ? 0 : 0.5f;
+                    roundUpB = (b > dontRoundAbove) ? 0 : 0.5f;
+
+                    for(w = 0; w < VID_NUMCOLORWEIGHTS; w++)
+                    {
+                        t = (float)(w) / (float)(VID_NUMCOLORWEIGHTS - 1);
+                        nr = (int)((r >> 3) * t + roundUpR);
+                        ng = (int)((g >> 3) * t + roundUpG);
+                        nb = (int)((b >> 3) * t + roundUpB);
+                        Palettes15[((p * 256 + i)*VID_NUMCOLORWEIGHTS) + w] = (
+                                    (nr << 10) | (ng << 5) | nb
+                                );
+                    }
+                }
+            }
+        }
+
+        V_Palette15 = Palettes15 + paletteNum * 256 * VID_NUMCOLORWEIGHTS;
+    }
+
+    W_UnlockLumpNum(pplump);
+    W_UnlockLumpNum(gtlump);
 }
 
 
 //---------------------------------------------------------------------------
 // V_DestroyTrueColorPalette
 //---------------------------------------------------------------------------
-static void V_DestroyTrueColorPalette(video_mode_t mode) {
-  if (mode == VID_MODE15) {
-    if (Palettes15) free(Palettes15);
-    Palettes15 = NULL;
-    V_Palette15 = NULL;
-  }
-  if (mode == VID_MODE16) {
-    if (Palettes16) free(Palettes16);
-    Palettes16 = NULL;
-    V_Palette16 = NULL;
-  }
-  if (mode == VID_MODE32) {
-    if (Palettes32) free(Palettes32);
-    Palettes32 = NULL;
-    V_Palette32 = NULL;
-  }
+static void V_DestroyTrueColorPalette(video_mode_t mode)
+{
+    if(mode == VID_MODE15)
+    {
+        if(Palettes15) free(Palettes15);
+
+        Palettes15 = NULL;
+        V_Palette15 = NULL;
+    }
+
+    if(mode == VID_MODE16)
+    {
+        if(Palettes16) free(Palettes16);
+
+        Palettes16 = NULL;
+        V_Palette16 = NULL;
+    }
+
+    if(mode == VID_MODE32)
+    {
+        if(Palettes32) free(Palettes32);
+
+        Palettes32 = NULL;
+        V_Palette32 = NULL;
+    }
 }
 
-void V_DestroyUnusedTrueColorPalettes(void) {
-  if (V_GetMode() != VID_MODE15) V_DestroyTrueColorPalette(VID_MODE15);
-  if (V_GetMode() != VID_MODE16) V_DestroyTrueColorPalette(VID_MODE16);
-  if (V_GetMode() != VID_MODE32) V_DestroyTrueColorPalette(VID_MODE32);  
+void V_DestroyUnusedTrueColorPalettes(void)
+{
+    if(V_GetMode() != VID_MODE15) V_DestroyTrueColorPalette(VID_MODE15);
+
+    if(V_GetMode() != VID_MODE16) V_DestroyTrueColorPalette(VID_MODE16);
+
+    if(V_GetMode() != VID_MODE32) V_DestroyTrueColorPalette(VID_MODE32);
 }
 
 //
@@ -906,22 +1003,28 @@ void V_DestroyUnusedTrueColorPalettes(void) {
 
 void V_SetPalette(int pal)
 {
-  currentPaletteIndex = pal;
+    currentPaletteIndex = pal;
 
-  if (V_GetMode() == VID_MODEGL) {
+    if(V_GetMode() == VID_MODEGL)
+    {
 #ifdef GL_DOOM
-    gld_SetPalette(pal);
+        gld_SetPalette(pal);
 #endif
-  } else {
-    I_SetPalette(pal);
-    if (V_GetMode() == VID_MODE15 || V_GetMode() == VID_MODE16 || V_GetMode() == VID_MODE32) {
-      // V_SetPalette can be called as part of the gamma setting before
-      // we've loaded any wads, which prevents us from reading the palette - POPE
-      if (W_CheckNumForName("PLAYPAL") >= 0) {
-        V_UpdateTrueColorPalette(V_GetMode());
-      }
     }
-  }
+    else
+    {
+        I_SetPalette(pal);
+
+        if(V_GetMode() == VID_MODE15 || V_GetMode() == VID_MODE16 || V_GetMode() == VID_MODE32)
+        {
+            // V_SetPalette can be called as part of the gamma setting before
+            // we've loaded any wads, which prevents us from reading the palette - POPE
+            if(W_CheckNumForName("PLAYPAL") >= 0)
+            {
+                V_UpdateTrueColorPalette(V_GetMode());
+            }
+        }
+    }
 }
 
 //
@@ -930,50 +1033,64 @@ void V_SetPalette(int pal)
 // CPhipps - New function to fill a rectangle with a given colour
 static void V_FillRect8(int scrn, int x, int y, int width, int height, byte colour)
 {
-  byte* dest = screens[scrn].data + x + y*screens[scrn].byte_pitch;
-  while (height--) {
-    memset(dest, colour, width);
-    dest += screens[scrn].byte_pitch;
-  }
+    byte* dest = screens[scrn].data + x + y * screens[scrn].byte_pitch;
+
+    while(height--)
+    {
+        memset(dest, colour, width);
+        dest += screens[scrn].byte_pitch;
+    }
 }
 
 static void V_FillRect15(int scrn, int x, int y, int width, int height, byte colour)
 {
-  unsigned short* dest = (unsigned short *)screens[scrn].data + x + y*screens[scrn].short_pitch;
-  int w;
-  short c = VID_PAL15(colour, VID_COLORWEIGHTMASK);
-  while (height--) {
-    for (w=0; w<width; w++) {
-      dest[w] = c;
+    unsigned short* dest = (unsigned short *)screens[scrn].data + x + y * screens[scrn].short_pitch;
+    int w;
+    short c = VID_PAL15(colour, VID_COLORWEIGHTMASK);
+
+    while(height--)
+    {
+        for(w = 0; w < width; w++)
+        {
+            dest[w] = c;
+        }
+
+        dest += screens[scrn].short_pitch;
     }
-    dest += screens[scrn].short_pitch;
-  }
 }
 
 static void V_FillRect16(int scrn, int x, int y, int width, int height, byte colour)
 {
-  unsigned short* dest = (unsigned short *)screens[scrn].data + x + y*screens[scrn].short_pitch;
-  int w;
-  short c = VID_PAL16(colour, VID_COLORWEIGHTMASK);
-  while (height--) {
-    for (w=0; w<width; w++) {
-      dest[w] = c;
+    unsigned short* dest = (unsigned short *)screens[scrn].data + x + y * screens[scrn].short_pitch;
+    int w;
+    short c = VID_PAL16(colour, VID_COLORWEIGHTMASK);
+
+    while(height--)
+    {
+        for(w = 0; w < width; w++)
+        {
+            dest[w] = c;
+        }
+
+        dest += screens[scrn].short_pitch;
     }
-    dest += screens[scrn].short_pitch;
-  }
 }
 
 static void V_FillRect32(int scrn, int x, int y, int width, int height, byte colour)
 {
-  unsigned int* dest = (unsigned int *)screens[scrn].data + x + y*screens[scrn].int_pitch;
-  int w;
-  int c = VID_PAL32(colour, VID_COLORWEIGHTMASK);
-  while (height--) {
-    for (w=0; w<width; w++) {
-      dest[w] = c;
+    unsigned int* dest = (unsigned int *)screens[scrn].data + x + y * screens[scrn].int_pitch;
+    int w;
+    int c = VID_PAL32(colour, VID_COLORWEIGHTMASK);
+
+    while(height--)
+    {
+        for(w = 0; w < width; w++)
+        {
+            dest[w] = c;
+        }
+
+        dest += screens[scrn].int_pitch;
     }
-    dest += screens[scrn].int_pitch;
-  }
 }
 
 static void WRAP_V_DrawLine(fline_t* fl, int color);
@@ -991,44 +1108,46 @@ static void V_PlotPixelWu32(int scrn, int x, int y, byte color, int weight);
 #ifdef GL_DOOM
 static void WRAP_gld_FillRect(int scrn, int x, int y, int width, int height, byte colour)
 {
-  gld_FillBlock(x,y,width,height,colour);
+    gld_FillBlock(x, y, width, height, colour);
 }
 static void WRAP_gld_CopyRect(int srcscrn, int destscrn, int x, int y, int width, int height, enum patch_translation_e flags)
 {
 }
 static void WRAP_gld_DrawBackground(const char *flatname, int n)
 {
-  gld_FillFlatName(flatname, 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_NONE);
+    gld_FillFlatName(flatname, 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_NONE);
 }
 static void WRAP_gld_FillFlat(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags)
 {
-  gld_FillFlat(lump, x, y, width, height, flags);
+    gld_FillFlat(lump, x, y, width, height, flags);
 }
 static void WRAP_gld_FillPatch(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags)
 {
-  gld_FillPatch(lump, x, y, width, height, flags);
+    gld_FillPatch(lump, x, y, width, height, flags);
 }
 static void WRAP_gld_DrawNumPatch(int x, int y, int scrn, int lump, int cm, enum patch_translation_e flags)
 {
-  gld_DrawNumPatch(x,y,lump,cm,flags);
+    gld_DrawNumPatch(x, y, lump, cm, flags);
 }
 static void WRAP_gld_DrawNumPatchPrecise(float x, float y, int scrn, int lump, int cm, enum patch_translation_e flags)
 {
-  gld_DrawNumPatch_f(x,y,lump,cm,flags);
+    gld_DrawNumPatch_f(x, y, lump, cm, flags);
 }
 static void WRAP_gld_DrawBlock(int x, int y, int scrn, int width, int height, const byte *src, enum patch_translation_e flags)
 {
 }
-static void V_PlotPixelGL(int scrn, int x, int y, byte color) {
-  gld_DrawLine(x-1, y, x+1, y, color);
-  gld_DrawLine(x, y-1, x, y+1, color);
+static void V_PlotPixelGL(int scrn, int x, int y, byte color)
+{
+    gld_DrawLine(x - 1, y, x + 1, y, color);
+    gld_DrawLine(x, y - 1, x, y + 1, color);
 }
-static void V_PlotPixelWuGL(int scrn, int x, int y, byte color, int weight) {
-  V_PlotPixelGL(scrn, x, y, color);
+static void V_PlotPixelWuGL(int scrn, int x, int y, byte color, int weight)
+{
+    V_PlotPixelGL(scrn, x, y, color);
 }
 static void WRAP_gld_DrawLine(fline_t* fl, int color)
 {
-  gld_DrawLine_f(fl->a.fx, fl->a.fy, fl->b.fx, fl->b.fy, color);
+    gld_DrawLine_f(fl->a.fx, fl->a.fy, fl->b.fx, fl->b.fy, color);
 }
 #endif
 
@@ -1063,183 +1182,223 @@ V_DrawLineWu_f V_DrawLineWu = NULL_DrawLineWu;
 //
 // V_InitMode
 //
-void V_InitMode(video_mode_t mode) {
-  switch (mode) {
+void V_InitMode(video_mode_t mode)
+{
+    switch(mode)
+    {
     case VID_MODE8:
-      lprintf(LO_INFO, "V_InitMode: using 8 bit video mode\n");
-      V_CopyRect = FUNC_V_CopyRect;
-      V_FillRect = V_FillRect8;
-      V_DrawNumPatch = FUNC_V_DrawNumPatch;
-      V_DrawNumPatchPrecise = FUNC_V_DrawNumPatchPrecise;
-      V_FillFlat = FUNC_V_FillFlat;
-      V_FillPatch = FUNC_V_FillPatch;
-      V_DrawBackground = FUNC_V_DrawBackground;
-      V_PlotPixel = V_PlotPixel8;
-      V_PlotPixelWu = V_PlotPixelWu8;
-      V_DrawLine = WRAP_V_DrawLine;
-      V_DrawLineWu = WRAP_V_DrawLineWu;
-      current_videomode = VID_MODE8;
-      break;
+        lprintf(LO_INFO, "V_InitMode: using 8 bit video mode\n");
+        V_CopyRect = FUNC_V_CopyRect;
+        V_FillRect = V_FillRect8;
+        V_DrawNumPatch = FUNC_V_DrawNumPatch;
+        V_DrawNumPatchPrecise = FUNC_V_DrawNumPatchPrecise;
+        V_FillFlat = FUNC_V_FillFlat;
+        V_FillPatch = FUNC_V_FillPatch;
+        V_DrawBackground = FUNC_V_DrawBackground;
+        V_PlotPixel = V_PlotPixel8;
+        V_PlotPixelWu = V_PlotPixelWu8;
+        V_DrawLine = WRAP_V_DrawLine;
+        V_DrawLineWu = WRAP_V_DrawLineWu;
+        current_videomode = VID_MODE8;
+        break;
+
     case VID_MODE15:
-      lprintf(LO_INFO, "V_InitMode: using 15 bit video mode\n");
-      V_CopyRect = FUNC_V_CopyRect;
-      V_FillRect = V_FillRect15;
-      V_DrawNumPatch = FUNC_V_DrawNumPatch;
-      V_DrawNumPatchPrecise = FUNC_V_DrawNumPatchPrecise;
-      V_FillFlat = FUNC_V_FillFlat;
-      V_FillPatch = FUNC_V_FillPatch;
-      V_DrawBackground = FUNC_V_DrawBackground;
-      V_PlotPixel = V_PlotPixel15;
-      V_PlotPixelWu = V_PlotPixelWu15;
-      V_DrawLine = WRAP_V_DrawLine;
-      V_DrawLineWu = WRAP_V_DrawLineWu;
-      current_videomode = VID_MODE15;
-      break;
+        lprintf(LO_INFO, "V_InitMode: using 15 bit video mode\n");
+        V_CopyRect = FUNC_V_CopyRect;
+        V_FillRect = V_FillRect15;
+        V_DrawNumPatch = FUNC_V_DrawNumPatch;
+        V_DrawNumPatchPrecise = FUNC_V_DrawNumPatchPrecise;
+        V_FillFlat = FUNC_V_FillFlat;
+        V_FillPatch = FUNC_V_FillPatch;
+        V_DrawBackground = FUNC_V_DrawBackground;
+        V_PlotPixel = V_PlotPixel15;
+        V_PlotPixelWu = V_PlotPixelWu15;
+        V_DrawLine = WRAP_V_DrawLine;
+        V_DrawLineWu = WRAP_V_DrawLineWu;
+        current_videomode = VID_MODE15;
+        break;
+
     case VID_MODE16:
-      lprintf(LO_INFO, "V_InitMode: using 16 bit video mode\n");
-      V_CopyRect = FUNC_V_CopyRect;
-      V_FillRect = V_FillRect16;
-      V_DrawNumPatch = FUNC_V_DrawNumPatch;
-      V_DrawNumPatchPrecise = FUNC_V_DrawNumPatchPrecise;
-      V_FillFlat = FUNC_V_FillFlat;
-      V_FillPatch = FUNC_V_FillPatch;
-      V_DrawBackground = FUNC_V_DrawBackground;
-      V_PlotPixel = V_PlotPixel16;
-      V_PlotPixelWu = V_PlotPixelWu16;
-      V_DrawLine = WRAP_V_DrawLine;
-      V_DrawLineWu = WRAP_V_DrawLineWu;
-      current_videomode = VID_MODE16;
-      break;
+        lprintf(LO_INFO, "V_InitMode: using 16 bit video mode\n");
+        V_CopyRect = FUNC_V_CopyRect;
+        V_FillRect = V_FillRect16;
+        V_DrawNumPatch = FUNC_V_DrawNumPatch;
+        V_DrawNumPatchPrecise = FUNC_V_DrawNumPatchPrecise;
+        V_FillFlat = FUNC_V_FillFlat;
+        V_FillPatch = FUNC_V_FillPatch;
+        V_DrawBackground = FUNC_V_DrawBackground;
+        V_PlotPixel = V_PlotPixel16;
+        V_PlotPixelWu = V_PlotPixelWu16;
+        V_DrawLine = WRAP_V_DrawLine;
+        V_DrawLineWu = WRAP_V_DrawLineWu;
+        current_videomode = VID_MODE16;
+        break;
+
     case VID_MODE32:
-      lprintf(LO_INFO, "V_InitMode: using 32 bit video mode\n");
-      V_CopyRect = FUNC_V_CopyRect;
-      V_FillRect = V_FillRect32;
-      V_DrawNumPatch = FUNC_V_DrawNumPatch;
-      V_DrawNumPatchPrecise = FUNC_V_DrawNumPatchPrecise;
-      V_FillFlat = FUNC_V_FillFlat;
-      V_FillPatch = FUNC_V_FillPatch;
-      V_DrawBackground = FUNC_V_DrawBackground;
-      V_PlotPixel = V_PlotPixel32;
-      V_PlotPixelWu = V_PlotPixelWu32;
-      V_DrawLine = WRAP_V_DrawLine;
-      V_DrawLineWu = WRAP_V_DrawLineWu;
-      current_videomode = VID_MODE32;
-      break;
+        lprintf(LO_INFO, "V_InitMode: using 32 bit video mode\n");
+        V_CopyRect = FUNC_V_CopyRect;
+        V_FillRect = V_FillRect32;
+        V_DrawNumPatch = FUNC_V_DrawNumPatch;
+        V_DrawNumPatchPrecise = FUNC_V_DrawNumPatchPrecise;
+        V_FillFlat = FUNC_V_FillFlat;
+        V_FillPatch = FUNC_V_FillPatch;
+        V_DrawBackground = FUNC_V_DrawBackground;
+        V_PlotPixel = V_PlotPixel32;
+        V_PlotPixelWu = V_PlotPixelWu32;
+        V_DrawLine = WRAP_V_DrawLine;
+        V_DrawLineWu = WRAP_V_DrawLineWu;
+        current_videomode = VID_MODE32;
+        break;
 #ifdef GL_DOOM
+
     case VID_MODEGL:
-      lprintf(LO_INFO, "V_InitMode: using OpenGL video mode\n");
-      V_CopyRect = WRAP_gld_CopyRect;
-      V_FillRect = WRAP_gld_FillRect;
-      V_DrawNumPatch = WRAP_gld_DrawNumPatch;
-      V_DrawNumPatchPrecise = WRAP_gld_DrawNumPatchPrecise;
-      V_FillFlat = WRAP_gld_FillFlat;
-      V_FillPatch = WRAP_gld_FillPatch;
-      V_DrawBackground = WRAP_gld_DrawBackground;
-      V_PlotPixel = V_PlotPixelGL;
-      V_PlotPixelWu = V_PlotPixelWuGL;
-      V_DrawLine = WRAP_gld_DrawLine;
-      V_DrawLineWu = WRAP_gld_DrawLine;
-      current_videomode = VID_MODEGL;
-      break;
+        lprintf(LO_INFO, "V_InitMode: using OpenGL video mode\n");
+        V_CopyRect = WRAP_gld_CopyRect;
+        V_FillRect = WRAP_gld_FillRect;
+        V_DrawNumPatch = WRAP_gld_DrawNumPatch;
+        V_DrawNumPatchPrecise = WRAP_gld_DrawNumPatchPrecise;
+        V_FillFlat = WRAP_gld_FillFlat;
+        V_FillPatch = WRAP_gld_FillPatch;
+        V_DrawBackground = WRAP_gld_DrawBackground;
+        V_PlotPixel = V_PlotPixelGL;
+        V_PlotPixelWu = V_PlotPixelWuGL;
+        V_DrawLine = WRAP_gld_DrawLine;
+        V_DrawLineWu = WRAP_gld_DrawLine;
+        current_videomode = VID_MODEGL;
+        break;
 #endif
-  }
-  R_FilterInit();
+    }
+
+    R_FilterInit();
 }
 
 //
 // V_GetMode
 //
-video_mode_t V_GetMode(void) {
-  return current_videomode;
+video_mode_t V_GetMode(void)
+{
+    return current_videomode;
 }
 
 //
 // V_GetModePixelDepth
 //
-int V_GetModePixelDepth(video_mode_t mode) {
-  switch (mode) {
-    case VID_MODE8: return 1;
-    case VID_MODE15: return 2;
-    case VID_MODE16: return 2;
-    case VID_MODE32: return 4;
-    default: return 0;
-  }
+int V_GetModePixelDepth(video_mode_t mode)
+{
+    switch(mode)
+    {
+    case VID_MODE8:
+        return 1;
+
+    case VID_MODE15:
+        return 2;
+
+    case VID_MODE16:
+        return 2;
+
+    case VID_MODE32:
+        return 4;
+
+    default:
+        return 0;
+    }
 }
 
 //
 // V_GetNumPixelBits
 //
-int V_GetNumPixelBits(void) {
-  switch (current_videomode) {
-    case VID_MODE8: return 8;
-    case VID_MODE15: return 15;
-    case VID_MODE16: return 16;
-    case VID_MODE32: return 32;
-    default: return 0;
-  }
+int V_GetNumPixelBits(void)
+{
+    switch(current_videomode)
+    {
+    case VID_MODE8:
+        return 8;
+
+    case VID_MODE15:
+        return 15;
+
+    case VID_MODE16:
+        return 16;
+
+    case VID_MODE32:
+        return 32;
+
+    default:
+        return 0;
+    }
 }
 
 //
 // V_GetPixelDepth
 //
-int V_GetPixelDepth(void) {
-  return V_GetModePixelDepth(current_videomode);
+int V_GetPixelDepth(void)
+{
+    return V_GetModePixelDepth(current_videomode);
 }
 
 //
 // V_AllocScreen
 //
-void V_AllocScreen(screeninfo_t *scrn) {
-  if (!scrn->not_on_heap)
-    if ((scrn->byte_pitch * scrn->height) > 0)
-      //e6y: Clear the screen to black.
-      scrn->data = calloc(scrn->byte_pitch*scrn->height, 1);
+void V_AllocScreen(screeninfo_t *scrn)
+{
+    if(!scrn->not_on_heap)
+        if((scrn->byte_pitch * scrn->height) > 0)
+            //e6y: Clear the screen to black.
+            scrn->data = calloc(scrn->byte_pitch * scrn->height, 1);
 }
 
 //
 // V_AllocScreens
 //
-void V_AllocScreens(void) {
-  int i;
+void V_AllocScreens(void)
+{
+    int i;
 
-  for (i=0; i<NUM_SCREENS; i++)
-    V_AllocScreen(&screens[i]);
+    for(i = 0; i < NUM_SCREENS; i++)
+        V_AllocScreen(&screens[i]);
 }
 
 //
 // V_FreeScreen
 //
-void V_FreeScreen(screeninfo_t *scrn) {
-  if (!scrn->not_on_heap) {
-    free(scrn->data);
-    scrn->data = NULL;
-  }
+void V_FreeScreen(screeninfo_t *scrn)
+{
+    if(!scrn->not_on_heap)
+    {
+        free(scrn->data);
+        scrn->data = NULL;
+    }
 }
 
 //
 // V_FreeScreens
 //
-void V_FreeScreens(void) {
-  int i;
+void V_FreeScreens(void)
+{
+    int i;
 
-  for (i=0; i<NUM_SCREENS; i++)
-    V_FreeScreen(&screens[i]);
+    for(i = 0; i < NUM_SCREENS; i++)
+        V_FreeScreen(&screens[i]);
 }
 
-static void V_PlotPixel8(int scrn, int x, int y, byte color) {
-  screens[scrn].data[x+screens[scrn].byte_pitch*y] = color;
+static void V_PlotPixel8(int scrn, int x, int y, byte color)
+{
+    screens[scrn].data[x + screens[scrn].byte_pitch * y] = color;
 }
 
-static void V_PlotPixel15(int scrn, int x, int y, byte color) {
-  ((unsigned short *)screens[scrn].data)[x+screens[scrn].short_pitch*y] = VID_PAL15(color, VID_COLORWEIGHTMASK);
+static void V_PlotPixel15(int scrn, int x, int y, byte color)
+{
+    ((unsigned short *)screens[scrn].data)[x + screens[scrn].short_pitch * y] = VID_PAL15(color, VID_COLORWEIGHTMASK);
 }
 
-static void V_PlotPixel16(int scrn, int x, int y, byte color) {
-  ((unsigned short *)screens[scrn].data)[x+screens[scrn].short_pitch*y] = VID_PAL16(color, VID_COLORWEIGHTMASK);
+static void V_PlotPixel16(int scrn, int x, int y, byte color)
+{
+    ((unsigned short *)screens[scrn].data)[x + screens[scrn].short_pitch * y] = VID_PAL16(color, VID_COLORWEIGHTMASK);
 }
 
-static void V_PlotPixel32(int scrn, int x, int y, byte color) {
-  ((unsigned int *)screens[scrn].data)[x+screens[scrn].int_pitch*y] = VID_PAL32(color, VID_COLORWEIGHTMASK);
+static void V_PlotPixel32(int scrn, int x, int y, byte color)
+{
+    ((unsigned int *)screens[scrn].data)[x + screens[scrn].int_pitch * y] = VID_PAL32(color, VID_COLORWEIGHTMASK);
 }
 
 #define PUTDOT(xx,yy,cc) V_PlotPixel(0,xx,yy,(byte)cc)
@@ -1255,77 +1414,86 @@ static void V_PlotPixel32(int scrn, int x, int y, byte color) {
 //
 static void WRAP_V_DrawLine(fline_t* fl, int color)
 {
-  register int x;
-  register int y;
-  register int dx;
-  register int dy;
-  register int sx;
-  register int sy;
-  register int ax;
-  register int ay;
-  register int d;
+    register int x;
+    register int y;
+    register int dx;
+    register int dy;
+    register int sx;
+    register int sy;
+    register int ax;
+    register int ay;
+    register int d;
 
 #ifdef RANGECHECK         // killough 2/22/98
-  static int fuck = 0;
+    static int fuck = 0;
 
-  // For debugging only
-  if
-  (
-       fl->a.x < 0 || fl->a.x >= SCREENWIDTH
-    || fl->a.y < 0 || fl->a.y >= SCREENHEIGHT
-    || fl->b.x < 0 || fl->b.x >= SCREENWIDTH
-    || fl->b.y < 0 || fl->b.y >= SCREENHEIGHT
-  )
-  {
-    //jff 8/3/98 use logical output routine
-    lprintf(LO_DEBUG, "fuck %d \r", fuck++);
-    return;
-  }
+    // For debugging only
+    if
+    (
+        fl->a.x < 0 || fl->a.x >= SCREENWIDTH
+        || fl->a.y < 0 || fl->a.y >= SCREENHEIGHT
+        || fl->b.x < 0 || fl->b.x >= SCREENWIDTH
+        || fl->b.y < 0 || fl->b.y >= SCREENHEIGHT
+    )
+    {
+        //jff 8/3/98 use logical output routine
+        lprintf(LO_DEBUG, "fuck %d \r", fuck++);
+        return;
+    }
+
 #endif
 
-  dx = fl->b.x - fl->a.x;
-  ax = 2 * (dx<0 ? -dx : dx);
-  sx = dx<0 ? -1 : 1;
+    dx = fl->b.x - fl->a.x;
+    ax = 2 * (dx < 0 ? -dx : dx);
+    sx = dx < 0 ? -1 : 1;
 
-  dy = fl->b.y - fl->a.y;
-  ay = 2 * (dy<0 ? -dy : dy);
-  sy = dy<0 ? -1 : 1;
+    dy = fl->b.y - fl->a.y;
+    ay = 2 * (dy < 0 ? -dy : dy);
+    sy = dy < 0 ? -1 : 1;
 
-  x = fl->a.x;
-  y = fl->a.y;
+    x = fl->a.x;
+    y = fl->a.y;
 
-  if (ax > ay)
-  {
-    d = ay - ax/2;
-    while (1)
+    if(ax > ay)
     {
-      PUTDOT(x,y,color);
-      if (x == fl->b.x) return;
-      if (d>=0)
-      {
-        y += sy;
-        d -= ax;
-      }
-      x += sx;
-      d += ay;
+        d = ay - ax / 2;
+
+        while(1)
+        {
+            PUTDOT(x, y, color);
+
+            if(x == fl->b.x) return;
+
+            if(d >= 0)
+            {
+                y += sy;
+                d -= ax;
+            }
+
+            x += sx;
+            d += ay;
+        }
     }
-  }
-  else
-  {
-    d = ax - ay/2;
-    while (1)
+    else
     {
-      PUTDOT(x, y, color);
-      if (y == fl->b.y) return;
-      if (d >= 0)
-      {
-        x += sx;
-        d -= ay;
-      }
-      y += sy;
-      d += ax;
+        d = ax - ay / 2;
+
+        while(1)
+        {
+            PUTDOT(x, y, color);
+
+            if(y == fl->b.y) return;
+
+            if(d >= 0)
+            {
+                x += sx;
+                d -= ay;
+            }
+
+            y += sy;
+            d += ax;
+        }
     }
-  }
 }
 
 extern SDL_Surface *screen;
@@ -1351,47 +1519,47 @@ extern SDL_Surface *screen;
 //
 static void V_PlotPixelWu8(int scrn, int x, int y, byte color, int weight)
 {
-  unsigned int bg_color = screens[scrn].data[x+screens[scrn].byte_pitch*y];
-  unsigned int *fg2rgb = Col2RGB8[weight];
-  unsigned int *bg2rgb = Col2RGB8[64 - weight];
-  unsigned int fg = fg2rgb[color];
-  unsigned int bg = bg2rgb[bg_color];
+    unsigned int bg_color = screens[scrn].data[x + screens[scrn].byte_pitch * y];
+    unsigned int *fg2rgb = Col2RGB8[weight];
+    unsigned int *bg2rgb = Col2RGB8[64 - weight];
+    unsigned int fg = fg2rgb[color];
+    unsigned int bg = bg2rgb[bg_color];
 
-  fg = (fg + bg) | 0x1f07c1f;
-  V_PlotPixel(scrn, x, y, RGB32k[0][0][fg & (fg >> 15)]);
+    fg = (fg + bg) | 0x1f07c1f;
+    V_PlotPixel(scrn, x, y, RGB32k[0][0][fg & (fg >> 15)]);
 }
 static void V_PlotPixelWu15(int scrn, int x, int y, byte color, int weight)
 {
-  const unsigned char *rgb = V_GetPlaypal() + color * 3;
+    const unsigned char *rgb = V_GetPlaypal() + color * 3;
 
-  byte r = (*(rgb + 0) * weight) >> wu_weightbits;
-  byte g = (*(rgb + 1) * weight) >> wu_weightbits;
-  byte b = (*(rgb + 2) * weight) >> wu_weightbits;
-  
-  ((unsigned short *)screens[scrn].data)[x+screens[scrn].short_pitch*y] =
-    (unsigned short)RGB2COLOR(r, g, b);
+    byte r = (*(rgb + 0) * weight) >> wu_weightbits;
+    byte g = (*(rgb + 1) * weight) >> wu_weightbits;
+    byte b = (*(rgb + 2) * weight) >> wu_weightbits;
+
+    ((unsigned short *)screens[scrn].data)[x + screens[scrn].short_pitch * y] =
+        (unsigned short)RGB2COLOR(r, g, b);
 }
 static void V_PlotPixelWu16(int scrn, int x, int y, byte color, int weight)
 {
-  const unsigned char *rgb = V_GetPlaypal() + color * 3;
+    const unsigned char *rgb = V_GetPlaypal() + color * 3;
 
-  byte r = (*(rgb + 0) * weight) >> wu_weightbits;
-  byte g = (*(rgb + 1) * weight) >> wu_weightbits;
-  byte b = (*(rgb + 2) * weight) >> wu_weightbits;
-  
-  ((unsigned short *)screens[scrn].data)[x+screens[scrn].short_pitch*y] =
-    (unsigned short)RGB2COLOR(r, g, b);
+    byte r = (*(rgb + 0) * weight) >> wu_weightbits;
+    byte g = (*(rgb + 1) * weight) >> wu_weightbits;
+    byte b = (*(rgb + 2) * weight) >> wu_weightbits;
+
+    ((unsigned short *)screens[scrn].data)[x + screens[scrn].short_pitch * y] =
+        (unsigned short)RGB2COLOR(r, g, b);
 }
 static void V_PlotPixelWu32(int scrn, int x, int y, byte color, int weight)
 {
-  const unsigned char *rgb = V_GetPlaypal() + color * 3;
+    const unsigned char *rgb = V_GetPlaypal() + color * 3;
 
-  byte r = (*(rgb + 0) * weight) >> wu_weightbits;
-  byte g = (*(rgb + 1) * weight) >> wu_weightbits;
-  byte b = (*(rgb + 2) * weight) >> wu_weightbits;
-  
-  ((unsigned int *)screens[scrn].data)[x+screens[scrn].int_pitch*y] =
-    (unsigned int)RGB2COLOR(r, g, b);
+    byte r = (*(rgb + 0) * weight) >> wu_weightbits;
+    byte g = (*(rgb + 1) * weight) >> wu_weightbits;
+    byte b = (*(rgb + 2) * weight) >> wu_weightbits;
+
+    ((unsigned int *)screens[scrn].data)[x + screens[scrn].int_pitch * y] =
+        (unsigned int)RGB2COLOR(r, g, b);
 }
 
 //
@@ -1403,376 +1571,394 @@ static void V_PlotPixelWu32(int scrn, int x, int y, byte color, int weight)
 //
 void WRAP_V_DrawLineWu(fline_t *fl, int color)
 {
-  unsigned short erroracc, erroradj, erroracctmp;
-  int dx, dy, xdir = 1;
-  int x, y;   
+    unsigned short erroracc, erroradj, erroracctmp;
+    int dx, dy, xdir = 1;
+    int x, y;
 
-  // swap end points if necessary
-  if(fl->a.y > fl->b.y)
-  {
-    fpoint_t tmp = fl->a;
-
-    fl->a = fl->b;
-    fl->b = tmp;
-  }
-
-  // determine change in x, y and direction of travel
-  dx = fl->b.x - fl->a.x;
-  dy = fl->b.y - fl->a.y;
-
-  if(dx < 0)
-  {
-    dx   = -dx;
-    xdir = -xdir;      
-  }   
-
-  // detect special cases -- horizontal, vertical, and 45 degrees;
-  // revert to Bresenham
-  if(dx == 0 || dy == 0 || dx == dy)
-  {
-    V_DrawLine(fl, color);
-    return;
-  }
-
-  // draw first pixel
-  PUTDOT(fl->a.x, fl->a.y, color);
-
-  x = fl->a.x;
-  y = fl->a.y;
-
-  if(dy > dx)
-  {
-    // line is y-axis major.
-    erroracc = 0; 
-    erroradj = (unsigned short)(((unsigned int)dx << 16) / (unsigned int)dy);
-
-    while(--dy)
+    // swap end points if necessary
+    if(fl->a.y > fl->b.y)
     {
-      erroracctmp = erroracc;
+        fpoint_t tmp = fl->a;
 
-      erroracc += erroradj;
-
-      // if error has overflown, advance x coordinate
-      if(erroracc <= erroracctmp)
-        x += xdir;
-
-      y += 1; // advance y
-
-      // the trick is in the trig!
-      V_PlotPixelWu(0, x, y, (byte)color, 
-        finecosine[erroracc >> wu_fineshift] >> wu_fixedshift);
-      V_PlotPixelWu(0, x + xdir, y, (byte)color, 
-        finesine[erroracc >> wu_fineshift] >> wu_fixedshift);
+        fl->a = fl->b;
+        fl->b = tmp;
     }
-  }
-  else
-  {
-    // line is x-axis major.
-    erroracc = 0;
-    erroradj = (unsigned short)(((unsigned int)dy << 16) / (unsigned int)dx);
 
-    while(--dx)
+    // determine change in x, y and direction of travel
+    dx = fl->b.x - fl->a.x;
+    dy = fl->b.y - fl->a.y;
+
+    if(dx < 0)
     {
-      erroracctmp = erroracc;
-
-      erroracc += erroradj;
-
-      // if error has overflown, advance y coordinate
-      if(erroracc <= erroracctmp)
-        y += 1;
-
-      x += xdir; // advance x
-
-      // the trick is in the trig!
-      V_PlotPixelWu(0, x, y, (byte)color, 
-        finecosine[erroracc >> wu_fineshift] >> wu_fixedshift);
-      V_PlotPixelWu(0, x, y + 1, (byte)color, 
-        finesine[erroracc >> wu_fineshift] >> wu_fixedshift);
+        dx   = -dx;
+        xdir = -xdir;
     }
-  }
 
-  // draw last pixel
-  PUTDOT(fl->b.x, fl->b.y, color);
+    // detect special cases -- horizontal, vertical, and 45 degrees;
+    // revert to Bresenham
+    if(dx == 0 || dy == 0 || dx == dy)
+    {
+        V_DrawLine(fl, color);
+        return;
+    }
+
+    // draw first pixel
+    PUTDOT(fl->a.x, fl->a.y, color);
+
+    x = fl->a.x;
+    y = fl->a.y;
+
+    if(dy > dx)
+    {
+        // line is y-axis major.
+        erroracc = 0;
+        erroradj = (unsigned short)(((unsigned int)dx << 16) / (unsigned int)dy);
+
+        while(--dy)
+        {
+            erroracctmp = erroracc;
+
+            erroracc += erroradj;
+
+            // if error has overflown, advance x coordinate
+            if(erroracc <= erroracctmp)
+                x += xdir;
+
+            y += 1; // advance y
+
+            // the trick is in the trig!
+            V_PlotPixelWu(0, x, y, (byte)color,
+                          finecosine[erroracc >> wu_fineshift] >> wu_fixedshift);
+            V_PlotPixelWu(0, x + xdir, y, (byte)color,
+                          finesine[erroracc >> wu_fineshift] >> wu_fixedshift);
+        }
+    }
+    else
+    {
+        // line is x-axis major.
+        erroracc = 0;
+        erroradj = (unsigned short)(((unsigned int)dy << 16) / (unsigned int)dx);
+
+        while(--dx)
+        {
+            erroracctmp = erroracc;
+
+            erroracc += erroradj;
+
+            // if error has overflown, advance y coordinate
+            if(erroracc <= erroracctmp)
+                y += 1;
+
+            x += xdir; // advance x
+
+            // the trick is in the trig!
+            V_PlotPixelWu(0, x, y, (byte)color,
+                          finecosine[erroracc >> wu_fineshift] >> wu_fixedshift);
+            V_PlotPixelWu(0, x, y + 1, (byte)color,
+                          finesine[erroracc >> wu_fineshift] >> wu_fixedshift);
+        }
+    }
+
+    // draw last pixel
+    PUTDOT(fl->b.x, fl->b.y, color);
 }
 
 
 static unsigned char *playpal_data = NULL;
 const unsigned char* V_GetPlaypal(void)
 {
-  if (!playpal_data)
-  {
-    int lump = W_GetNumForName("PLAYPAL");
-    int len = W_LumpLength(lump);
-    const byte *data = W_CacheLumpNum(lump);
-    playpal_data = malloc(len);
-    memcpy(playpal_data, data, len);
-    W_UnlockLumpNum(lump);
-  }
+    if(!playpal_data)
+    {
+        int lump = W_GetNumForName("PLAYPAL");
+        int len = W_LumpLength(lump);
+        const byte *data = W_CacheLumpNum(lump);
+        playpal_data = malloc(len);
+        memcpy(playpal_data, data, len);
+        W_UnlockLumpNum(lump);
+    }
 
-  return playpal_data;
+    return playpal_data;
 }
 
 void V_FreePlaypal(void)
 {
-  if (playpal_data)
-  {
-    free(playpal_data);
-    playpal_data = NULL;
-  }
+    if(playpal_data)
+    {
+        free(playpal_data);
+        playpal_data = NULL;
+    }
 }
 
 void V_FillBorder(int lump, byte color)
 {
-  int bordtop, bordbottom, bordleft, bordright;
+    int bordtop, bordbottom, bordleft, bordright;
 
-  if (render_stretch_hud == patch_stretch_full)
-    return;
+    if(render_stretch_hud == patch_stretch_full)
+        return;
 
-  bordleft = wide_offsetx;
-  bordright = wide_offset2x - wide_offsetx;
-  bordtop = wide_offsety;
-  bordbottom = wide_offset2y - wide_offsety;
+    bordleft = wide_offsetx;
+    bordright = wide_offset2x - wide_offsetx;
+    bordtop = wide_offsety;
+    bordbottom = wide_offset2y - wide_offsety;
 
-  if (lump >= 0)
-  {
-    if (bordtop > 0)
+    if(lump >= 0)
     {
-      // Top
-      V_FillFlat(lump, 0, 0, 0, SCREENWIDTH, bordtop, VPT_NONE);
-      // Bottom
-      V_FillFlat(lump, 0, 0, SCREENHEIGHT - bordbottom, SCREENWIDTH, bordbottom, VPT_NONE);
+        if(bordtop > 0)
+        {
+            // Top
+            V_FillFlat(lump, 0, 0, 0, SCREENWIDTH, bordtop, VPT_NONE);
+            // Bottom
+            V_FillFlat(lump, 0, 0, SCREENHEIGHT - bordbottom, SCREENWIDTH, bordbottom, VPT_NONE);
+        }
+
+        if(bordleft > 0)
+        {
+            // Left
+            V_FillFlat(lump, 0, 0, bordtop, bordleft, SCREENHEIGHT - bordbottom - bordtop, VPT_NONE);
+            // Right
+            V_FillFlat(lump, 0, SCREENWIDTH - bordright, bordtop, bordright, SCREENHEIGHT - bordbottom - bordtop, VPT_NONE);
+        }
     }
-    if (bordleft > 0)
+    else
     {
-      // Left
-      V_FillFlat(lump, 0, 0, bordtop, bordleft, SCREENHEIGHT - bordbottom - bordtop, VPT_NONE);
-      // Right
-      V_FillFlat(lump, 0, SCREENWIDTH - bordright, bordtop, bordright, SCREENHEIGHT - bordbottom - bordtop, VPT_NONE);
+        if(bordtop > 0)
+        {
+            // Top
+            V_FillRect(0, 0, 0, SCREENWIDTH, bordtop, color);
+            // Bottom
+            V_FillRect(0, 0, SCREENHEIGHT - bordbottom, SCREENWIDTH, bordbottom, color);
+        }
+
+        if(bordleft > 0)
+        {
+            // Left
+            V_FillRect(0, 0, bordtop, bordleft, SCREENHEIGHT - bordbottom - bordtop, color);
+            // Right
+            V_FillRect(0, SCREENWIDTH - bordright, bordtop, bordright, SCREENHEIGHT - bordbottom - bordtop, color);
+        }
     }
-  }
-  else
-  {
-    if (bordtop > 0)
-    {
-      // Top
-      V_FillRect(0, 0, 0, SCREENWIDTH, bordtop, color);
-      // Bottom
-      V_FillRect(0, 0, SCREENHEIGHT - bordbottom, SCREENWIDTH, bordbottom, color);
-    }
-    if (bordleft > 0)
-    {
-      // Left
-      V_FillRect(0, 0, bordtop, bordleft, SCREENHEIGHT - bordbottom - bordtop, color);
-      // Right
-      V_FillRect(0, SCREENWIDTH - bordright, bordtop, bordright, SCREENHEIGHT - bordbottom - bordtop, color);
-    }
-  }
 }
 
 // DWF 2012-05-10
 // Euclid's algorithm to find the greatest common divisor.
-static unsigned int gcd (unsigned int n, unsigned int d) { return (d ? gcd(d, n%d) : n); }
+static unsigned int gcd(unsigned int n, unsigned int d)
+{
+    return (d ? gcd(d, n % d) : n);
+}
 
 // DWF 2012-05-10
 // Reduce aspect ratio fractions to make the log messages nicer.  Even if
 // integer math were still being used for FPS scaling, this would not
 // necessarily speed it up, but it does no harm.
 // Order of parameters (numerator, denominator) doesn't matter.
-static void ReduceFraction (unsigned *num1, unsigned *num2)
+static void ReduceFraction(unsigned *num1, unsigned *num2)
 {
-  unsigned int g;
-  assert(*num1 || *num2);
-  g = gcd (*num1, *num2);
-  *num1 /= g;
-  *num2 /= g;
+    unsigned int g;
+    assert(*num1 || *num2);
+    g = gcd(*num1, *num2);
+    *num1 /= g;
+    *num2 /= g;
 }
 
 // DWF 2012-05-01
 // C substitute for C++ std::swap.
 static void swap(unsigned int *num1, unsigned int *num2)
 {
-  unsigned int temp = *num1;
-  *num1 = *num2;
-  *num2 = temp;
+    unsigned int temp = *num1;
+    *num1 = *num2;
+    *num2 = temp;
 }
 
 // DWF 2012-05-01
 // Set global variables for video scaling.
 void SetRatio(int width, int height)
 {
-  lprintf(LO_INFO, "SetRatio: width/height parameters %dx%d\n", width, height);
+    lprintf(LO_INFO, "SetRatio: width/height parameters %dx%d\n", width, height);
 
-  ratio_multiplier = width;
-  ratio_scale = height;
-  ReduceFraction(&ratio_multiplier, &ratio_scale);
-
-  // The terms storage aspect ratio, pixel aspect ratio, and display aspect
-  // ratio came from Wikipedia.  SAR x PAR = DAR
-  lprintf(LO_INFO, "SetRatio: storage aspect ratio %u:%u\n", ratio_multiplier, ratio_scale);
-  if (height == 200 || height == 400)
-  {
-    lprintf(LO_INFO, "SetRatio: recognized VGA mode with pixel aspect ratio 5:6\n");
-    ratio_multiplier = width * 5;
-    ratio_scale = height * 6;
+    ratio_multiplier = width;
+    ratio_scale = height;
     ReduceFraction(&ratio_multiplier, &ratio_scale);
-  }
-  else
-  {
-    lprintf(LO_INFO, "SetRatio: assuming square pixels\n");
-  }
-  lprintf(LO_INFO, "SetRatio: display aspect ratio %u:%u\n", ratio_multiplier, ratio_scale);
 
-  // If user wants to force aspect ratio, let them.
-  {
-    unsigned int new_multiplier = ratio_multiplier;
-    unsigned int new_scale = ratio_scale;
-    // Hardcoded to match render_aspects_list
-    switch (render_aspect)
+    // The terms storage aspect ratio, pixel aspect ratio, and display aspect
+    // ratio came from Wikipedia.  SAR x PAR = DAR
+    lprintf(LO_INFO, "SetRatio: storage aspect ratio %u:%u\n", ratio_multiplier, ratio_scale);
+
+    if(height == 200 || height == 400)
     {
-    case 0:
-      break;
-    case 1:
-      new_multiplier = 16;
-      new_scale = 9;
-      break;
-    case 2:
-      new_multiplier = 16;
-      new_scale = 10;
-      break;
-    case 3:
-      new_multiplier = 4;
-      new_scale = 3;
-      break;
-    case 4:
-      new_multiplier = 5;
-      new_scale = 4;
-      break;
-    default:
-      lprintf(LO_ERROR, "SetRatio: render_aspect has invalid value %d\n", render_aspect);
+        lprintf(LO_INFO, "SetRatio: recognized VGA mode with pixel aspect ratio 5:6\n");
+        ratio_multiplier = width * 5;
+        ratio_scale = height * 6;
+        ReduceFraction(&ratio_multiplier, &ratio_scale);
+    }
+    else
+    {
+        lprintf(LO_INFO, "SetRatio: assuming square pixels\n");
     }
 
-    if (ratio_multiplier != new_multiplier || ratio_scale != new_scale)
+    lprintf(LO_INFO, "SetRatio: display aspect ratio %u:%u\n", ratio_multiplier, ratio_scale);
+
+    // If user wants to force aspect ratio, let them.
     {
-      lprintf(LO_INFO, "SetRatio: overruled by user configuration setting\n");
-      ratio_multiplier = new_multiplier;
-      ratio_scale = new_scale;
-      lprintf(LO_INFO, "SetRatio: revised display aspect ratio %u:%u\n", ratio_multiplier, ratio_scale);
+        unsigned int new_multiplier = ratio_multiplier;
+        unsigned int new_scale = ratio_scale;
+
+        // Hardcoded to match render_aspects_list
+        switch(render_aspect)
+        {
+        case 0:
+            break;
+
+        case 1:
+            new_multiplier = 16;
+            new_scale = 9;
+            break;
+
+        case 2:
+            new_multiplier = 16;
+            new_scale = 10;
+            break;
+
+        case 3:
+            new_multiplier = 4;
+            new_scale = 3;
+            break;
+
+        case 4:
+            new_multiplier = 5;
+            new_scale = 4;
+            break;
+
+        default:
+            lprintf(LO_ERROR, "SetRatio: render_aspect has invalid value %d\n", render_aspect);
+        }
+
+        if(ratio_multiplier != new_multiplier || ratio_scale != new_scale)
+        {
+            lprintf(LO_INFO, "SetRatio: overruled by user configuration setting\n");
+            ratio_multiplier = new_multiplier;
+            ratio_scale = new_scale;
+            lprintf(LO_INFO, "SetRatio: revised display aspect ratio %u:%u\n", ratio_multiplier, ratio_scale);
+        }
     }
-  }
-  
-  gl_ratio = RMUL * ratio_multiplier / ratio_scale;
-  lprintf(LO_INFO, "SetRatio: gl_ratio %f\n", gl_ratio);
 
-  // Calculate modified multiplier following the pattern of the old
-  // BaseRatioSizes table in PrBoom-Plus 2.5.1.3.
-  swap(&ratio_multiplier, &ratio_scale);
-  ratio_multiplier *= 4;
-  ratio_scale *= 3;
-  ReduceFraction(&ratio_multiplier, &ratio_scale);
+    gl_ratio = RMUL * ratio_multiplier / ratio_scale;
+    lprintf(LO_INFO, "SetRatio: gl_ratio %f\n", gl_ratio);
 
-  tallscreen = (ratio_scale < ratio_multiplier);
-  if (tallscreen)
-  {
-    lprintf(LO_INFO, "SetRatio: tallscreen aspect recognized; flipping multiplier\n");
+    // Calculate modified multiplier following the pattern of the old
+    // BaseRatioSizes table in PrBoom-Plus 2.5.1.3.
     swap(&ratio_multiplier, &ratio_scale);
-    psprite_offset = (int)(6.5*FRACUNIT);
-  }
-  else
-  {
-    psprite_offset = 0;
-  }
-  lprintf(LO_INFO, "SetRatio: multiplier %u/%u\n", ratio_multiplier, ratio_scale);
+    ratio_multiplier *= 4;
+    ratio_scale *= 3;
+    ReduceFraction(&ratio_multiplier, &ratio_scale);
 
-  // The rest is carried over from CheckRatio in PrBoom-Plus 2.5.1.3.
-  if (tallscreen)
-  {
-    WIDE_SCREENWIDTH = SCREENWIDTH;
-    WIDE_SCREENHEIGHT = SCREENHEIGHT * ratio_multiplier / ratio_scale;
-  }
-  else
-  {
-    WIDE_SCREENWIDTH = SCREENWIDTH * ratio_multiplier / ratio_scale;
-    WIDE_SCREENHEIGHT = SCREENHEIGHT;
-  }
+    tallscreen = (ratio_scale < ratio_multiplier);
 
-  WIDE_SCREENWIDTH = MAX(1, WIDE_SCREENWIDTH);
-  WIDE_SCREENHEIGHT = MAX(1, WIDE_SCREENHEIGHT);
+    if(tallscreen)
+    {
+        lprintf(LO_INFO, "SetRatio: tallscreen aspect recognized; flipping multiplier\n");
+        swap(&ratio_multiplier, &ratio_scale);
+        psprite_offset = (int)(6.5 * FRACUNIT);
+    }
+    else
+    {
+        psprite_offset = 0;
+    }
 
-  yaspectmul = Scale((320<<FRACBITS), WIDE_SCREENHEIGHT, 200 * WIDE_SCREENWIDTH);
+    lprintf(LO_INFO, "SetRatio: multiplier %u/%u\n", ratio_multiplier, ratio_scale);
 
-  patches_scalex = MIN(SCREENWIDTH / 320, SCREENHEIGHT / 200);
-  patches_scalex = MAX(1, patches_scalex);
-  patches_scaley = patches_scalex;
+    // The rest is carried over from CheckRatio in PrBoom-Plus 2.5.1.3.
+    if(tallscreen)
+    {
+        WIDE_SCREENWIDTH = SCREENWIDTH;
+        WIDE_SCREENHEIGHT = SCREENHEIGHT * ratio_multiplier / ratio_scale;
+    }
+    else
+    {
+        WIDE_SCREENWIDTH = SCREENWIDTH * ratio_multiplier / ratio_scale;
+        WIDE_SCREENHEIGHT = SCREENHEIGHT;
+    }
 
-  //custom scaling when "not adjusted" is used
-  if (render_patches_scalex > 0)
-  {
-    patches_scalex = MIN(render_patches_scalex, patches_scalex);
-  }
-  if (render_patches_scaley > 0)
-  {
-    patches_scaley = MIN(render_patches_scaley, patches_scaley);
-  }
+    WIDE_SCREENWIDTH = MAX(1, WIDE_SCREENWIDTH);
+    WIDE_SCREENHEIGHT = MAX(1, WIDE_SCREENHEIGHT);
 
-  ST_SCALED_HEIGHT = ST_HEIGHT * patches_scaley;
+    yaspectmul = Scale((320 << FRACBITS), WIDE_SCREENHEIGHT, 200 * WIDE_SCREENWIDTH);
 
-  if (SCREENWIDTH < 320 || WIDE_SCREENWIDTH < 320 ||
-      SCREENHEIGHT < 200 || WIDE_SCREENHEIGHT < 200)
-  {
-    render_stretch_hud = patch_stretch_full; 
-  }
+    patches_scalex = MIN(SCREENWIDTH / 320, SCREENHEIGHT / 200);
+    patches_scalex = MAX(1, patches_scalex);
+    patches_scaley = patches_scalex;
 
-  switch (render_stretch_hud)
-  {
-  case patch_stretch_16x10:
-    ST_SCALED_Y = (200 * patches_scaley - ST_SCALED_HEIGHT);
+    //custom scaling when "not adjusted" is used
+    if(render_patches_scalex > 0)
+    {
+        patches_scalex = MIN(render_patches_scalex, patches_scalex);
+    }
 
-    wide_offset2x = (SCREENWIDTH - patches_scalex * 320);
-    wide_offset2y = (SCREENHEIGHT - patches_scaley * 200);
-    break;
-  case patch_stretch_4x3:
-    ST_SCALED_HEIGHT = ST_HEIGHT * WIDE_SCREENHEIGHT / 200;
+    if(render_patches_scaley > 0)
+    {
+        patches_scaley = MIN(render_patches_scaley, patches_scaley);
+    }
 
-    ST_SCALED_Y = SCREENHEIGHT - ST_SCALED_HEIGHT;
-    
-    wide_offset2x = (SCREENWIDTH - WIDE_SCREENWIDTH);
-    wide_offset2y = (SCREENHEIGHT - WIDE_SCREENHEIGHT);
-    break;
-  case patch_stretch_full:
-    ST_SCALED_HEIGHT = ST_HEIGHT * SCREENHEIGHT / 200;
+    ST_SCALED_HEIGHT = ST_HEIGHT * patches_scaley;
 
-    ST_SCALED_Y = SCREENHEIGHT - ST_SCALED_HEIGHT;
-    wide_offset2x = 0;
-    wide_offset2y = 0;
-    break;
-  }
+    if(SCREENWIDTH < 320 || WIDE_SCREENWIDTH < 320 ||
+            SCREENHEIGHT < 200 || WIDE_SCREENHEIGHT < 200)
+    {
+        render_stretch_hud = patch_stretch_full;
+    }
 
-  wide_offsetx = wide_offset2x / 2;
-  wide_offsety = wide_offset2y / 2;
+    switch(render_stretch_hud)
+    {
+    case patch_stretch_16x10:
+        ST_SCALED_Y = (200 * patches_scaley - ST_SCALED_HEIGHT);
 
-  SCREEN_320x200 =
-    (SCREENWIDTH == 320) && (SCREENHEIGHT == 200) &&
-    (WIDE_SCREENWIDTH == 320) && (WIDE_SCREENHEIGHT == 200);
+        wide_offset2x = (SCREENWIDTH - patches_scalex * 320);
+        wide_offset2y = (SCREENHEIGHT - patches_scaley * 200);
+        break;
 
-  // [FG] support widescreen status bar backgrounds
-  ST_SetScaledWidth();
+    case patch_stretch_4x3:
+        ST_SCALED_HEIGHT = ST_HEIGHT * WIDE_SCREENHEIGHT / 200;
+
+        ST_SCALED_Y = SCREENHEIGHT - ST_SCALED_HEIGHT;
+
+        wide_offset2x = (SCREENWIDTH - WIDE_SCREENWIDTH);
+        wide_offset2y = (SCREENHEIGHT - WIDE_SCREENHEIGHT);
+        break;
+
+    case patch_stretch_full:
+        ST_SCALED_HEIGHT = ST_HEIGHT * SCREENHEIGHT / 200;
+
+        ST_SCALED_Y = SCREENHEIGHT - ST_SCALED_HEIGHT;
+        wide_offset2x = 0;
+        wide_offset2y = 0;
+        break;
+    }
+
+    wide_offsetx = wide_offset2x / 2;
+    wide_offsety = wide_offset2y / 2;
+
+    SCREEN_320x200 =
+        (SCREENWIDTH == 320) && (SCREENHEIGHT == 200) &&
+        (WIDE_SCREENWIDTH == 320) && (WIDE_SCREENHEIGHT == 200);
+
+    // [FG] support widescreen status bar backgrounds
+    ST_SetScaledWidth();
 }
 
 void V_GetWideRect(int *x, int *y, int *w, int *h, enum patch_translation_e flags)
 {
-  stretch_param_t *params = &stretch_params[flags & VPT_ALIGN_MASK];
-  int sx = *x;
-  int sy = *y;
+    stretch_param_t *params = &stretch_params[flags & VPT_ALIGN_MASK];
+    int sx = *x;
+    int sy = *y;
 
-  *x = params->video->x1lookup[*x];
-  *y = params->video->y1lookup[*y];
-  *w = params->video->x2lookup[sx + *w - 1] - *x + 1;
-  *h = params->video->y2lookup[sy + *h - 1] - *y + 1;
-  *x += params->deltax1;
-  *y += params->deltay1;
+    *x = params->video->x1lookup[*x];
+    *y = params->video->y1lookup[*y];
+    *w = params->video->x2lookup[sx + *w - 1] - *x + 1;
+    *h = params->video->y2lookup[sy + *h - 1] - *y + 1;
+    *x += params->deltax1;
+    *y += params->deltay1;
 }
 
-// 
+//
 // V_BestColor
 //
 // Adapted from zdoom -- thanks to Randy Heit.
@@ -1784,67 +1970,71 @@ void V_GetWideRect(int *x, int *y, int *w, int *h, enum patch_translation_e flag
 //
 int V_BestColor(const unsigned char *palette, int r, int g, int b)
 {
-  int color;
-  
-  // use color 0 as a worst-case match for any color
-  int bestcolor = 0;
-  int bestdist = 257 * 257 + 257 * 257 + 257 * 257;
+    int color;
 
-  for (color = 0; color < 256; color++)
-  {
-    int dr, dg, db, dist;
+    // use color 0 as a worst-case match for any color
+    int bestcolor = 0;
+    int bestdist = 257 * 257 + 257 * 257 + 257 * 257;
 
-    dr = r - *palette++;
-    dg = g - *palette++;
-    db = b - *palette++;
-
-    dist = dr * dr + dg * dg + db * db;
-
-    if (dist < bestdist)
+    for(color = 0; color < 256; color++)
     {
-      // exact match
-      if (dist == 0)
-        return color;
+        int dr, dg, db, dist;
 
-      bestdist = dist;
-      bestcolor = color;
+        dr = r - *palette++;
+        dg = g - *palette++;
+        db = b - *palette++;
+
+        dist = dr * dr + dg * dg + db * db;
+
+        if(dist < bestdist)
+        {
+            // exact match
+            if(dist == 0)
+                return color;
+
+            bestdist = dist;
+            bestcolor = color;
+        }
     }
-  }
 
-  return bestcolor;
+    return bestcolor;
 }
 
 // Alt-Enter: fullscreen <-> windowed
 void V_ToggleFullscreen(void)
 {
-  if (desired_fullscreen == use_fullscreen)
-  {
-    use_fullscreen = (use_fullscreen ? 0 : 1);
-    desired_fullscreen = use_fullscreen;
-  }
-  else
-  {
-    desired_fullscreen = (desired_fullscreen ? 0 : 1);
-  }
+    if(desired_fullscreen == use_fullscreen)
+    {
+        use_fullscreen = (use_fullscreen ? 0 : 1);
+        desired_fullscreen = use_fullscreen;
+    }
+    else
+    {
+        desired_fullscreen = (desired_fullscreen ? 0 : 1);
+    }
 
-  I_UpdateVideoMode();
+    I_UpdateVideoMode();
 
 #ifdef GL_DOOM
-  if (V_GetMode() == VID_MODEGL)
-  {
-    gld_PreprocessLevel();
-  }
+
+    if(V_GetMode() == VID_MODEGL)
+    {
+        gld_PreprocessLevel();
+    }
+
 #endif
 }
 
 void V_ChangeScreenResolution(void)
 {
-  I_UpdateVideoMode();
+    I_UpdateVideoMode();
 
 #ifdef GL_DOOM
-  if (V_GetMode() == VID_MODEGL)
-  {
-    gld_PreprocessLevel();
-  }
+
+    if(V_GetMode() == VID_MODEGL)
+    {
+        gld_PreprocessLevel();
+    }
+
 #endif
 }

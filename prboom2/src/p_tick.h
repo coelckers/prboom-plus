@@ -57,19 +57,20 @@ void P_SetTarget(mobj_t **mo, mobj_t *target);   // killough 11/98
  * cph 2002/01/13: for consistency with the main thinker list, keep objects
  * pending deletion on a class list too
  */
-typedef enum {
-  th_delete,
-  th_misc,
-  th_friends,
-  th_enemies,
-  NUMTHCLASS,
-  th_all = NUMTHCLASS, /* For P_NextThinker, indicates "any class" */
+typedef enum
+{
+    th_delete,
+    th_misc,
+    th_friends,
+    th_enemies,
+    NUMTHCLASS,
+    th_all = NUMTHCLASS, /* For P_NextThinker, indicates "any class" */
 } th_class;
 
 extern thinker_t thinkerclasscap[];
 #define thinkercap thinkerclasscap[th_all]
 
 /* cph 2002/01/13 - iterator for thinker lists */
-thinker_t* P_NextThinker(thinker_t*,th_class);
+thinker_t* P_NextThinker(thinker_t*, th_class);
 
 #endif

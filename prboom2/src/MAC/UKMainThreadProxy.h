@@ -1,15 +1,15 @@
 /* =============================================================================
 	FILE:		UKMainThreadProxy.h
 	PROJECT:	UKMainThreadProxy
-    
+
     PURPOSE:    Send a message to object theObject to [theObject mainThreadProxy]
                 instead and the message will be received on the main thread by
                 theObject.
 
     COPYRIGHT:  (c) 2004 M. Uli Kusterer, all rights reserved.
-    
+
 	AUTHORS:	M. Uli Kusterer - UK
-    
+
     LICENSES:   GPL, Modified BSD
 
 	REVISIONS:
@@ -27,7 +27,7 @@
 //  Categories:
 // -----------------------------------------------------------------------------
 
-@interface NSObject (UKMainThreadProxy)
+@interface NSObject(UKMainThreadProxy)
 
 -(id)	mainThreadProxy;		// You can't init or release this object.
 -(id)	copyMainThreadProxy;	// Gives you a retained version.
@@ -47,7 +47,7 @@
 
 @interface UKMainThreadProxy : NSObject
 {
-	IBOutlet id		target;
+    IBOutlet id		target;
 }
 
 -(id)	initWithTarget: (id)targ;

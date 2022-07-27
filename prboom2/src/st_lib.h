@@ -52,64 +52,64 @@
 
 typedef struct
 {
-  // upper right-hand corner
-  //  of the number (right-justified)
-  int   x;
-  int   y;
+    // upper right-hand corner
+    //  of the number (right-justified)
+    int   x;
+    int   y;
 
-  // max # of digits in number
-  int width;
+    // max # of digits in number
+    int width;
 
-  // last number value
-  int   oldnum;
+    // last number value
+    int   oldnum;
 
-  // pointer to current value
-  int*  num;
+    // pointer to current value
+    int*  num;
 
-  // pointer to dboolean stating
-  //  whether to update number
-  dboolean*  on;
+    // pointer to dboolean stating
+    //  whether to update number
+    dboolean*  on;
 
-  // list of patches for 0-9
-  const patchnum_t* p;
+    // list of patches for 0-9
+    const patchnum_t* p;
 
-  // user data
-  int data;
+    // user data
+    int data;
 } st_number_t;
 
 // Percent widget ("child" of number widget,
 //  or, more precisely, contains a number widget.)
 typedef struct
 {
-  // number information
-  st_number_t   n;
+    // number information
+    st_number_t   n;
 
-  // percent sign graphic
-  const patchnum_t*    p;
+    // percent sign graphic
+    const patchnum_t*    p;
 } st_percent_t;
 
 // Multiple Icon widget
 typedef struct
 {
-  // center-justified location of icons
-  int     x;
-  int     y;
+    // center-justified location of icons
+    int     x;
+    int     y;
 
-  // last icon number
-  int     oldinum;
+    // last icon number
+    int     oldinum;
 
-  // pointer to current icon
-  int*    inum;
+    // pointer to current icon
+    int*    inum;
 
-  // pointer to dboolean stating
-  //  whether to update icon
-  dboolean*    on;
+    // pointer to dboolean stating
+    //  whether to update icon
+    dboolean*    on;
 
-  // list of icons
-  const patchnum_t*   p;
+    // list of icons
+    const patchnum_t*   p;
 
-  // user data
-  int     data;
+    // user data
+    int     data;
 
 } st_multicon_t;
 
@@ -117,22 +117,22 @@ typedef struct
 
 typedef struct
 {
-  // center-justified location of icon
-  int     x;
-  int     y;
+    // center-justified location of icon
+    int     x;
+    int     y;
 
-  // last icon value
-  dboolean oldval;
+    // last icon value
+    dboolean oldval;
 
-  // pointer to current icon status
-  dboolean*    val;
+    // pointer to current icon status
+    dboolean*    val;
 
-  // pointer to dboolean
-  //  stating whether to update icon
-  dboolean*    on;
+    // pointer to dboolean
+    //  stating whether to update icon
+    dboolean*    on;
 
-  const patchnum_t*    p;  // icon
-  int     data;   // user data
+    const patchnum_t*    p;  // icon
+    int     data;   // user data
 } st_binicon_t;
 
 //
@@ -147,63 +147,63 @@ void STlib_init(void);
 
 // Number widget routines
 void STlib_initNum
-( st_number_t* n,
-  int x,
-  int y,
-  const patchnum_t* pl,
-  int* num,
-  dboolean* on,
-  int width );
+(st_number_t* n,
+ int x,
+ int y,
+ const patchnum_t* pl,
+ int* num,
+ dboolean* on,
+ int width);
 
 void STlib_updateNum
-( st_number_t* n,
-  int cm,
-  dboolean refresh );
+(st_number_t* n,
+ int cm,
+ dboolean refresh);
 
 
 // Percent widget routines
 void STlib_initPercent
-( st_percent_t* p,
-  int x,
-  int y,
-  const patchnum_t* pl,
-  int* num,
-  dboolean* on,
-  const patchnum_t* percent );
+(st_percent_t* p,
+ int x,
+ int y,
+ const patchnum_t* pl,
+ int* num,
+ dboolean* on,
+ const patchnum_t* percent);
 
 
 void STlib_updatePercent
-( st_percent_t* per,
-  int cm,
-  int refresh );
+(st_percent_t* per,
+ int cm,
+ int refresh);
 
 
 // Multiple Icon widget routines
 void STlib_initMultIcon
-( st_multicon_t* mi,
-  int x,
-  int y,
-  const patchnum_t*   il,
-  int* inum,
-  dboolean* on );
+(st_multicon_t* mi,
+ int x,
+ int y,
+ const patchnum_t*   il,
+ int* inum,
+ dboolean* on);
 
 
 void STlib_updateMultIcon
-( st_multicon_t* mi,
-  dboolean refresh );
+(st_multicon_t* mi,
+ dboolean refresh);
 
 // Binary Icon widget routines
 
 void STlib_initBinIcon
-( st_binicon_t* b,
-  int x,
-  int y,
-  const patchnum_t* i,
-  dboolean* val,
-  dboolean* on );
+(st_binicon_t* b,
+ int x,
+ int y,
+ const patchnum_t* i,
+ dboolean* val,
+ dboolean* on);
 
 void STlib_updateBinIcon
-( st_binicon_t* bi,
-  dboolean refresh );
+(st_binicon_t* bi,
+ dboolean refresh);
 
 #endif

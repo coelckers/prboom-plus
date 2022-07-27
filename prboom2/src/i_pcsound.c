@@ -1,4 +1,4 @@
-// Emacs style mode select   -*- C++ -*- 
+// Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
 // Copyright(C) 2007 Simon Howard
@@ -45,7 +45,8 @@ static const uint8_t *current_sound_pos = NULL;
 static unsigned int current_sound_remaining = 0;
 static int current_sound_handle = 0;
 
-static float frequencies[] = {
+static float frequencies[] =
+{
     0.0f, 175.00f, 180.02f, 185.01f, 190.02f, 196.02f, 202.02f, 208.01f, 214.02f, 220.02f,
     226.02f, 233.04f, 240.02f, 247.03f, 254.03f, 262.00f, 269.03f, 277.03f, 285.04f,
     294.03f, 302.07f, 311.04f, 320.05f, 330.06f, 339.06f, 349.08f, 359.06f, 370.09f,
@@ -67,13 +68,13 @@ void PCSCallbackFunc(int *duration, int *freq)
 
     *duration = 1000 / 140;
 
-    if (SDL_LockMutex(sound_lock) < 0)
+    if(SDL_LockMutex(sound_lock) < 0)
     {
         *freq = 0;
         return;
     }
-    
-    if (current_sound_lump != NULL && current_sound_remaining > 0)
+
+    if(current_sound_lump != NULL && current_sound_remaining > 0)
     {
         // Read the next tone
 
@@ -83,7 +84,7 @@ void PCSCallbackFunc(int *duration, int *freq)
         // for a full discussion of this.
         // Check we don't overflow the frequency table.
 
-        if (tone < (int)NUM_FREQUENCIES)
+        if(tone < (int)NUM_FREQUENCIES)
         {
             *freq = (int) frequencies[tone];
         }
@@ -109,8 +110,8 @@ static dboolean CachePCSLump(int sound_id)
     int headerlen;
 
     // Free the current sound lump back to the cache
- 
-    if (current_sound_lump != NULL)
+
+    if(current_sound_lump != NULL)
     {
         //e6y Z_ChangeTag(current_sound_lump, PU_CACHE);
         current_sound_lump = NULL;
@@ -122,15 +123,15 @@ static dboolean CachePCSLump(int sound_id)
     lumplen = W_LumpLength(S_sfx[sound_id].lumpnum);
 
     // Read header
-  
-    if (current_sound_lump[0] != 0x00 || current_sound_lump[1] != 0x00)
+
+    if(current_sound_lump[0] != 0x00 || current_sound_lump[1] != 0x00)
     {
         return false;
     }
 
     headerlen = (current_sound_lump[3] << 8) | current_sound_lump[2];
 
-    if (headerlen > lumplen - 4)
+    if(headerlen > lumplen - 4)
     {
         return false;
     }
@@ -152,36 +153,36 @@ int I_PCS_StartSound(int id,
 {
     int result;
 
-    if (!pcs_initialised)
+    if(!pcs_initialised)
     {
         return -1;
     }
 
-    // These PC speaker sounds are not played - this can be seen in the 
+    // These PC speaker sounds are not played - this can be seen in the
     // Heretic source code, where there are remnants of this left over
     // from Doom.
 
-    if (id == sfx_posact || id == sfx_bgact || id == sfx_dmact
-     || id == sfx_dmpain || id == sfx_popain || id == sfx_sawidl)
+    if(id == sfx_posact || id == sfx_bgact || id == sfx_dmact
+            || id == sfx_dmpain || id == sfx_popain || id == sfx_sawidl)
     {
         return -1;
     }
 
-    if (SDL_LockMutex(sound_lock) < 0)
+    if(SDL_LockMutex(sound_lock) < 0)
     {
         return -1;
     }
 
     result = CachePCSLump(id);
 
-    if (result)
+    if(result)
     {
         current_sound_handle = channel;
     }
 
     SDL_UnlockMutex(sound_lock);
 
-    if (result)
+    if(result)
     {
         return channel;
     }
@@ -193,34 +194,34 @@ int I_PCS_StartSound(int id,
 
 void I_PCS_StopSound(int handle)
 {
-    if (!pcs_initialised)
+    if(!pcs_initialised)
     {
         return;
     }
 
-    if (SDL_LockMutex(sound_lock) < 0)
+    if(SDL_LockMutex(sound_lock) < 0)
     {
         return;
     }
 
     // If this is the channel currently playing, immediately end it.
 
-    if (current_sound_handle == handle)
+    if(current_sound_handle == handle)
     {
         current_sound_remaining = 0;
     }
-    
+
     SDL_UnlockMutex(sound_lock);
 }
 
 int I_PCS_SoundIsPlaying(int handle)
 {
-    if (!pcs_initialised)
+    if(!pcs_initialised)
     {
         return false;
     }
 
-    if (handle != current_sound_handle)
+    if(handle != current_sound_handle)
     {
         return false;
     }

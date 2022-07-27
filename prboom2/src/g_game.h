@@ -71,7 +71,7 @@ void G_DoNewGame(void);
 void G_DoReborn(int playernum);
 void G_DoPlayDemo(void);
 void G_DoCompleted(void);
-void G_ReadDemoContinueTiccmd (ticcmd_t* cmd);//e6y
+void G_ReadDemoContinueTiccmd(ticcmd_t* cmd); //e6y
 void G_ReadDemoTiccmd(ticcmd_t *cmd);
 void G_WriteDemoTiccmd(ticcmd_t *cmd);
 void G_DoWorldDone(void);
@@ -81,7 +81,7 @@ byte *G_WriteOptions(byte *demo_p);        // killough 3/1/98
 void G_PlayerReborn(int player);
 void G_RestartLevel(void); // CPhipps - menu involked level restart
 void G_DoVictory(void);
-void G_BuildTiccmd (ticcmd_t* cmd); // CPhipps - move decl to header
+void G_BuildTiccmd(ticcmd_t* cmd);  // CPhipps - move decl to header
 void G_ChangedPlayerColour(int pn, int cl); // CPhipps - On-the-fly player colour changing
 void G_MakeSpecialEvent(buttoncode_t bc, ...); /* cph - new event stuff */
 int G_ValidateMapName(const char *mapname, int *pEpi, int *pMap);
@@ -101,7 +101,7 @@ void G_CalculateDemoParams(const byte *demo_p);
 
 // killough 1/18/98: Doom-style printf;   killough 4/25/98: add gcc attributes
 // CPhipps - renames to doom_printf to avoid name collision with glibc
-void doom_printf(const char *, ...) __attribute__((format(printf,1,2)));
+void doom_printf(const char *, ...) __attribute__((format(printf, 1, 2)));
 
 // killough 5/2/98: moved from m_misc.c:
 

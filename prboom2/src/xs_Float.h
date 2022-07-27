@@ -26,11 +26,11 @@
 
 
 #ifdef WORDS_BIGENDIAN
-	#define _xs_iexp_				0
-	#define _xs_iman_				1
+#define _xs_iexp_				0
+#define _xs_iman_				1
 #else
-	#define _xs_iexp_				1       //intel is little endian
-	#define _xs_iman_				0
+#define _xs_iexp_				1       //intel is little endian
+#define _xs_iman_				0
 #endif //BigEndian_
 
 #ifdef __GNUC__
@@ -44,8 +44,8 @@ typedef double					real64;
 
 typedef union _xs_doubleints
 {
-	real64 val;
-	unsigned ival[2];
+    real64 val;
+    unsigned ival[2];
 } _xs_doubleints;
 
 
@@ -57,11 +57,11 @@ typedef union _xs_doubleints
 finline int xs_CRoundToInt(real64 val)
 {
 #if _xs_DEFAULT_CONVERSION==0
-	_xs_doubleints uval;
-	uval.val = val + 6755399441055744.0;
-	return uval.ival[_xs_iman_];
+    _xs_doubleints uval;
+    uval.val = val + 6755399441055744.0;
+    return uval.ival[_xs_iman_];
 #else
-    return int(floor(val+.5));
+    return int(floor(val + .5));
 #endif
 }
 
@@ -73,7 +73,7 @@ finline int xs_CRoundToInt(real64 val)
 // ====================================================================================================================
 finline unsigned xs_CRoundToUInt(real64 val)
 {
-	return (unsigned)xs_CRoundToInt(val);
+    return (unsigned)xs_CRoundToInt(val);
 }
 
 // ====================================================================================================================

@@ -182,13 +182,13 @@ int MIDI_GetNextEvent(midi_track_iter_t *iter, midi_event_t **event);
 void MIDI_RestartIterator(midi_track_iter_t *iter);
 
 // NSM: an alternate iterator tool.
-midi_event_t **MIDI_GenerateFlatList (midi_file_t *file);
-void MIDI_DestroyFlatList (midi_event_t **evs);
+midi_event_t **MIDI_GenerateFlatList(midi_file_t *file);
+void MIDI_DestroyFlatList(midi_event_t **evs);
 
 // NSM: timing calculator
-double MIDI_spmc (const midi_file_t *file, const midi_event_t *ev, unsigned sndrate);
+double MIDI_spmc(const midi_file_t *file, const midi_event_t *ev, unsigned sndrate);
 
-midi_file_t *MIDI_LoadFileSpecial (midimem_t *mf);
+midi_file_t *MIDI_LoadFileSpecial(midimem_t *mf);
 
 #endif /* #ifndef MIDIFILE_H */
 

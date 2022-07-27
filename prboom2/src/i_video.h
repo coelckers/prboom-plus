@@ -66,19 +66,19 @@ void I_PreInitGraphics(void); /* CPhipps - do stuff immediately on start */
 void I_InitScreenResolution(void); /* init resolution */
 void I_SetWindowCaption(void); /* Set the window caption */
 void I_SetWindowIcon(void); /* Set the application icon */
-void I_InitGraphics (void);
+void I_InitGraphics(void);
 void I_UpdateVideoMode(void);
 void I_ShutdownGraphics(void);
 
 /* Takes full 8 bit values. */
 void I_SetPalette(int pal); /* CPhipps - pass down palette number */
 
-void I_UpdateNoBlit (void);
-void I_FinishUpdate (void);
+void I_UpdateNoBlit(void);
+void I_FinishUpdate(void);
 
-int I_ScreenShot (const char *fname);
+int I_ScreenShot(const char *fname);
 // NSM expose lower level screen data grab for vidcap
-unsigned char *I_GrabScreen (void);
+unsigned char *I_GrabScreen(void);
 
 /* I_StartTic
  * Called by D_DoomLoop,
@@ -86,7 +86,7 @@ unsigned char *I_GrabScreen (void);
  * Quick syncronous operations are performed here.
  * Can call D_PostEvent.
  */
-void I_StartTic (void);
+void I_StartTic(void);
 
 /* I_StartFrame
  * Called by D_DoomLoop,
@@ -97,7 +97,7 @@ void I_StartTic (void);
  * Can call D_PostEvent.
  */
 
-void I_StartFrame (void);
+void I_StartFrame(void);
 
 extern int use_fullscreen;  /* proff 21/05/2000 */
 extern int desired_fullscreen; //e6y

@@ -112,29 +112,30 @@ typedef struct
 #define STARTUPLEN 12
 typedef struct
 {
-  byte monsters_remember;
-  byte variable_friction;
-  byte weapon_recoil;
-  byte allow_pushers;
-  byte over_under;
-  byte player_bobbing;
-  byte fastparm;
-  byte demo_insurance;
-  unsigned int rngseed;
-  char filler[sizeof(ticcmd_t)*BACKUPTICS-STARTUPLEN];
+    byte monsters_remember;
+    byte variable_friction;
+    byte weapon_recoil;
+    byte allow_pushers;
+    byte over_under;
+    byte player_bobbing;
+    byte fastparm;
+    byte demo_insurance;
+    unsigned int rngseed;
+    char filler[sizeof(ticcmd_t)*BACKUPTICS - STARTUPLEN];
 } startup_t;
 
-typedef enum {
-  // Leave space, so low values corresponding to normal netgame setup packets can be ignored
-  nm_plcolour = 3,
-  nm_savegamename = 4,
+typedef enum
+{
+    // Leave space, so low values corresponding to normal netgame setup packets can be ignored
+    nm_plcolour = 3,
+    nm_savegamename = 4,
 } netmisctype_t;
 
 typedef struct
 {
-  netmisctype_t type;
-  size_t len;
-  byte value[sizeof(ticcmd_t)*BACKUPTICS - sizeof(netmisctype_t) - sizeof(size_t)];
+    netmisctype_t type;
+    size_t len;
+    byte value[sizeof(ticcmd_t)*BACKUPTICS - sizeof(netmisctype_t) - sizeof(size_t)];
 } netmisc_t;
 
 typedef struct
@@ -189,16 +190,16 @@ typedef struct
 
 // Create any new ticcmds and broadcast to other players.
 #ifdef HAVE_NET
-void NetUpdate (void);
+void NetUpdate(void);
 #else
 void D_BuildNewTiccmds(void);
 #endif
 
 //? how many ticks to run?
-void TryRunTics (void);
+void TryRunTics(void);
 
 // CPhipps - move to header file
-void D_InitNetGame (void); // This does the setup
+void D_InitNetGame(void);  // This does the setup
 void D_CheckNetGame(void); // This waits for game start
 
 // CPhipps - misc info broadcast

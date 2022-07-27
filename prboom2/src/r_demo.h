@@ -45,7 +45,7 @@
 // Smooth playing stuff
 //
 
-#define SMOOTH_PLAYING_MAXFACTOR 16 
+#define SMOOTH_PLAYING_MAXFACTOR 16
 
 extern int demo_smoothturns;
 extern int demo_smoothturnsfactor;
@@ -61,23 +61,23 @@ void R_ResetAfterTeleport(player_t *player);
 
 typedef struct
 {
-  wadinfo_t header;
-  filelump_t *lumps;
-  char* data;
-  int datasize;
+    wadinfo_t header;
+    filelump_t *lumps;
+    char* data;
+    int datasize;
 } wadtbl_t;
 
 typedef struct
 {
-  wadfile_info_t *wadfiles;
-  size_t numwadfiles;
+    wadfile_info_t *wadfiles;
+    size_t numwadfiles;
 } waddata_t;
 
 typedef struct
 {
-  int pattern_num;
-  char pattern_name[80];
-  char *missed;
+    int pattern_num;
+    char pattern_name[80];
+    char *missed;
 } patterndata_t;
 
 extern int demo_extendedformat;

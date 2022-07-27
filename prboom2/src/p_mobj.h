@@ -207,7 +207,7 @@
 #define MF_UNUSED2      (uint_64_t)(0x0000000010000000)
 #define MF_UNUSED3      (uint_64_t)(0x0000000020000000)
 
-    // Translucent sprite?                                          // phares
+// Translucent sprite?                                          // phares
 #define MF_TRANSLUCENT  (uint_64_t)(0x0000000040000000)
 
 // this is free            LONGLONG(0x0000000100000000)
@@ -235,9 +235,10 @@
 // killough 9/15/98: Same, but internal flags, not intended for .deh
 // (some degree of opaqueness is good, to avoid compatibility woes)
 
-enum {
-  MIF_FALLING = 1,      // Object is falling
-  MIF_ARMED = 2,        // Object is armed (for MF_TOUCHY objects)
+enum
+{
+    MIF_FALLING = 1,      // Object is falling
+    MIF_ARMED = 2,        // Object is armed (for MF_TOUCHY objects)
 };
 
 // Map Object definition.
@@ -409,7 +410,7 @@ extern int iquetail;
 // [FG] colored blood and gibs
 extern dboolean colored_blood;
 
-mobj_t* P_SubstNullMobj (mobj_t* th);
+mobj_t* P_SubstNullMobj(mobj_t* th);
 void    P_RespawnSpecials(void);
 mobj_t  *P_SpawnMobj(fixed_t x, fixed_t y, fixed_t z, mobjtype_t type);
 void    P_RemoveMobj(mobj_t *th);
@@ -420,7 +421,7 @@ void    P_SpawnBlood(fixed_t x, fixed_t y, fixed_t z, int damage, mobj_t* bleede
 mobj_t  *P_SpawnMissile(mobj_t *source, mobj_t *dest, mobjtype_t type);
 void    P_SpawnPlayerMissile(mobj_t *source, mobjtype_t type);
 dboolean P_IsDoomnumAllowed(int doomnum);
-mobj_t* P_SpawnMapThing (const mapthing_t*  mthing, int index);
+mobj_t* P_SpawnMapThing(const mapthing_t*  mthing, int index);
 void    P_SpawnPlayer(int n, const mapthing_t *mthing);
 void    P_CheckMissileSpawn(mobj_t*);  // killough 8/2/98
 void    P_ExplodeMissile(mobj_t*);    // killough

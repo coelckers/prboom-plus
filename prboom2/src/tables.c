@@ -57,22 +57,25 @@
 
 int SlopeDiv(unsigned int num, unsigned int den)
 {
-  unsigned ans;
+    unsigned ans;
 
-  if (den < 512)
-    return SLOPERANGE;
-  ans = (num<<3)/(den>>8);
-  return ans <= SLOPERANGE ? ans : SLOPERANGE;
+    if(den < 512)
+        return SLOPERANGE;
+
+    ans = (num << 3) / (den >> 8);
+    return ans <= SLOPERANGE ? ans : SLOPERANGE;
 }
 
 // [crispy] catch SlopeDiv overflows, only used in rendering
 int SlopeDivEx(unsigned int num, unsigned int den)
 {
-  uint_64_t ans;
-  if (den < 512)
-    return SLOPERANGE;
-  ans = ((uint_64_t)num<<3)/(den>>8);
-  return ans <= SLOPERANGE ? (int)ans : SLOPERANGE;
+    uint_64_t ans;
+
+    if(den < 512)
+        return SLOPERANGE;
+
+    ans = ((uint_64_t)num << 3) / (den >> 8);
+    return ans <= SLOPERANGE ? (int)ans : SLOPERANGE;
 }
 
 fixed_t finetangent[4096];
@@ -92,47 +95,57 @@ angle_t tantoangle[2049];
 //
 void R_LoadTrigTables(void)
 {
-  int lump;
-  {
-    lump = (W_CheckNumForName)("SINETABL",ns_prboom);
-    if (lump == -1) I_Error("Failed to locate trig tables");
-    if (W_LumpLength(lump) != sizeof(finesine))
-      I_Error("R_LoadTrigTables: Invalid SINETABL");
-    W_ReadLump(lump,(unsigned char*)finesine);
-  }
-  {
-    lump = (W_CheckNumForName)("TANGTABL",ns_prboom);
-    if (lump == -1) I_Error("Failed to locate trig tables");
-    if (W_LumpLength(lump) != sizeof(finetangent))
-      I_Error("R_LoadTrigTables: Invalid TANGTABL");
-    W_ReadLump(lump,(unsigned char*)finetangent);
-  }
-  {
-    lump = (W_CheckNumForName)("TANTOANG",ns_prboom);
-    if (lump == -1) I_Error("Failed to locate trig tables");
-    if (W_LumpLength(lump) != sizeof(tantoangle))
-      I_Error("R_LoadTrigTables: Invalid TANTOANG");
-    W_ReadLump(lump,(unsigned char*)tantoangle);
-  }
-  // Endianness correction - might still be non-portable, but is fast where possible
-  {
-    size_t n;
-    lprintf(LO_INFO, "Endianness...");
+    int lump;
+    {
+        lump = (W_CheckNumForName)("SINETABL", ns_prboom);
 
-    // This test doesn't assume the endianness of the tables, but deduces them from
-    // en entry. I hope this is portable.
-    if ((10 < finesine[1]) && (finesine[1] < 100)) {
-      lprintf(LO_INFO, "ok.");
-      return; // Endianness is correct
+        if(lump == -1) I_Error("Failed to locate trig tables");
+
+        if(W_LumpLength(lump) != sizeof(finesine))
+            I_Error("R_LoadTrigTables: Invalid SINETABL");
+
+        W_ReadLump(lump, (unsigned char*)finesine);
     }
+    {
+        lump = (W_CheckNumForName)("TANGTABL", ns_prboom);
 
-    // Must correct endianness of every long loaded (!)
+        if(lump == -1) I_Error("Failed to locate trig tables");
+
+        if(W_LumpLength(lump) != sizeof(finetangent))
+            I_Error("R_LoadTrigTables: Invalid TANGTABL");
+
+        W_ReadLump(lump, (unsigned char*)finetangent);
+    }
+    {
+        lump = (W_CheckNumForName)("TANTOANG", ns_prboom);
+
+        if(lump == -1) I_Error("Failed to locate trig tables");
+
+        if(W_LumpLength(lump) != sizeof(tantoangle))
+            I_Error("R_LoadTrigTables: Invalid TANTOANG");
+
+        W_ReadLump(lump, (unsigned char*)tantoangle);
+    }
+    // Endianness correction - might still be non-portable, but is fast where possible
+    {
+        size_t n;
+        lprintf(LO_INFO, "Endianness...");
+
+        // This test doesn't assume the endianness of the tables, but deduces them from
+        // en entry. I hope this is portable.
+        if((10 < finesine[1]) && (finesine[1] < 100))
+        {
+            lprintf(LO_INFO, "ok.");
+            return; // Endianness is correct
+        }
+
+        // Must correct endianness of every long loaded (!)
 #define CORRECT_TABLE_ENDIAN(tbl) \
     for (n = 0; n<sizeof(tbl)/sizeof(tbl[0]); n++) tbl[n] = doom_swap_l(tbl[n])
 
-    CORRECT_TABLE_ENDIAN(finesine);
-    CORRECT_TABLE_ENDIAN(finetangent);
-    CORRECT_TABLE_ENDIAN(tantoangle);
-    lprintf(LO_INFO, "corrected.");
-  }
+        CORRECT_TABLE_ENDIAN(finesine);
+        CORRECT_TABLE_ENDIAN(finetangent);
+        CORRECT_TABLE_ENDIAN(tantoangle);
+        lprintf(LO_INFO, "corrected.");
+    }
 }

@@ -7,7 +7,7 @@
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2006 by Colin Phipps, Florian Schulze
- *  
+ *
  *  Copyright 2005, 2006 by
  *  Florian Schulze, Colin Phipps, Neil Stevens, Andrey Budko
  *
@@ -60,16 +60,16 @@
 void I_uSleep(unsigned long usecs)
 {
 #ifdef HAVE_USLEEP
-  usleep(usecs);
+    usleep(usecs);
 #else
-  /* Fall back on select(2) */
-  struct timeval tv = { usecs / 1000000, usecs % 1000000 };
-  select(0,NULL,NULL,NULL,&tv);
+    /* Fall back on select(2) */
+    struct timeval tv = { usecs / 1000000, usecs % 1000000 };
+    select(0, NULL, NULL, NULL, &tv);
 #endif
 }
 
-/* CPhipps - believe it or not, it is possible with consecutive calls to 
- * gettimeofday to receive times out of order, e.g you query the time twice and 
+/* CPhipps - believe it or not, it is possible with consecutive calls to
+ * gettimeofday to receive times out of order, e.g you query the time twice and
  * the second time is earlier than the first. Cheap'n'cheerful fix here.
  * NOTE: only occurs with bad kernel drivers loaded, e.g. pc speaker drv
  */
@@ -77,25 +77,28 @@ void I_uSleep(unsigned long usecs)
 static unsigned long lasttimereply;
 static unsigned long basetime;
 
-int I_GetTime_RealTime (void)
+int I_GetTime_RealTime(void)
 {
-  struct timeval tv;
-  struct timezone tz;
-  unsigned long thistimereply;
+    struct timeval tv;
+    struct timezone tz;
+    unsigned long thistimereply;
 
-  gettimeofday(&tv, &tz);
+    gettimeofday(&tv, &tz);
 
-  thistimereply = (tv.tv_sec * TICRATE + (tv.tv_usec * TICRATE) / 1000000);
+    thistimereply = (tv.tv_sec * TICRATE + (tv.tv_usec * TICRATE) / 1000000);
 
-  /* Fix for time problem */
-  if (!basetime) {
-    basetime = thistimereply; thistimereply = 0;
-  } else thistimereply -= basetime;
+    /* Fix for time problem */
+    if(!basetime)
+    {
+        basetime = thistimereply;
+        thistimereply = 0;
+    }
+    else thistimereply -= basetime;
 
-  if (thistimereply < lasttimereply)
-    thistimereply = lasttimereply;
+    if(thistimereply < lasttimereply)
+        thistimereply = lasttimereply;
 
-  return (lasttimereply = thistimereply);
+    return (lasttimereply = thistimereply);
 }
 
 /*
@@ -104,21 +107,21 @@ int I_GetTime_RealTime (void)
  * CPhipps - extracted from G_ReloadDefaults because it is O/S based
  */
 unsigned long I_GetRandomTimeSeed(void)
-{                            
-  /* killough 3/26/98: shuffle random seed, use the clock */ 
-  struct timeval tv;
-  struct timezone tz;
-  gettimeofday(&tv,&tz);
-  return (tv.tv_sec*1000ul + tv.tv_usec/1000ul);
+{
+    /* killough 3/26/98: shuffle random seed, use the clock */
+    struct timeval tv;
+    struct timezone tz;
+    gettimeofday(&tv, &tz);
+    return (tv.tv_sec * 1000ul + tv.tv_usec / 1000ul);
 }
 
 /* cphipps - I_GetVersionString
- * Returns a version string in the given buffer 
+ * Returns a version string in the given buffer
  */
 const char* I_GetVersionString(char* buf, size_t sz)
 {
-  snprintf(buf,sz,"%s v%s (%s)",PACKAGE_NAME,PACKAGE_VERSION,PACKAGE_HOMEPAGE);
-  return buf;
+    snprintf(buf, sz, "%s v%s (%s)", PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_HOMEPAGE);
+    return buf;
 }
 
 /* cphipps - I_SigString
@@ -127,10 +130,12 @@ const char* I_GetVersionString(char* buf, size_t sz)
 const char* I_SigString(char* buf, size_t sz, int signum)
 {
 #ifdef HAVE_STRSIGNAL
-  if (strsignal(signum) && strlen(strsignal(signum)) < sz)
-    strcpy(buf,strsignal(signum));
-  else
+
+    if(strsignal(signum) && strlen(strsignal(signum)) < sz)
+        strcpy(buf, strsignal(signum));
+    else
 #endif
-    sprintf(buf,"signal %d",signum);
-  return buf;
+        sprintf(buf, "signal %d", signum);
+
+    return buf;
 }

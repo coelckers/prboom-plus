@@ -42,31 +42,33 @@
 
 /* killough 4/16/98: Cheat table structure */
 
-typedef struct cheatseq_s {
-  const char *	cheat;
-  const char *const deh_cheat;
-  enum {
-    always   = 0,
-    not_dm   = 1,
-    not_coop = 2,
-    not_demo = 4,
-    not_menu = 8,
-    not_deh = 16,
-    not_net = not_dm | not_coop,
-    cht_never = not_net | not_demo
-  } const when;
-  void (*const func)();
-  const int arg;
-  uint_64_t code, mask;
+typedef struct cheatseq_s
+{
+    const char *	cheat;
+    const char *const deh_cheat;
+    enum
+    {
+        always   = 0,
+        not_dm   = 1,
+        not_coop = 2,
+        not_demo = 4,
+        not_menu = 8,
+        not_deh = 16,
+        not_net = not_dm | not_coop,
+        cht_never = not_net | not_demo
+    } const when;
+    void (*const func)();
+    const int arg;
+    uint_64_t code, mask;
 
-  // settings for this cheat
-  size_t sequence_len;
-  size_t deh_sequence_len;
+    // settings for this cheat
+    size_t sequence_len;
+    size_t deh_sequence_len;
 
-  // state used during the game
-  size_t chars_read;
-  int param_chars_read;
-  char parameter_buf[CHEAT_ARGS_MAX];
+    // state used during the game
+    size_t chars_read;
+    int param_chars_read;
+    char parameter_buf[CHEAT_ARGS_MAX];
 } cheatseq_t;
 
 extern cheatseq_t cheat[];

@@ -66,7 +66,7 @@ static txt_font_t *font;
 
 #ifndef TANGO
 
-static SDL_Color ega_colors[] = 
+static SDL_Color ega_colors[] =
 {
     {0x00, 0x00, 0x00, 0xff},          // 0: Black
     {0x00, 0x00, 0xa8, 0xff},          // 1: Blue
@@ -92,7 +92,7 @@ static SDL_Color ega_colors[] =
 // http://tango.freedesktop.org/ also
 // http://uwstopia.nl/blog/2006/07/tango-terminal
 
-static SDL_Color ega_colors[] = 
+static SDL_Color ega_colors[] =
 {
     {0x2e, 0x34, 0x36, 0xff},          // 0: Black
     {0x34, 0x65, 0xa4, 0xff},          // 1: Blue
@@ -126,7 +126,7 @@ static int Win32_UseLargeFont(void)
     HDC hdc = GetDC(NULL);
     int dpix;
 
-    if (!hdc)
+    if(!hdc)
     {
         return 0;
     }
@@ -144,15 +144,15 @@ static int Win32_UseLargeFont(void)
 
 static txt_font_t *FontForName(char *name)
 {
-    if (!strcmp(name, "small"))
+    if(!strcmp(name, "small"))
     {
         return &small_font;
     }
-    else if (!strcmp(name, "normal"))
+    else if(!strcmp(name, "normal"))
     {
         return &main_font;
     }
-    else if (!strcmp(name, "large"))
+    else if(!strcmp(name, "large"))
     {
         return &large_font;
     }
@@ -178,11 +178,11 @@ static void ChooseFont(void)
 
     env = getenv("TEXTSCREEN_FONT");
 
-    if (env != NULL)
+    if(env != NULL)
     {
         font = FontForName(env);
 
-        if (font != NULL)
+        if(font != NULL)
         {
             return;
         }
@@ -192,7 +192,7 @@ static void ChooseFont(void)
     // If in doubt and we can't get a list, always prefer to
     // fall back to the normal font:
 
-    if (!SDL_GetCurrentDisplayMode(0, &desktop_info))
+    if(!SDL_GetCurrentDisplayMode(0, &desktop_info))
     {
         font = &main_font;
         return;
@@ -203,18 +203,20 @@ static void ChooseFont(void)
     // a modern high-resolution display, and we can use the
     // large font.
 
-    if (desktop_info.w < 640 || desktop_info.h < 480)
+    if(desktop_info.w < 640 || desktop_info.h < 480)
     {
         font = &small_font;
     }
+
 #ifdef _WIN32
     // On Windows we can use the system DPI settings to make a
     // more educated guess about whether to use the large font.
 
-    else if (Win32_UseLargeFont())
+    else if(Win32_UseLargeFont())
     {
         font = &large_font;
     }
+
 #endif
     // TODO: Detect high DPI on Linux by inquiring about Gtk+ scale
     // settings. This looks like it should just be a case of shelling
@@ -235,7 +237,7 @@ static void ChooseFont(void)
 
 int TXT_Init(void)
 {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
+    if(SDL_Init(SDL_INIT_VIDEO) < 0)
     {
         return 0;
     }
@@ -250,7 +252,7 @@ int TXT_Init(void)
                          TXT_SCREEN_W * font->w, TXT_SCREEN_H * font->h,
                          0);
 
-    if (TXT_SDLWindow == NULL)
+    if(TXT_SDLWindow == NULL)
         return 0;
 
     // Instead, we draw everything into an intermediate 8-bit surface
@@ -309,13 +311,13 @@ static inline void UpdateCharacter(int x, int y)
     fg = p[1] & 0xf;
     bg = (p[1] >> 4) & 0xf;
 
-    if (bg & 0x8)
+    if(bg & 0x8)
     {
         // blinking
 
         bg &= ~0x8;
 
-        if (((SDL_GetTicks() / BLINK_PERIOD) % 2) == 0)
+        if(((SDL_GetTicks() / BLINK_PERIOD) % 2) == 0)
         {
             fg = bg;
         }
@@ -326,17 +328,17 @@ static inline void UpdateCharacter(int x, int y)
     p = &font->data[character * font->h * bytes];
 
     s = ((unsigned char *) screenbuffer->pixels)
-      + (y * font->h * screenbuffer->pitch)
-      + (x * font->w);
+        + (y * font->h * screenbuffer->pitch)
+        + (x * font->w);
 
-    for (y1=0; y1<font->h; ++y1)
+    for(y1 = 0; y1 < font->h; ++y1)
     {
         s1 = s;
         bit = 0;
 
-        for (x1=0; x1<font->w; ++x1)
+        for(x1 = 0; x1 < font->w; ++x1)
         {
-            if (*p & (1 << (7-bit)))
+            if(*p & (1 << (7 - bit)))
             {
                 *s1++ = fg;
             }
@@ -346,14 +348,15 @@ static inline void UpdateCharacter(int x, int y)
             }
 
             ++bit;
-            if (bit == 8)
+
+            if(bit == 8)
             {
                 ++p;
                 bit = 0;
             }
         }
 
-        if (bit != 0)
+        if(bit != 0)
         {
             ++p;
         }
@@ -364,11 +367,11 @@ static inline void UpdateCharacter(int x, int y)
 
 static int LimitToRange(int val, int min, int max)
 {
-    if (val < min)
+    if(val < min)
     {
         return min;
     }
-    else if (val > max)
+    else if(val > max)
     {
         return max;
     }
@@ -392,9 +395,9 @@ void TXT_UpdateScreenArea(int x, int y, int w, int h)
     x = LimitToRange(x, 0, TXT_SCREEN_W);
     y = LimitToRange(y, 0, TXT_SCREEN_H);
 
-    for (y1=y; y1<y_end; ++y1)
+    for(y1 = y; y1 < y_end; ++y1)
     {
-        for (x1=x; x1<x_end; ++x1)
+        for(x1 = x; x1 < x_end; ++x1)
         {
             UpdateCharacter(x1, y1);
         }
@@ -433,63 +436,131 @@ static int TranslateKey(SDL_Keysym *sym)
 {
     switch(sym->sym)
     {
-        case SDLK_LEFT:        return KEY_LEFTARROW;
-        case SDLK_RIGHT:       return KEY_RIGHTARROW;
-        case SDLK_DOWN:        return KEY_DOWNARROW;
-        case SDLK_UP:          return KEY_UPARROW;
-        case SDLK_ESCAPE:      return KEY_ESCAPE;
-        case SDLK_RETURN:      return KEY_ENTER;
-        case SDLK_TAB:         return KEY_TAB;
-        case SDLK_F1:          return KEY_F1;
-        case SDLK_F2:          return KEY_F2;
-        case SDLK_F3:          return KEY_F3;
-        case SDLK_F4:          return KEY_F4;
-        case SDLK_F5:          return KEY_F5;
-        case SDLK_F6:          return KEY_F6;
-        case SDLK_F7:          return KEY_F7;
-        case SDLK_F8:          return KEY_F8;
-        case SDLK_F9:          return KEY_F9;
-        case SDLK_F10:         return KEY_F10;
-        case SDLK_F11:         return KEY_F11;
-        case SDLK_F12:         return KEY_F12;
-        case SDLK_PRINTSCREEN:       return KEY_PRTSCR;
+    case SDLK_LEFT:
+        return KEY_LEFTARROW;
 
-        case SDLK_BACKSPACE:   return KEY_BACKSPACE;
-        case SDLK_DELETE:      return KEY_DEL;
+    case SDLK_RIGHT:
+        return KEY_RIGHTARROW;
 
-        case SDLK_PAUSE:       return KEY_PAUSE;
+    case SDLK_DOWN:
+        return KEY_DOWNARROW;
 
-        case SDLK_LSHIFT:
-        case SDLK_RSHIFT:
-                               return KEY_RSHIFT;
+    case SDLK_UP:
+        return KEY_UPARROW;
 
-        case SDLK_LCTRL:
-        case SDLK_RCTRL:
-                               return KEY_RCTRL;
+    case SDLK_ESCAPE:
+        return KEY_ESCAPE;
 
-        case SDLK_LALT:
-        case SDLK_RALT:
-                               return KEY_RALT;
+    case SDLK_RETURN:
+        return KEY_ENTER;
 
-        case SDLK_CAPSLOCK:    return KEY_CAPSLOCK;
-        case SDLK_SCROLLLOCK:   return KEY_SCRLCK;
+    case SDLK_TAB:
+        return KEY_TAB;
 
-        case SDLK_HOME:        return KEY_HOME;
-        case SDLK_INSERT:      return KEY_INS;
-        case SDLK_END:         return KEY_END;
-        case SDLK_PAGEUP:      return KEY_PGUP;
-        case SDLK_PAGEDOWN:    return KEY_PGDN;
+    case SDLK_F1:
+        return KEY_F1;
+
+    case SDLK_F2:
+        return KEY_F2;
+
+    case SDLK_F3:
+        return KEY_F3;
+
+    case SDLK_F4:
+        return KEY_F4;
+
+    case SDLK_F5:
+        return KEY_F5;
+
+    case SDLK_F6:
+        return KEY_F6;
+
+    case SDLK_F7:
+        return KEY_F7;
+
+    case SDLK_F8:
+        return KEY_F8;
+
+    case SDLK_F9:
+        return KEY_F9;
+
+    case SDLK_F10:
+        return KEY_F10;
+
+    case SDLK_F11:
+        return KEY_F11;
+
+    case SDLK_F12:
+        return KEY_F12;
+
+    case SDLK_PRINTSCREEN:
+        return KEY_PRTSCR;
+
+    case SDLK_BACKSPACE:
+        return KEY_BACKSPACE;
+
+    case SDLK_DELETE:
+        return KEY_DEL;
+
+    case SDLK_PAUSE:
+        return KEY_PAUSE;
+
+    case SDLK_LSHIFT:
+    case SDLK_RSHIFT:
+        return KEY_RSHIFT;
+
+    case SDLK_LCTRL:
+    case SDLK_RCTRL:
+        return KEY_RCTRL;
+
+    case SDLK_LALT:
+    case SDLK_RALT:
+        return KEY_RALT;
+
+    case SDLK_CAPSLOCK:
+        return KEY_CAPSLOCK;
+
+    case SDLK_SCROLLLOCK:
+        return KEY_SCRLCK;
+
+    case SDLK_HOME:
+        return KEY_HOME;
+
+    case SDLK_INSERT:
+        return KEY_INS;
+
+    case SDLK_END:
+        return KEY_END;
+
+    case SDLK_PAGEUP:
+        return KEY_PGUP;
+
+    case SDLK_PAGEDOWN:
+        return KEY_PGDN;
 
 #ifdef SDL_HAVE_APP_KEYS
-        case SDLK_APP1:        return KEY_F1;
-        case SDLK_APP2:        return KEY_F2;
-        case SDLK_APP3:        return KEY_F3;
-        case SDLK_APP4:        return KEY_F4;
-        case SDLK_APP5:        return KEY_F5;
-        case SDLK_APP6:        return KEY_F6;
+
+    case SDLK_APP1:
+        return KEY_F1;
+
+    case SDLK_APP2:
+        return KEY_F2;
+
+    case SDLK_APP3:
+        return KEY_F3;
+
+    case SDLK_APP4:
+        return KEY_F4;
+
+    case SDLK_APP5:
+        return KEY_F5;
+
+    case SDLK_APP6:
+        return KEY_F6;
 #endif
 
-        default:               break;
+    default:
+        break;
     }
 
     // Returned value is different, depending on whether key mapping is
@@ -498,14 +569,14 @@ static int TranslateKey(SDL_Keysym *sym)
     // for the setup keyboard configuration dialog, we want the raw
     // key code.
 
-    if (key_mapping)
+    if(key_mapping)
     {
         // Unicode characters beyond the ASCII range need to be
         // mapped up into textscreen's Unicode range.
 
 #if 0
-    // SDL2-TODO
-        if (sym->unicode < 128)
+        // SDL2-TODO
+        if(sym->unicode < 128)
         {
             return sym->unicode;
         }
@@ -513,6 +584,7 @@ static int TranslateKey(SDL_Keysym *sym)
         {
             return sym->unicode - 128 + TXT_UNICODE_BASE;
         }
+
 #endif
         return 0;
     }
@@ -522,29 +594,61 @@ static int TranslateKey(SDL_Keysym *sym)
         // most of the time, the keypad should behave as it normally
         // does.
 
-        switch (sym->sym)
+        switch(sym->sym)
         {
-            case SDLK_KP_0:         return KEYP_0;
-            case SDLK_KP_1:         return KEYP_1;
-            case SDLK_KP_2:         return KEYP_2;
-            case SDLK_KP_3:         return KEYP_3;
-            case SDLK_KP_4:         return KEYP_4;
-            case SDLK_KP_5:         return KEYP_5;
-            case SDLK_KP_6:         return KEYP_6;
-            case SDLK_KP_7:         return KEYP_7;
-            case SDLK_KP_8:         return KEYP_8;
-            case SDLK_KP_9:         return KEYP_9;
+        case SDLK_KP_0:
+            return KEYP_0;
 
-            case SDLK_KP_PERIOD:   return KEYP_PERIOD;
-            case SDLK_KP_MULTIPLY: return KEYP_MULTIPLY;
-            case SDLK_KP_PLUS:     return KEYP_PLUS;
-            case SDLK_KP_MINUS:    return KEYP_MINUS;
-            case SDLK_KP_DIVIDE:   return KEYP_DIVIDE;
-            case SDLK_KP_EQUALS:   return KEYP_EQUALS;
-            case SDLK_KP_ENTER:    return KEYP_ENTER;
+        case SDLK_KP_1:
+            return KEYP_1;
 
-            default:
-                return tolower(sym->sym);
+        case SDLK_KP_2:
+            return KEYP_2;
+
+        case SDLK_KP_3:
+            return KEYP_3;
+
+        case SDLK_KP_4:
+            return KEYP_4;
+
+        case SDLK_KP_5:
+            return KEYP_5;
+
+        case SDLK_KP_6:
+            return KEYP_6;
+
+        case SDLK_KP_7:
+            return KEYP_7;
+
+        case SDLK_KP_8:
+            return KEYP_8;
+
+        case SDLK_KP_9:
+            return KEYP_9;
+
+        case SDLK_KP_PERIOD:
+            return KEYP_PERIOD;
+
+        case SDLK_KP_MULTIPLY:
+            return KEYP_MULTIPLY;
+
+        case SDLK_KP_PLUS:
+            return KEYP_PLUS;
+
+        case SDLK_KP_MINUS:
+            return KEYP_MINUS;
+
+        case SDLK_KP_DIVIDE:
+            return KEYP_DIVIDE;
+
+        case SDLK_KP_EQUALS:
+            return KEYP_EQUALS;
+
+        case SDLK_KP_ENTER:
+            return KEYP_ENTER;
+
+        default:
+            return tolower(sym->sym);
         }
     }
 }
@@ -555,16 +659,19 @@ static int TranslateKey(SDL_Keysym *sym)
 
 static int SDLButtonToTXTButton(int button)
 {
-    switch (button)
+    switch(button)
     {
-        case SDL_BUTTON_LEFT:
-            return TXT_MOUSE_LEFT;
-        case SDL_BUTTON_RIGHT:
-            return TXT_MOUSE_RIGHT;
-        case SDL_BUTTON_MIDDLE:
-            return TXT_MOUSE_MIDDLE;
-        default:
-            return TXT_MOUSE_BASE + button - 1;
+    case SDL_BUTTON_LEFT:
+        return TXT_MOUSE_LEFT;
+
+    case SDL_BUTTON_RIGHT:
+        return TXT_MOUSE_RIGHT;
+
+    case SDL_BUTTON_MIDDLE:
+        return TXT_MOUSE_MIDDLE;
+
+    default:
+        return TXT_MOUSE_BASE + button - 1;
     }
 }
 
@@ -575,9 +682,10 @@ static int MouseHasMoved(void)
 
     TXT_GetMousePosition(&x, &y);
 
-    if (x != last_x || y != last_y)
+    if(x != last_x || y != last_y)
     {
-        last_x = x; last_y = y;
+        last_x = x;
+        last_y = y;
         return 1;
     }
     else
@@ -593,28 +701,28 @@ static void UpdateModifierState(SDL_Keysym *sym, int pressed)
 {
     txt_modifier_t mod;
 
-    switch (sym->sym)
+    switch(sym->sym)
     {
-        case SDLK_LSHIFT:
-        case SDLK_RSHIFT:
-            mod = TXT_MOD_SHIFT;
-            break;
+    case SDLK_LSHIFT:
+    case SDLK_RSHIFT:
+        mod = TXT_MOD_SHIFT;
+        break;
 
-        case SDLK_LCTRL:
-        case SDLK_RCTRL:
-            mod = TXT_MOD_CTRL;
-            break;
+    case SDLK_LCTRL:
+    case SDLK_RCTRL:
+        mod = TXT_MOD_CTRL;
+        break;
 
-        case SDLK_LALT:
-        case SDLK_RALT:
-            mod = TXT_MOD_ALT;
-            break;
+    case SDLK_LALT:
+    case SDLK_RALT:
+        mod = TXT_MOD_ALT;
+        break;
 
-        default:
-            return;
+    default:
+        return;
     }
 
-    if (pressed)
+    if(pressed)
     {
         ++modifier_state[mod];
     }
@@ -628,14 +736,14 @@ signed int TXT_GetChar(void)
 {
     SDL_Event ev;
 
-    while (SDL_PollEvent(&ev))
+    while(SDL_PollEvent(&ev))
     {
         // If there is an event callback, allow it to intercept this
         // event.
 
-        if (event_callback != NULL)
+        if(event_callback != NULL)
         {
-            if (event_callback(&ev, event_callback_data))
+            if(event_callback(&ev, event_callback_data))
             {
                 continue;
             }
@@ -643,36 +751,37 @@ signed int TXT_GetChar(void)
 
         // Process the event.
 
-        switch (ev.type)
+        switch(ev.type)
         {
-            case SDL_MOUSEBUTTONDOWN:
-                if (ev.button.button < TXT_MAX_MOUSE_BUTTONS)
-                {
-                    return SDLButtonToTXTButton(ev.button.button);
-                }
-                break;
+        case SDL_MOUSEBUTTONDOWN:
+            if(ev.button.button < TXT_MAX_MOUSE_BUTTONS)
+            {
+                return SDLButtonToTXTButton(ev.button.button);
+            }
 
-            case SDL_KEYDOWN:
-                UpdateModifierState(&ev.key.keysym, 1);
+            break;
 
-                return TranslateKey(&ev.key.keysym);
+        case SDL_KEYDOWN:
+            UpdateModifierState(&ev.key.keysym, 1);
 
-            case SDL_KEYUP:
-                UpdateModifierState(&ev.key.keysym, 0);
-                break;
+            return TranslateKey(&ev.key.keysym);
 
-            case SDL_QUIT:
-                // Quit = escape
-                return 27;
+        case SDL_KEYUP:
+            UpdateModifierState(&ev.key.keysym, 0);
+            break;
 
-            case SDL_MOUSEMOTION:
-                if (MouseHasMoved())
-                {
-                    return 0;
-                }
+        case SDL_QUIT:
+            // Quit = escape
+            return 27;
 
-            default:
-                break;
+        case SDL_MOUSEMOTION:
+            if(MouseHasMoved())
+            {
+                return 0;
+            }
+
+        default:
+            break;
         }
     }
 
@@ -681,7 +790,7 @@ signed int TXT_GetChar(void)
 
 int TXT_GetModifierState(txt_modifier_t mod)
 {
-    if (mod < TXT_NUM_MODIFIERS)
+    if(mod < TXT_NUM_MODIFIERS)
     {
         return modifier_state[mod] > 0;
     }
@@ -691,66 +800,139 @@ int TXT_GetModifierState(txt_modifier_t mod)
 
 static const char *SpecialKeyName(int key)
 {
-    switch (key)
+    switch(key)
     {
-        case ' ':             return "SPACE";
-        case KEY_RIGHTARROW:  return "RIGHT";
-        case KEY_LEFTARROW:   return "LEFT";
-        case KEY_UPARROW:     return "UP";
-        case KEY_DOWNARROW:   return "DOWN";
-        case KEY_ESCAPE:      return "ESC";
-        case KEY_ENTER:       return "ENTER";
-        case KEY_TAB:         return "TAB";
-        case KEY_F1:          return "F1";
-        case KEY_F2:          return "F2";
-        case KEY_F3:          return "F3";
-        case KEY_F4:          return "F4";
-        case KEY_F5:          return "F5";
-        case KEY_F6:          return "F6";
-        case KEY_F7:          return "F7";
-        case KEY_F8:          return "F8";
-        case KEY_F9:          return "F9";
-        case KEY_F10:         return "F10";
-        case KEY_F11:         return "F11";
-        case KEY_F12:         return "F12";
-        case KEY_BACKSPACE:   return "BKSP";
-        case KEY_PAUSE:       return "PAUSE";
-        case KEY_EQUALS:      return "EQUALS";
-        case KEY_MINUS:       return "MINUS";
-        case KEY_RSHIFT:      return "SHIFT";
-        case KEY_RCTRL:       return "CTRL";
-        case KEY_RALT:        return "ALT";
-        case KEY_CAPSLOCK:    return "CAPS";
-        case KEY_SCRLCK:      return "SCRLCK";
-        case KEY_HOME:        return "HOME";
-        case KEY_END:         return "END";
-        case KEY_PGUP:        return "PGUP";
-        case KEY_PGDN:        return "PGDN";
-        case KEY_INS:         return "INS";
-        case KEY_DEL:         return "DEL";
-        case KEY_PRTSCR:      return "PRTSC";
-                 /*
-        case KEYP_0:          return "PAD0";
-        case KEYP_1:          return "PAD1";
-        case KEYP_2:          return "PAD2";
-        case KEYP_3:          return "PAD3";
-        case KEYP_4:          return "PAD4";
-        case KEYP_5:          return "PAD5";
-        case KEYP_6:          return "PAD6";
-        case KEYP_7:          return "PAD7";
-        case KEYP_8:          return "PAD8";
-        case KEYP_9:          return "PAD9";
-        case KEYP_UPARROW:    return "PAD_U";
-        case KEYP_DOWNARROW:  return "PAD_D";
-        case KEYP_LEFTARROW:  return "PAD_L";
-        case KEYP_RIGHTARROW: return "PAD_R";
-        case KEYP_MULTIPLY:   return "PAD*";
-        case KEYP_PLUS:       return "PAD+";
-        case KEYP_MINUS:      return "PAD-";
-        case KEYP_DIVIDE:     return "PAD/";
-                   */
+    case ' ':
+        return "SPACE";
 
-        default:              return NULL;
+    case KEY_RIGHTARROW:
+        return "RIGHT";
+
+    case KEY_LEFTARROW:
+        return "LEFT";
+
+    case KEY_UPARROW:
+        return "UP";
+
+    case KEY_DOWNARROW:
+        return "DOWN";
+
+    case KEY_ESCAPE:
+        return "ESC";
+
+    case KEY_ENTER:
+        return "ENTER";
+
+    case KEY_TAB:
+        return "TAB";
+
+    case KEY_F1:
+        return "F1";
+
+    case KEY_F2:
+        return "F2";
+
+    case KEY_F3:
+        return "F3";
+
+    case KEY_F4:
+        return "F4";
+
+    case KEY_F5:
+        return "F5";
+
+    case KEY_F6:
+        return "F6";
+
+    case KEY_F7:
+        return "F7";
+
+    case KEY_F8:
+        return "F8";
+
+    case KEY_F9:
+        return "F9";
+
+    case KEY_F10:
+        return "F10";
+
+    case KEY_F11:
+        return "F11";
+
+    case KEY_F12:
+        return "F12";
+
+    case KEY_BACKSPACE:
+        return "BKSP";
+
+    case KEY_PAUSE:
+        return "PAUSE";
+
+    case KEY_EQUALS:
+        return "EQUALS";
+
+    case KEY_MINUS:
+        return "MINUS";
+
+    case KEY_RSHIFT:
+        return "SHIFT";
+
+    case KEY_RCTRL:
+        return "CTRL";
+
+    case KEY_RALT:
+        return "ALT";
+
+    case KEY_CAPSLOCK:
+        return "CAPS";
+
+    case KEY_SCRLCK:
+        return "SCRLCK";
+
+    case KEY_HOME:
+        return "HOME";
+
+    case KEY_END:
+        return "END";
+
+    case KEY_PGUP:
+        return "PGUP";
+
+    case KEY_PGDN:
+        return "PGDN";
+
+    case KEY_INS:
+        return "INS";
+
+    case KEY_DEL:
+        return "DEL";
+
+    case KEY_PRTSCR:
+        return "PRTSC";
+
+    /*
+    case KEYP_0:          return "PAD0";
+    case KEYP_1:          return "PAD1";
+    case KEYP_2:          return "PAD2";
+    case KEYP_3:          return "PAD3";
+    case KEYP_4:          return "PAD4";
+    case KEYP_5:          return "PAD5";
+    case KEYP_6:          return "PAD6";
+    case KEYP_7:          return "PAD7";
+    case KEYP_8:          return "PAD8";
+    case KEYP_9:          return "PAD9";
+    case KEYP_UPARROW:    return "PAD_U";
+    case KEYP_DOWNARROW:  return "PAD_D";
+    case KEYP_LEFTARROW:  return "PAD_L";
+    case KEYP_RIGHTARROW: return "PAD_R";
+    case KEYP_MULTIPLY:   return "PAD*";
+    case KEYP_PLUS:       return "PAD+";
+    case KEYP_MINUS:      return "PAD-";
+    case KEYP_DIVIDE:     return "PAD/";
+      */
+
+    default:
+        return NULL;
     }
 }
 
@@ -760,11 +942,11 @@ void TXT_GetKeyDescription(int key, char *buf, size_t buf_len)
 
     keyname = SpecialKeyName(key);
 
-    if (keyname != NULL)
+    if(keyname != NULL)
     {
         TXT_StringCopy(buf, keyname, buf_len);
     }
-    else if (isprint(key))
+    else if(isprint(key))
     {
         TXT_snprintf(buf, buf_len, "%c", toupper(key));
     }
@@ -784,13 +966,13 @@ int TXT_ScreenHasBlinkingChars(void)
 
     // Check all characters in screen buffer
 
-    for (y=0; y<TXT_SCREEN_H; ++y)
+    for(y = 0; y < TXT_SCREEN_H; ++y)
     {
-        for (x=0; x<TXT_SCREEN_W; ++x) 
+        for(x = 0; x < TXT_SCREEN_W; ++x)
         {
             p = &screendata[(y * TXT_SCREEN_W + x) * 2];
 
-            if (p[1] & 0x80)
+            if(p[1] & 0x80)
             {
                 // This character is blinking
 
@@ -804,23 +986,23 @@ int TXT_ScreenHasBlinkingChars(void)
     return 0;
 }
 
-// Sleeps until an event is received, the screen needs to be redrawn, 
+// Sleeps until an event is received, the screen needs to be redrawn,
 // or until timeout expires (if timeout != 0)
 
 void TXT_Sleep(int timeout)
 {
     unsigned int start_time;
 
-    if (TXT_ScreenHasBlinkingChars())
+    if(TXT_ScreenHasBlinkingChars())
     {
         int time_to_next_blink;
 
         time_to_next_blink = BLINK_PERIOD - (SDL_GetTicks() % BLINK_PERIOD);
 
-        // There are blinking characters on the screen, so we 
+        // There are blinking characters on the screen, so we
         // must time out after a while
-       
-        if (timeout == 0 || timeout > time_to_next_blink)
+
+        if(timeout == 0 || timeout > time_to_next_blink)
         {
             // Add one so it is always positive
 
@@ -828,7 +1010,7 @@ void TXT_Sleep(int timeout)
         }
     }
 
-    if (timeout == 0)
+    if(timeout == 0)
     {
         // We can just wait forever until an event occurs
 
@@ -841,9 +1023,9 @@ void TXT_Sleep(int timeout)
 
         start_time = SDL_GetTicks();
 
-        while (SDL_GetTicks() < start_time + timeout)
+        while(SDL_GetTicks() < start_time + timeout)
         {
-            if (SDL_PollEvent(NULL) != 0)
+            if(SDL_PollEvent(NULL) != 0)
             {
                 // Received an event, so stop waiting
 
@@ -877,7 +1059,7 @@ void TXT_SDL_SetEventCallback(TxtSDLEventCallbackFunc callback, void *user_data)
 
 void TXT_StringCopy(char *dest, const char *src, size_t dest_len)
 {
-    if (dest_len < 1)
+    if(dest_len < 1)
     {
         return;
     }
@@ -891,7 +1073,8 @@ void TXT_StringConcat(char *dest, const char *src, size_t dest_len)
     size_t offset;
 
     offset = strlen(dest);
-    if (offset > dest_len)
+
+    if(offset > dest_len)
     {
         offset = dest_len;
     }
@@ -911,7 +1094,7 @@ int TXT_vsnprintf(char *buf, size_t buf_len, const char *s, va_list args)
 {
     int result;
 
-    if (buf_len < 1)
+    if(buf_len < 1)
     {
         return 0;
     }
@@ -923,7 +1106,7 @@ int TXT_vsnprintf(char *buf, size_t buf_len, const char *s, va_list args)
 
     // If truncated, change the final char in the buffer to a \0.
     // A negative result indicates a truncated buffer on Windows.
-    if (result < 0 || (size_t)result >= buf_len)
+    if(result < 0 || (size_t)result >= buf_len)
     {
         buf[buf_len - 1] = '\0';
         result = buf_len - 1;

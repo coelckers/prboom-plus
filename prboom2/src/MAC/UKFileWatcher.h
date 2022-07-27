@@ -1,11 +1,11 @@
 /* =============================================================================
 	FILE:		UKFileWatcher.h
 	PROJECT:	Filie
-    
+
     COPYRIGHT:  (c) 2005 M. Uli Kusterer, all rights reserved.
-    
+
 	AUTHORS:	M. Uli Kusterer - UK
-    
+
     LICENSES:   GPL, Modified BSD
 
 	REVISIONS:
@@ -38,7 +38,7 @@
 //  Methods delegates need to provide:
 // -----------------------------------------------------------------------------
 
-@interface NSObject (UKFileWatcherDelegate)
+@interface NSObject(UKFileWatcherDelegate)
 
 -(void) watcher: (id<UKFileWatcher>)kq receivedNotification: (NSString*)nm forPath: (NSString*)fpath;
 

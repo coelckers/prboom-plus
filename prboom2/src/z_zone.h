@@ -58,7 +58,8 @@
 // PU - purge tags.
 
 enum {PU_FREE, PU_STATIC, PU_SOUND, PU_MUSIC, PU_LEVEL, PU_LEVSPEC, PU_CACHE,
-      /* Must always be last -- killough */ PU_MAX};
+      /* Must always be last -- killough */ PU_MAX
+     };
 
 #define PU_PURGELEVEL PU_CACHE        /* First purgable tag's level */
 
@@ -66,7 +67,7 @@ enum {PU_FREE, PU_STATIC, PU_SOUND, PU_MUSIC, PU_LEVEL, PU_LEVSPEC, PU_CACHE,
 #define DA(x,y) ,x,y
 #define DAC(x,y) x,y
 #else
-#define DA(x,y) 
+#define DA(x,y)
 #define DAC(x,y)
 #endif
 
@@ -79,11 +80,11 @@ void Z_Close(void);
 void *(Z_Calloc)(size_t n, size_t n2, int tag, void **user DA(const char *, int));
 void *(Z_Realloc)(void *p, size_t n, int tag, void **user DA(const char *, int));
 char *(Z_Strdup)(const char *s, int tag, void **user DA(const char *, int));
-void (Z_CheckHeap)(DAC(const char *,int));   // killough 3/22/98: add file/line info
+void (Z_CheckHeap)(DAC(const char *, int));  // killough 3/22/98: add file/line info
 void Z_DumpHistory(char *);
 
 #ifdef INSTRUMENTED
-/* cph - save space if not debugging, don't require file 
+/* cph - save space if not debugging, don't require file
  * and line to memory calls */
 #define Z_Free(a)          (Z_Free)     (a,      __FILE__,__LINE__)
 #define Z_FreeTags(a,b)    (Z_FreeTags) (a,b,    __FILE__,__LINE__)

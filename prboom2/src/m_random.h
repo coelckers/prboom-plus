@@ -59,79 +59,81 @@
 // indicated by the #'s, because they're critical for preserving demo
 // sync. Do not remove entries simply because they become unused later.
 
-typedef enum {
-  pr_skullfly,                // #1
-  pr_damage,                  // #2
-  pr_crush,                   // #3
-  pr_genlift,                 // #4
-  pr_killtics,                // #5
-  pr_damagemobj,              // #6
-  pr_painchance,              // #7
-  pr_lights,                  // #8
-  pr_explode,                 // #9
-  pr_respawn,                 // #10
-  pr_lastlook,                // #11
-  pr_spawnthing,              // #12
-  pr_spawnpuff,               // #13
-  pr_spawnblood,              // #14
-  pr_missile,                 // #15
-  pr_shadow,                  // #16
-  pr_plats,                   // #17
-  pr_punch,                   // #18
-  pr_punchangle,              // #19
-  pr_saw,                     // #20
-  pr_plasma,                  // #21
-  pr_gunshot,                 // #22
-  pr_misfire,                 // #23
-  pr_shotgun,                 // #24
-  pr_bfg,                     // #25
-  pr_slimehurt,               // #26
-  pr_dmspawn,                 // #27
-  pr_missrange,               // #28
-  pr_trywalk,                 // #29
-  pr_newchase,                // #30
-  pr_newchasedir,             // #31
-  pr_see,                     // #32
-  pr_facetarget,              // #33
-  pr_posattack,               // #34
-  pr_sposattack,              // #35
-  pr_cposattack,              // #36
-  pr_spidrefire,              // #37
-  pr_troopattack,             // #38
-  pr_sargattack,              // #39
-  pr_headattack,              // #40
-  pr_bruisattack,             // #41
-  pr_tracer,                  // #42
-  pr_skelfist,                // #43
-  pr_scream,                  // #44
-  pr_brainscream,             // #45
-  pr_cposrefire,              // #46
-  pr_brainexp,                // #47
-  pr_spawnfly,                // #48
-  pr_misc,                    // #49
-  pr_all_in_one,              // #50
-  /* CPhipps - new entries from MBF, mostly unused for now */
-  pr_opendoor,                // #51
-  pr_targetsearch,            // #52
-  pr_friends,                 // #53
-  pr_threshold,               // #54
-  pr_skiptarget,              // #55
-  pr_enemystrafe,             // #56
-  pr_avoidcrush,              // #57
-  pr_stayonlift,              // #58
-  pr_helpfriend,              // #59
-  pr_dropoff,                 // #60
-  pr_randomjump,              // #61
-  pr_defect,                  // #62  // Start new entries -- add new entries below
+typedef enum
+{
+    pr_skullfly,                // #1
+    pr_damage,                  // #2
+    pr_crush,                   // #3
+    pr_genlift,                 // #4
+    pr_killtics,                // #5
+    pr_damagemobj,              // #6
+    pr_painchance,              // #7
+    pr_lights,                  // #8
+    pr_explode,                 // #9
+    pr_respawn,                 // #10
+    pr_lastlook,                // #11
+    pr_spawnthing,              // #12
+    pr_spawnpuff,               // #13
+    pr_spawnblood,              // #14
+    pr_missile,                 // #15
+    pr_shadow,                  // #16
+    pr_plats,                   // #17
+    pr_punch,                   // #18
+    pr_punchangle,              // #19
+    pr_saw,                     // #20
+    pr_plasma,                  // #21
+    pr_gunshot,                 // #22
+    pr_misfire,                 // #23
+    pr_shotgun,                 // #24
+    pr_bfg,                     // #25
+    pr_slimehurt,               // #26
+    pr_dmspawn,                 // #27
+    pr_missrange,               // #28
+    pr_trywalk,                 // #29
+    pr_newchase,                // #30
+    pr_newchasedir,             // #31
+    pr_see,                     // #32
+    pr_facetarget,              // #33
+    pr_posattack,               // #34
+    pr_sposattack,              // #35
+    pr_cposattack,              // #36
+    pr_spidrefire,              // #37
+    pr_troopattack,             // #38
+    pr_sargattack,              // #39
+    pr_headattack,              // #40
+    pr_bruisattack,             // #41
+    pr_tracer,                  // #42
+    pr_skelfist,                // #43
+    pr_scream,                  // #44
+    pr_brainscream,             // #45
+    pr_cposrefire,              // #46
+    pr_brainexp,                // #47
+    pr_spawnfly,                // #48
+    pr_misc,                    // #49
+    pr_all_in_one,              // #50
+    /* CPhipps - new entries from MBF, mostly unused for now */
+    pr_opendoor,                // #51
+    pr_targetsearch,            // #52
+    pr_friends,                 // #53
+    pr_threshold,               // #54
+    pr_skiptarget,              // #55
+    pr_enemystrafe,             // #56
+    pr_avoidcrush,              // #57
+    pr_stayonlift,              // #58
+    pr_helpfriend,              // #59
+    pr_dropoff,                 // #60
+    pr_randomjump,              // #61
+    pr_defect,                  // #62  // Start new entries -- add new entries below
 
-  // End of new entries
-  NUMPRCLASS               // MUST be last item in list
+    // End of new entries
+    NUMPRCLASS               // MUST be last item in list
 } pr_class_t;
 
 // The random number generator's state.
-typedef struct {
-  unsigned int seed[NUMPRCLASS];       // Each block's random seed
-  int rndindex, prndindex;             // For compatibility support
+typedef struct
+{
+    unsigned int seed[NUMPRCLASS];       // Each block's random seed
+    int rndindex, prndindex;             // For compatibility support
 } rng_t;
 
 extern rng_t rng;                      // The rng's state

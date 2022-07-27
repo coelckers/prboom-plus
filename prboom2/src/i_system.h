@@ -58,7 +58,7 @@ dboolean I_StartDisplay(void);
 void I_EndDisplay(void);
 int I_GetTime_RealTime(void);     /* killough */
 #ifndef PRBOOM_SERVER
-fixed_t I_GetTimeFrac (void);
+fixed_t I_GetTimeFrac(void);
 #endif
 
 extern int (*I_TickElapsedTime)(void);

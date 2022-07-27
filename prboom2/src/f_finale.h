@@ -42,7 +42,7 @@
  * FINALE
  */
 
- // Stage of animation:
+// Stage of animation:
 //  0 = text, 1 = art screen, 2 = character cast
 extern int finalestage; // cph -
 extern int finalecount; // made static
@@ -57,16 +57,16 @@ extern const char*   finaleflat; // made static const
 #define NEWTEXTWAIT  1000  // new value                         // phares
 
 
- 
-/* Called by main loop. */
-dboolean F_Responder (event_t* ev);
 
 /* Called by main loop. */
-void F_Ticker (void);
+dboolean F_Responder(event_t* ev);
 
 /* Called by main loop. */
-void F_Drawer (void);
+void F_Ticker(void);
 
-void F_StartFinale (void);
+/* Called by main loop. */
+void F_Drawer(void);
+
+void F_StartFinale(void);
 
 #endif

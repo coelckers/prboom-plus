@@ -74,8 +74,8 @@ void PCSound_Mix_Callback(void *udata, Uint8 *stream, int len)
     int nsamples;
 
     // safe to call even if not active
-    if (!pcsound_inited)
-      return;
+    if(!pcsound_inited)
+        return;
 
 
     // Number of samples is quadrupled, because of 16-bit and stereo
@@ -87,12 +87,12 @@ void PCSound_Mix_Callback(void *udata, Uint8 *stream, int len)
 
     // Fill the output buffer
 
-    for (i=0; i<nsamples; ++i)
+    for(i = 0; i < nsamples; ++i)
     {
         // Has this sound expired? If so, invoke the callback to get
         // the next frequency.
 
-        while (current_remaining == 0)
+        while(current_remaining == 0)
         {
             oldfreq = current_freq;
 
@@ -100,7 +100,7 @@ void PCSound_Mix_Callback(void *udata, Uint8 *stream, int len)
 
             callback(&current_remaining, &current_freq);
 
-            if (current_freq != 0)
+            if(current_freq != 0)
             {
                 // Adjust phase to match to the new frequency.
                 // This gives us a smooth transition between different tones,
@@ -114,7 +114,7 @@ void PCSound_Mix_Callback(void *udata, Uint8 *stream, int len)
 
         // Set the value for this sample.
 
-        if (current_freq == 0)
+        if(current_freq == 0)
         {
             // Silence
 
@@ -130,7 +130,7 @@ void PCSound_Mix_Callback(void *udata, Uint8 *stream, int len)
 
             frac = (phase_offset * current_freq * 2) / mixing_freq;
 
-            if ((frac % 2) == 0)
+            if((frac % 2) == 0)
             {
                 this_value = SQUARE_WAVE_AMP;
             }

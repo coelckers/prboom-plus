@@ -1,4 +1,4 @@
-// Emacs style mode select   -*- C++ -*- 
+// Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
 // Copyright(C) 2007 Simon Howard
@@ -44,7 +44,7 @@ extern pcsound_driver_t pcsound_linux_driver;
 
 extern pcsound_driver_t pcsound_sdl_driver;
 
-static pcsound_driver_t *drivers[] = 
+static pcsound_driver_t *drivers[] =
 {
 #ifdef HAVE_LINUX_KD_H
     &pcsound_linux_driver,
@@ -63,7 +63,7 @@ int PCSound_Init(pcsound_callback_func callback_func)
     char *driver_name;
     int i;
 
-    if (pcsound_driver != NULL)
+    if(pcsound_driver != NULL)
     {
         return 1;
     }
@@ -72,22 +72,22 @@ int PCSound_Init(pcsound_callback_func callback_func)
 
     driver_name = getenv("PCSOUND_DRIVER");
 
-    if (driver_name != NULL)
+    if(driver_name != NULL)
     {
-        for (i=0; drivers[i] != NULL; ++i)
+        for(i = 0; drivers[i] != NULL; ++i)
         {
-            if (!strcasecmp(drivers[i]->name, driver_name))
+            if(!strcasecmp(drivers[i]->name, driver_name))
             {
                 // Found the driver!
 
-                if (drivers[i]->init_func(callback_func))
+                if(drivers[i]->init_func(callback_func))
                 {
                     pcsound_driver = drivers[i];
                 }
                 else
                 {
                     lprintf(LO_WARN, "Failed to initialise PC sound driver: %s\n",
-                           drivers[i]->name);
+                            drivers[i]->name);
                     break;
                 }
             }
@@ -97,17 +97,17 @@ int PCSound_Init(pcsound_callback_func callback_func)
     {
         // Try all drivers until we find a working one
 
-        for (i=0; drivers[i] != NULL; ++i)
+        for(i = 0; drivers[i] != NULL; ++i)
         {
-            if (drivers[i]->init_func(callback_func)) 
+            if(drivers[i]->init_func(callback_func))
             {
                 pcsound_driver = drivers[i];
                 break;
             }
         }
     }
-    
-    if (pcsound_driver != NULL)
+
+    if(pcsound_driver != NULL)
     {
         lprintf(LO_INFO, "Using PC sound driver: %s\n", pcsound_driver->name);
         return 1;

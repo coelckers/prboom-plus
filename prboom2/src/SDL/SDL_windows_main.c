@@ -48,21 +48,30 @@ main_getcmdline(void)
     int i, argc, result;
 
     argvw = CommandLineToArgvW(GetCommandLineW(), &argc);
-    if (argvw == NULL) {
+
+    if(argvw == NULL)
+    {
         return OutOfMemory();
     }
 
     /* Parse it into argv and argc */
     argv = (char **)SDL_calloc(argc + 1, sizeof(*argv));
-    if (!argv) {
+
+    if(!argv)
+    {
         return OutOfMemory();
     }
-    for (i = 0; i < argc; ++i) {
+
+    for(i = 0; i < argc; ++i)
+    {
         argv[i] = WIN_WStringToUTF8(argvw[i]);
-        if (!argv[i]) {
+
+        if(!argv[i])
+        {
             return OutOfMemory();
         }
     }
+
     argv[i] = NULL;
     LocalFree(argvw);
 
@@ -72,9 +81,11 @@ main_getcmdline(void)
     result = SDL_main(argc, argv);
 
     /* Free argv, to avoid memory leak */
-    for (i = 0; i < argc; ++i) {
+    for(i = 0; i < argc; ++i)
+    {
         SDL_free(argv[i]);
     }
+
     SDL_free(argv);
 
     return result;
