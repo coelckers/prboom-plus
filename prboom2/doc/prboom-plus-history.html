@@ -157,7 +157,7 @@
 <tr><td class="aaa">[*]</td><td>The precise rendering of automap lines when "render quality" is "quality" to avoid small vibrations during map rotation. Applied only in GL mode.
 <tr><td class="aaa">[*]</td><td>Antialiasing of automap lines now also works in software modes (Xiaolin Wu's line algorithm). There's a map_use_multisamling config variable and a corresponding GUI entry for this.
 <tr><td class="aaa">[-]</td><td>Fixed a crash on map21 @ <a href="http://www.doomworld.com/idgames/index.php?id=16238">newgothic.wad</a> with "-complevel 10" and higher.
-<tr><td class="aaa">[-]</td><td>Improved emulation of "missed back side" overruns. The desynch in <a href="http://doomedsda.us/wad1490.html">fez1-924.lmp @ fez1.wad</a> is gone now, but you still need to add "-setmem dosbox" or "-setmem dos71" command line parameter, because the default "dos622" memory layout causes a desynch.
+<tr><td class="aaa">[-]</td><td>Improved emulation of "missed back side" overruns. The desynch in <a href="https://dsdarchive.com/wads/fez1">fez1-924.lmp @ fez1.wad</a> is gone now, but you still need to add "-setmem dosbox" or "-setmem dos71" command line parameter, because the default "dos622" memory layout causes a desynch.
 <tr><td class="aaa">[-]</td><td>The automap scaling factor is now saved.
 <tr><td class="aaa">[-]</td><td>A "-set overrun_* = 0" setting now works in demo footers.
 <tr><td class="aaa">[-]</td><td>When playing back multi-level demos for the Ultimate DOOM, -warp produced unexpected results when combined with -auto.
@@ -178,11 +178,11 @@
 <tr><td class="aaa">[+]</td><td>"Next Level" key now works during normal play, and not just during demo playback.
 <tr><td class="aaa">[+]</td><td>Added "-shotdir" command line switch and "screenshot_dir" config variable. Default folder for screenshots is now exe_dir.
 <tr><td class="aaa">[+]</td><td>Two new sponsored HUDs.
-<tr><td class="aaa">[*]</td><td>Added ability (overrun_missedbackside_emulate 1) to emulate wrong memory access for cases when some linedefs have a two-sided flag set, but no second sidedef. Fixed desynch on <a href="http://doomedsda.us/wad1005.html">CLNJ-506.LMP @ CHALLENJ.WAD</a>
+<tr><td class="aaa">[*]</td><td>Added ability (overrun_missedbackside_emulate 1) to emulate wrong memory access for cases when some linedefs have a two-sided flag set, but no second sidedef. Fixed desynch on <a href="https://dsdarchive.com/wads/challenj">CLNJ-506.LMP @ CHALLENJ.WAD</a>
 <tr><td class="aaa">[*]</td><td>Broken BLOCKMAP lumps won't be recreated automatically. Use "-blockmap" command line switch if PrBoom-plus reports a buggy blockmap.
 <tr><td class="aaa">[*]</td><td>The "-solo-net" and "-emulate x.y.z" params are saved to the demo footer.
 <tr><td class="aaa">[*]</td><td>Added frustum culling for sprites if mouse look is enabled (gl_sprites_frustum_culling). If you look up or down on nuts.wad with this, frame rate will increase instead of decreasing.
-<tr><td class="aaa">[*]</td><td>Improved compatibility with Doom 1.2. All known Doom 1.2 demos including <a href="http://doomedsda.us/767col159.html">ret12na.lmp @ return01.wad</a>, <a href="http://doomedsda.us/1082col215.html">wp2-33.lmp @ wadpak2.wad</a> and <a href="http://doomedsda.us/wad892.html">uac_dead demos</a> by Never_Again are now in sync.
+<tr><td class="aaa">[*]</td><td>Improved compatibility with Doom 1.2. All known Doom 1.2 demos including <a href="https://dsdarchive.com/wads/return01">ret12na.lmp @ return01.wad</a>, <a href="https://dsdarchive.com/wads/wadpak2">wp2-33.lmp @ wadpak2.wad</a> and <a href="https://dsdarchive.com/wads/uac_dead">uac_dead demos</a> by Never_Again are now in sync.
 <tr><td class="aaa">[*]</td><td>GLBDEFS alias for GLDEFS lump to avoid compatibility issues with other ports. Note that if GLBDEFS is present, GLDEFS will not be parsed at all.
 <tr><td class="aaa">[*]</td><td>Command-line added demos don't conflict with lump names anymore. For example, you can play map01.lmp back on map01.
 <tr><td class="aaa">[*]</td><td>Incorrect nodes on <a href="http://www.doomworld.com/idgames/index.php?id=4169">e1m1 @ deepcre.wad</a> don't crash PrBoom-plus anymore.
