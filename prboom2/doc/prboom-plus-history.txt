@@ -114,7 +114,7 @@ Change Log
 [-] The "flashing hom" detector didn't work in GL mode.
 Links for the demos, wads and topics referred to above:
 http://www.doomworld.com/idgames/index.php?id=16238 (newgothic.wad)
-http://doomedsda.us/wad1490.html (fez1-924.lmp, fez1.wad)
+https://dsdarchive.com/wads/fez1 (fez1-924.lmp, fez1.wad)
 http://www.doomworld.com/idgames/index.php?id=1509 (malgnant.wad)
 
 2.5.0.8 @ 2010-Nov-13
@@ -136,11 +136,11 @@ http://www.doomworld.com/idgames/index.php?id=1509 (malgnant.wad)
 [-] Fixed glitch in "no texture" mapping trick under invulnerability when using hires textures.
 
 Links for the demos, wads and topics referred to above:
-http://doomedsda.us/wad1005.html (CLNJ-506.LMP, CHALLENJ.WAD)
+https://dsdarchive.com/wads/challenj (CLNJ-506.LMP, CHALLENJ.WAD)
 http://www.doomwadstation.com/main/dukegp.rar (Duke Nukem total conversion)
-http://doomedsda.us/767col159.html (return01.wad, ret12na.lmp)
-http://doomedsda.us/1082col215.html (wadpak2.wad, wp2-33.lmp)
-http://doomedsda.us/wad892.html (uac_dead.wad and doom 1.2 demos)
+https://dsdarchive.com/wads/return01 (return01.wad, ret12na.lmp)
+https://dsdarchive.com/wads/wadpak2 (wadpak2.wad, wp2-33.lmp)
+https://dsdarchive.com/wads/uac_dead (uac_dead.wad and doom 1.2 demos)
 http://www.doomworld.com/idgames/index.php?id=4169 (deepcre.wad)
 
 2.5.0.7 @ 2010-Aug-15
