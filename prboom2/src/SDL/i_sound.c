@@ -1356,6 +1356,9 @@ int mus_fluidsynth_chorus;
 int mus_fluidsynth_reverb;
 int mus_fluidsynth_gain; // NSM  fine tune fluidsynth output level
 int mus_opl_gain; // NSM  fine tune OPL output level
+const char *mus_portmidi_reset_type; // portmidi reset type
+int mus_portmidi_reset_delay; // portmidi delay after reset
+int mus_portmidi_filter_sysex; // portmidi block sysex from midi files
 
 
 static void Exp_ShutdownMusic(void)
