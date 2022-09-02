@@ -463,6 +463,9 @@ default_t defaults[] =
   {"mus_fluidsynth_reverb",{&mus_fluidsynth_reverb},{0},0,1,def_bool,ss_none},
   {"mus_fluidsynth_gain",{&mus_fluidsynth_gain},{50},0,1000,def_int,ss_none}, // NSM  fine tune fluidsynth output level
   {"mus_opl_gain",{&mus_opl_gain},{50},0,1000,def_int,ss_none}, // NSM  fine tune opl output level
+  {"mus_portmidi_reset_type",{NULL, &mus_portmidi_reset_type},{0,"gs"},UL,UL,def_str,ss_none}, // portmidi reset type (gs, gm, gm2, xg)
+  {"mus_portmidi_reset_delay",{&mus_portmidi_reset_delay},{0},0,2000,def_int,ss_none}, // portmidi delay after reset (milliseconds)
+  {"mus_portmidi_filter_sysex",{&mus_portmidi_filter_sysex},{0},0,1,def_bool,ss_none}, // portmidi block sysex from midi files
 
   {"Video settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"videomode",{NULL, &default_videomode},{0,"8bit"},UL,UL,def_str,ss_none},
