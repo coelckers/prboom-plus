@@ -137,7 +137,7 @@ static void reset_device (unsigned long when)
   else // default to "gs"
     Pm_WriteSysEx(pm_stream, when, gs_reset);
 
-  // additional resets for compatibility
+  // additional resets for compatibility with MS GS Wavetable Synth
   Pm_Write(pm_stream, event_buffer, 13 * 16);
 
   use_reset_delay = mus_portmidi_reset_delay > 0;
