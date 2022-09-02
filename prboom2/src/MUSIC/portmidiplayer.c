@@ -248,7 +248,8 @@ static void pm_shutdown (void)
   if (pm_stream)
   {
     // stop all sound, in case of hanging notes
-    // pm_stop() is called on shutdown
+    if (pm_playing)
+      pm_stop();
 
     /* ugly deadlock in portmidi win32 implementation:
 
