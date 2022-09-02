@@ -124,6 +124,7 @@ static unsigned char gs_reset[] = {0xf0, 0x41, 0x10, 0x42, 0x12, 0x40, 0x00, 0x7
 static unsigned char gm_system_on[] = {0xf0, 0x7e, 0x7f, 0x09, 0x01, 0xf7};
 static unsigned char gm2_system_on[] = {0xf0, 0x7e, 0x7f, 0x09, 0x03, 0xf7};
 static unsigned char xg_system_on[] = {0xf0, 0x43, 0x10, 0x4c, 0x00, 0x00, 0x7e, 0x00, 0xf7};
+static PmEvent event_buffer[13 * 16];
 
 static void reset_device (unsigned long when)
 {
@@ -136,7 +137,43 @@ static void reset_device (unsigned long when)
   else // default to "gs"
     Pm_WriteSysEx(pm_stream, when, gs_reset);
 
+  // additional resets for compatibility
+  Pm_Write(pm_stream, event_buffer, 13 * 16);
+
   use_reset_delay = mus_portmidi_reset_delay > 0;
+}
+
+static void init_reset_buffer (void)
+{
+  int i;
+  PmEvent *event = event_buffer;
+  for (i = 0; i < 16; ++i)
+  {
+    // program change to default piano (or drums for ch. 10)
+    event[0].message = Pm_Message(MIDI_EVENT_PROGRAM_CHANGE | i, 0x00, 0x00);
+    // reset all controllers
+    event[1].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x79, 0x00);
+    // all notes off
+    event[2].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x7b, 0x00);
+    // all sound off
+    event[3].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x78, 0x00);
+    // reset aftertouch channel pressure to 0
+    event[4].message = Pm_Message(MIDI_EVENT_CHAN_AFTERTOUCH | i, 0x00, 0x00);
+    // reset expression to 127 (max)
+    event[5].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x0b, 0x7f);
+    // reset pitch bend to 64 (center)
+    event[6].message = Pm_Message(MIDI_EVENT_PITCH_BEND | i, 0x40, 0x00);
+    // RPN sequence to adjust pitch bend range (RPN value 0x0000)
+    event[7].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x65, 0x00);
+    event[8].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x64, 0x00);
+    // reset pitch bend range to central tuning +/- 2 semitones and 0 cents
+    event[9].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x06, 0x02);
+    event[10].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x26, 0x00);
+    // end of RPN sequence
+    event[11].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x64, 0x7f);
+    event[12].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x65, 0x7f);
+    event += 13;
+  }
 }
 
 static int pm_init (int samplerate)
@@ -199,6 +236,7 @@ static int pm_init (int samplerate)
   if (mus_portmidi_filter_sysex)
     Pm_SetFilter(pm_stream, PM_FILT_ACTIVE | PM_FILT_SYSEX);
 
+  init_reset_buffer();
   reset_device(0);
   return 1;
 }
