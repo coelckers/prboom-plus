@@ -94,9 +94,6 @@ int detect_voices = 0; // God knows
 static dboolean sound_inited = false;
 static dboolean first_sound_init = true;
 
-// Needed for calling the actual sound output.
-#define MAX_CHANNELS    32
-
 // MWM 2000-01-08: Sample rate in samples/second
 int snd_samplerate = 11025;
 int snd_samplecount = 512;
