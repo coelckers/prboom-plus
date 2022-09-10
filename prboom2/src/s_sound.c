@@ -54,6 +54,8 @@
 // Does not fit the large outdoor areas.
 #define S_CLIPPING_DIST (1200<<FRACBITS)
 
+#define MAX_CHANNELS 32
+
 // Distance tp origin when sounds should be maxed out.
 // This should relate to movement clipping resolution
 // (see BLOCKMAP handling).
@@ -80,8 +82,8 @@ typedef struct
 } channel_t;
 
 // the set of channels available
-static channel_t *channels;
-static degenmobj_t *sobjs;
+static channel_t channels[MAX_CHANNELS];
+static degenmobj_t sobjs[MAX_CHANNELS];
 
 // These are not used, but should be (menu).
 // Maximum volume of a sound effect.
@@ -145,14 +147,9 @@ void S_Init(int sfxVolume, int musicVolume)
 
     S_SetSfxVolume(sfxVolume);
 
-    // Allocating the internal channels for mixing
-    // (the maximum numer of sounds rendered
-    // simultaneously) within zone memory.
-    // CPhipps - calloc
-    channels =
-      (channel_t *) calloc(numChannels,sizeof(channel_t));
-    sobjs =
-      (degenmobj_t *) calloc(numChannels, sizeof(degenmobj_t));
+    // Reset channel memory
+    memset(channels, 0, sizeof(channels));
+    memset(sobjs, 0, sizeof(sobjs));
 
     // Note that sounds have not been cached (yet).
     for (i=1 ; i<NUMSFX ; i++)
