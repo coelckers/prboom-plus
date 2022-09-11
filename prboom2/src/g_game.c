@@ -1118,10 +1118,18 @@ void G_Ticker (void)
       switch (gameaction)
         {
         case ga_loadlevel:
-    // force players to be initialized on level reload
-    for (i=0 ; i<MAXPLAYERS ; i++)
-      players[i].playerstate = PST_REBORN;
-          G_DoLoadLevel ();
+          if(!demoplayback && demorecording && demo_restartonrespawn)
+          {
+            //fully reload level to start a new demo
+            G_ReloadLevel();
+          }
+          else
+          {
+            // force players to be initialized on level reload
+            for (i=0 ; i<MAXPLAYERS ; i++)
+              players[i].playerstate = PST_REBORN;
+            G_DoLoadLevel ();
+          }
           break;
         case ga_newgame:
           G_DoNewGame ();
