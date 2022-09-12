@@ -1356,6 +1356,8 @@ int mus_opl_gain; // NSM  fine tune OPL output level
 const char *mus_portmidi_reset_type; // portmidi reset type
 int mus_portmidi_reset_delay; // portmidi delay after reset
 int mus_portmidi_filter_sysex; // portmidi block sysex from midi files
+int mus_portmidi_reverb_level; // portmidi reverb send level
+int mus_portmidi_chorus_level; // portmidi chorus send level
 
 
 static void Exp_ShutdownMusic(void)
