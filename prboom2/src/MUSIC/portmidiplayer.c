@@ -125,6 +125,8 @@ static unsigned char gm_system_on[] = {0xf0, 0x7e, 0x7f, 0x09, 0x01, 0xf7};
 static unsigned char gm2_system_on[] = {0xf0, 0x7e, 0x7f, 0x09, 0x03, 0xf7};
 static unsigned char xg_system_on[] = {0xf0, 0x43, 0x10, 0x4c, 0x00, 0x00, 0x7e, 0x00, 0xf7};
 static PmEvent event_buffer[13 * 16];
+static PmEvent event_buffer_reverb[16];
+static PmEvent event_buffer_chorus[16];
 
 static void reset_device (unsigned long when)
 {
@@ -139,6 +141,12 @@ static void reset_device (unsigned long when)
 
   // additional resets for compatibility with MS GS Wavetable Synth
   Pm_Write(pm_stream, event_buffer, 13 * 16);
+
+  // reverb and chorus send levels
+  if (mus_portmidi_reverb_level != 40)
+    Pm_Write(pm_stream, event_buffer_reverb, 16);
+  if (mus_portmidi_chorus_level != 0)
+    Pm_Write(pm_stream, event_buffer_chorus, 16);
 
   use_reset_delay = mus_portmidi_reset_delay > 0;
 }
@@ -173,6 +181,18 @@ static void init_reset_buffer (void)
     event[11].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x64, 0x7f);
     event[12].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x65, 0x7f);
     event += 13;
+  }
+
+  if (mus_portmidi_reverb_level != 40)
+  {
+    for (i = 0; i < 16; ++i)
+      event_buffer_reverb[i].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x5b, mus_portmidi_reverb_level);
+  }
+
+  if (mus_portmidi_chorus_level != 0)
+  {
+    for (i = 0; i < 16; ++i)
+      event_buffer_chorus[i].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x5d, mus_portmidi_chorus_level);
   }
 }
 
