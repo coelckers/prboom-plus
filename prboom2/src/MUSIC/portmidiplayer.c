@@ -358,7 +358,9 @@ static int mastervol;
 
 static void set_mastervol (unsigned long when)
 {
-  int vol = mastervol * pm_volume / 15;
+  int vol = mastervol * pm_volume * 8 / 100;
+  if (vol > 16383)
+    vol = 16383;
   unsigned char data[] = {0xf0, 0x7f, 0x7f, 0x04, 0x01, vol & 0x7f, vol >> 7, 0xf7};
   Pm_WriteSysEx(pm_stream, when, data);
 }
