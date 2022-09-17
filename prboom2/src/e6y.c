@@ -1350,7 +1350,7 @@ void I_midiOutSetVolumes(int volume)
     volume = 15;
   if (volume < 0)
     volume = 0;
-  calcVolume = (float)volume_correction[volume] / 1000 * 65535 * volume / 15;
+  calcVolume = volume_correction[volume] * 65535 * volume / 15;
 
   //SDL_LockAudio(); // this function doesn't touch anything the audio callback touches
 

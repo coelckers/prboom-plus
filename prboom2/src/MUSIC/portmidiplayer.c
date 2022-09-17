@@ -120,9 +120,9 @@ static const char *pm_name (void)
 
 // converts master volume from linear scaling to non-linear scaling that
 // closely follows vanilla doom behavior but with a smooth transition when
-// approaching maximum volume. cast value to float and divide by 1000.
-const int volume_correction[] = {1000, 1200, 1200, 1200, 1200, 1200, 1200, 1200,
-                                 1200, 1200, 1200, 1181, 1152, 1108, 1055, 1000};
+// approaching maximum volume
+const float volume_correction[] = {1.000, 1.200, 1.200, 1.200, 1.200, 1.200, 1.200, 1.200,
+                                   1.200, 1.200, 1.200, 1.181, 1.152, 1.108, 1.055, 1.000};
 
 static dboolean use_reset_delay;
 static unsigned char gs_reset[] = {0xf0, 0x41, 0x10, 0x42, 0x12, 0x40, 0x00, 0x7f, 0x00, 0x41, 0xf7};
@@ -363,7 +363,7 @@ static int mastervol;
 
 static void set_mastervol (unsigned long when)
 {
-  int vol = (float)volume_correction[pm_volume] / 1000 * mastervol * pm_volume / 15;
+  int vol = volume_correction[pm_volume] * mastervol * pm_volume / 15;
   unsigned char data[] = {0xf0, 0x7f, 0x7f, 0x04, 0x01, vol & 0x7f, vol >> 7, 0xf7};
   Pm_WriteSysEx(pm_stream, when, data);
 }
