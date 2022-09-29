@@ -1677,7 +1677,8 @@ void G_DoCompleted (void)
 	  {
 		  wminfo.didsecret = players[consoleplayer].didsecret;
 		  wminfo.partime = gamemapinfo->partime;
-		  um_pars = true;
+		  if (wminfo.partime > 0)
+		    um_pars = true;
 		  goto frommapinfo;	// skip past the default setup.
 	  }
   }
