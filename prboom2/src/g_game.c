@@ -1645,7 +1645,7 @@ void G_DoCompleted (void)
 	  const char *next = "";
 	  boolean intermission = false;
 
-	  if (gamemapinfo->endpic[0] && (strcmp(gamemapinfo->endpic, "-") != 0)
+	  if (gamemapinfo->endpic[0] && (strcmp(gamemapinfo->endpic, "-") != 0))
 	  {
 		  if (gamemapinfo->nointermission)
 		  {
