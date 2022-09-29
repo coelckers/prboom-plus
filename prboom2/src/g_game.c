@@ -1643,7 +1643,7 @@ void G_DoCompleted (void)
   if (gamemapinfo)
   {
 	  const char *next = "";
-	  boolean intermission = false;
+	  dboolean intermission = false;
 
 	  if (gamemapinfo->endpic[0] && (strcmp(gamemapinfo->endpic, "-") != 0))
 	  {
