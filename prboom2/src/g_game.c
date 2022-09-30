@@ -1618,6 +1618,8 @@ void G_SecretExitLevel (void)
 // G_DoCompleted
 //
 
+dboolean um_pars = false;
+
 void G_DoCompleted (void)
 {
   int i;
@@ -1636,15 +1638,26 @@ void G_DoCompleted (void)
 
   wminfo.lastmapinfo = gamemapinfo;
   wminfo.nextmapinfo = NULL;
+  um_pars = false;
+
   if (gamemapinfo)
   {
 	  const char *next = "";
-	  if (gamemapinfo->endpic[0] && (strcmp(gamemapinfo->endpic, "-") != 0) && gamemapinfo->nointermission)
+	  dboolean intermission = false;
+
+	  if (gamemapinfo->endpic[0] && (strcmp(gamemapinfo->endpic, "-") != 0))
 	  {
-		  gameaction = ga_victory;
-		  return;
+		  if (gamemapinfo->nointermission)
+		  {
+		    gameaction = ga_victory;
+		    return;
+		  }
+		  else
+		  {
+		    intermission = true;
+		  }
 	  }
-      wminfo.partime = gamemapinfo->partime;
+
 	  if (secretexit) next = gamemapinfo->nextsecret;
 	  if (next[0] == 0) next = gamemapinfo->nextmap;
 	  if (next[0])
@@ -1658,7 +1671,14 @@ void G_DoCompleted (void)
 		    for (i = 0; i < MAXPLAYERS; i++)
 		      players[i].didsecret = false;
 		  }
+	  }
+
+	  if (next[0] || intermission)
+	  {
 		  wminfo.didsecret = players[consoleplayer].didsecret;
+		  wminfo.partime = gamemapinfo->partime;
+		  if (wminfo.partime > 0)
+		    um_pars = true;
 		  goto frommapinfo;	// skip past the default setup.
 	  }
   }
@@ -1755,19 +1775,16 @@ void G_DoCompleted (void)
           wminfo.next = gamemap;          // go to next level
     }
 
-  if (!(gamemapinfo && gamemapinfo->partime))
-  {
-      if ( gamemode == commercial )
-      {
-          if (gamemap >= 1 && gamemap <= 34)
-              wminfo.partime = TICRATE*cpars[gamemap-1];
-      }
-      else
-      {
-          if (gameepisode >= 1 && gameepisode <= 4 && gamemap >= 1 && gamemap <= 9)
-              wminfo.partime = TICRATE*pars[gameepisode][gamemap];
-      }
-  }
+    if ( gamemode == commercial )
+    {
+        if (gamemap >= 1 && gamemap <= 34)
+            wminfo.partime = TICRATE*cpars[gamemap-1];
+    }
+    else
+    {
+        if (gameepisode >= 1 && gameepisode <= 4 && gamemap >= 1 && gamemap <= 9)
+            wminfo.partime = TICRATE*pars[gameepisode][gamemap];
+    }
 
 frommapinfo:
 
