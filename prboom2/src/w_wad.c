@@ -146,6 +146,11 @@ static void W_AddFile(wadfile_info_t *wadfile)
   filelump_t  singleinfo;
   int         flags = 0;
 
+  if (wadfile->src == source_skip)
+  {
+    return;
+  }
+
   // open the file and add to directory
 
   wadfile->handle = open(wadfile->name,O_RDONLY | O_BINARY);
