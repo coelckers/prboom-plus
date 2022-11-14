@@ -131,6 +131,16 @@ static PmEvent event_buffer_chorus[16];
 
 static void reset_device (unsigned long when)
 {
+  int i;
+
+  // non-sysex resets for compatibility with MS GS Wavetable Synth
+  for (i = 0; i < 13 * 16; ++i)
+  {
+    event_buffer[i].timestamp = when;
+  }
+  Pm_Write(pm_stream, event_buffer, 13 * 16);
+
+  // sysex reset
   if (!strcasecmp(mus_portmidi_reset_type, "gm"))
     Pm_WriteSysEx(pm_stream, when, gm_system_on);
   else if (!strcasecmp(mus_portmidi_reset_type, "gm2"))
@@ -140,14 +150,14 @@ static void reset_device (unsigned long when)
   else // default to "gs"
     Pm_WriteSysEx(pm_stream, when, gs_reset);
 
-  // additional resets for compatibility with MS GS Wavetable Synth
-  Pm_Write(pm_stream, event_buffer, 13 * 16);
-
-  // reverb and chorus send levels
-  if (mus_portmidi_reverb_level != 40)
-    Pm_Write(pm_stream, event_buffer_reverb, 16);
-  if (mus_portmidi_chorus_level != 0)
-    Pm_Write(pm_stream, event_buffer_chorus, 16);
+  // reset reverb and chorus
+  for (i = 0; i < 16; ++i)
+  {
+    event_buffer_reverb[i].timestamp = when;
+    event_buffer_chorus[i].timestamp = when;
+  }
+  Pm_Write(pm_stream, event_buffer_reverb, 16);
+  Pm_Write(pm_stream, event_buffer_chorus, 16);
 
   use_reset_delay = mus_portmidi_reset_delay > 0;
 }
@@ -158,42 +168,32 @@ static void init_reset_buffer (void)
   PmEvent *event = event_buffer;
   for (i = 0; i < 16; ++i)
   {
-    // program change to default piano (or drums for ch. 10)
-    event[0].message = Pm_Message(MIDI_EVENT_PROGRAM_CHANGE | i, 0x00, 0x00);
-    // reset all controllers
-    event[1].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x79, 0x00);
     // all notes off
-    event[2].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x7b, 0x00);
+    event[0].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x7b, 0x00);
     // all sound off
-    event[3].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x78, 0x00);
-    // reset aftertouch channel pressure to 0
-    event[4].message = Pm_Message(MIDI_EVENT_CHAN_AFTERTOUCH | i, 0x00, 0x00);
-    // reset expression to 127 (max)
-    event[5].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x0b, 0x7f);
-    // reset pitch bend to 64 (center)
-    event[6].message = Pm_Message(MIDI_EVENT_PITCH_BEND | i, 0x00, 0x40);
-    // RPN sequence to adjust pitch bend range (RPN value 0x0000)
-    event[7].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x65, 0x00);
-    event[8].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x64, 0x00);
-    // reset pitch bend range to central tuning +/- 2 semitones and 0 cents
-    event[9].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x06, 0x02);
-    event[10].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x26, 0x00);
-    // end of RPN sequence
-    event[11].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x64, 0x7f);
-    event[12].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x65, 0x7f);
+    event[1].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x78, 0x00);
+    // reset all controllers
+    event[2].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x79, 0x00);
+    // reset channel pressure
+    event[3].message = Pm_Message(MIDI_EVENT_CHAN_AFTERTOUCH | i, 0x00, 0x00);
+    // reset expression
+    event[4].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x0b, 0x7f);
+    // reset pitch bend
+    event[5].message = Pm_Message(MIDI_EVENT_PITCH_BEND | i, 0x00, 0x40);
+    // reset pitch bend sensitivity
+    event[6].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x65, 0x00);
+    event[7].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x64, 0x00);
+    event[8].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x06, 0x02);
+    event[9].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x26, 0x00);
+    event[10].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x64, 0x7f);
+    event[11].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x65, 0x7f);
+    // default program change
+    event[12].message = Pm_Message(MIDI_EVENT_PROGRAM_CHANGE | i, 0x00, 0x00);
     event += 13;
-  }
 
-  if (mus_portmidi_reverb_level != 40)
-  {
-    for (i = 0; i < 16; ++i)
-      event_buffer_reverb[i].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x5b, mus_portmidi_reverb_level);
-  }
-
-  if (mus_portmidi_chorus_level != 0)
-  {
-    for (i = 0; i < 16; ++i)
-      event_buffer_chorus[i].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x5d, mus_portmidi_chorus_level);
+    // reset reverb and chorus
+    event_buffer_reverb[i].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x5b, mus_portmidi_reverb_level);
+    event_buffer_chorus[i].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x5d, mus_portmidi_chorus_level);
   }
 }
 
