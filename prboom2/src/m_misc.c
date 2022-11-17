@@ -824,7 +824,7 @@ default_t defaults[] =
   {"Automap settings",{NULL},{0},UL,UL,def_none,ss_none},
   //jff 1/7/98 defaults for automap colors
   //jff 4/3/98 remove -1 in lower range, 0 now disables new map features
-  {"mapcolor_back", {&mapcolor_back}, {247},0,255,  // black //jff 4/6/98 new black
+  {"mapcolor_back", {&mapcolor_back}, {0},0,255,  // black
    def_colour,ss_auto}, // color used as background for automap
   {"mapcolor_grid", {&mapcolor_grid}, {104},0,255,  // dk gray
    def_colour,ss_auto}, // color used for automap grid lines
