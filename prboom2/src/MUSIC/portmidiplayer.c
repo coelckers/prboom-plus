@@ -389,7 +389,7 @@ static void pm_play (const void *handle, int looping)
   trackstart = Pt_Time ();
 }
 
-static dboolean is_mastervol (byte *msg, int len, int *volume)
+static dboolean is_mastervol (byte *msg, int len, unsigned int *volume)
 {
   // general midi (F0 7F <dev> 04 01 <lsb> <msb> F7)
   if (len == 8 &&
