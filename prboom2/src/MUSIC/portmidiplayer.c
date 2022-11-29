@@ -94,7 +94,7 @@ static unsigned long trackstart;
 static PortMidiStream *pm_stream;
 
 #define SYSEX_BUFF_SIZE 1024
-static unsigned char sysexbuff[SYSEX_BUFF_SIZE];
+static byte sysexbuff[SYSEX_BUFF_SIZE];
 static int sysexbufflen;
 
 // latency: we're generally writing timestamps slightly in the past (from when the last time
@@ -121,11 +121,11 @@ static unsigned int mastervol;
 static float volume_scale;
 
 static dboolean use_reset_delay;
-static unsigned char *sysex_reset;
-static unsigned char gs_reset[] = {0xf0, 0x41, 0x10, 0x42, 0x12, 0x40, 0x00, 0x7f, 0x00, 0x41, 0xf7};
-static unsigned char gm_system_on[] = {0xf0, 0x7e, 0x7f, 0x09, 0x01, 0xf7};
-static unsigned char gm2_system_on[] = {0xf0, 0x7e, 0x7f, 0x09, 0x03, 0xf7};
-static unsigned char xg_system_on[] = {0xf0, 0x43, 0x10, 0x4c, 0x00, 0x00, 0x7e, 0x00, 0xf7};
+static byte *sysex_reset;
+static byte gs_reset[] = {0xf0, 0x41, 0x10, 0x42, 0x12, 0x40, 0x00, 0x7f, 0x00, 0x41, 0xf7};
+static byte gm_system_on[] = {0xf0, 0x7e, 0x7f, 0x09, 0x01, 0xf7};
+static byte gm2_system_on[] = {0xf0, 0x7e, 0x7f, 0x09, 0x03, 0xf7};
+static byte xg_system_on[] = {0xf0, 0x43, 0x10, 0x4c, 0x00, 0x00, 0x7e, 0x00, 0xf7};
 static PmEvent event_notes_off[16];
 static PmEvent event_sound_off[16];
 static PmEvent event_reset[16 * 12];
@@ -389,12 +389,12 @@ static void pm_play (const void *handle, int looping)
   trackstart = Pt_Time ();
 }
 
-static dboolean is_mastervol (unsigned char *data, int len)
+static dboolean is_mastervol (byte *data, int len)
 {
   return (len == 8 && !memcmp(data, mastervol_msg, 5));
 }
 
-static dboolean is_sysex_reset (unsigned char *data)
+static dboolean is_sysex_reset (byte *data)
 {
   return (!memcmp(data, gs_reset, sizeof(gs_reset))
           || !memcmp(data, gm_system_on, sizeof(gm_system_on))
@@ -402,7 +402,7 @@ static dboolean is_sysex_reset (unsigned char *data)
           || !memcmp(data, xg_system_on, sizeof(xg_system_on)));
 }
 
-static void writesysex (unsigned long when, int etype, unsigned char *data, int len)
+static void writesysex (unsigned long when, int etype, byte *data, int len)
 {
   // sysex messages in midi files (smf 1.0 pages 6-7):
   // complete:        (F0 ... F7)
