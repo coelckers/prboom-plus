@@ -389,9 +389,44 @@ static void pm_play (const void *handle, int looping)
   trackstart = Pt_Time ();
 }
 
-static dboolean is_mastervol (byte *data, int len)
+static dboolean is_mastervol (byte *msg, int len, int *volume)
 {
-  return (len == 8 && !memcmp(data, mastervol_msg, 5));
+  // general midi (F0 7F <dev> 04 01 <lsb> <msb> F7)
+  if (len == 8 &&
+      msg[1] == 0x7F && // universal real time
+      msg[3] == 0x04 && // device control
+      msg[4] == 0x01)   // master volume
+  {
+    *volume = msg[5] | msg[6] << 7;
+    return true;
+  }
+
+  // roland (F0 41 <dev> 42 12 40 00 04 <vol> <sum> F7)
+  if (len == 11 &&
+      msg[1] == 0x41 && // roland
+      msg[3] == 0x42 && // gs
+      msg[4] == 0x12 && // dt1
+      msg[5] == 0x40 && // address msb
+      msg[6] == 0x00 && // address
+      msg[7] == 0x04)   // address lsb
+  {
+    *volume = DEFAULT_MASTERVOL * msg[8] / 127;
+    return true;
+  }
+
+  // yamaha (F0 43 <dev> 4C 00 00 04 <vol> F7)
+  if (len == 9 &&
+      msg[1] == 0x43 && // yamaha
+      msg[3] == 0x4C && // xg
+      msg[4] == 0x00 && // address high
+      msg[5] == 0x00 && // address mid
+      msg[6] == 0x04)   // address low
+  {
+    *volume = DEFAULT_MASTERVOL * msg[7] / 127;
+    return true;
+  }
+
+  return false;
 }
 
 static dboolean is_sysex_reset (byte *data)
@@ -435,10 +470,9 @@ static void writesysex (unsigned long when, int etype, byte *data, int len)
   // process message if it's complete, otherwise do nothing yet
   if (sysexbuff[sysexbufflen - 1] == MIDI_EVENT_SYSEX_SPLIT)
   {
-    if (is_mastervol(sysexbuff, sysexbufflen))
+    if (is_mastervol(sysexbuff, sysexbufflen, &mastervol))
     {
       // master volume message from midi file, scale by volume slider
-      mastervol = sysexbuff[6] << 7 | sysexbuff[5]; // back to 14-bit
       write_mastervol(when);
       sysexbufflen = 0;
       return;
