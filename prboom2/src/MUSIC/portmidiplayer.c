@@ -429,12 +429,114 @@ static dboolean is_mastervol (byte *msg, int len, int *volume)
   return false;
 }
 
-static dboolean is_sysex_reset (byte *data)
+static dboolean is_sysex_reset (byte *msg, int len)
 {
-  return (!memcmp(data, gs_reset, sizeof(gs_reset))
-          || !memcmp(data, gm_system_on, sizeof(gm_system_on))
-          || !memcmp(data, gm2_system_on, sizeof(gm2_system_on))
-          || !memcmp(data, xg_system_on, sizeof(xg_system_on)));
+  if (len < 6)
+    return false;
+
+  switch (msg[1])
+  {
+    case 0x41: // roland
+      switch (msg[3])
+      {
+        case 0x42: // gs
+          switch (msg[4])
+          {
+            case 0x12: // dt1
+              if (len == 11 &&
+                  msg[5] == 0x00 &&  // address msb
+                  msg[6] == 0x00 &&  // address
+                  msg[7] == 0x7F &&  // address lsb
+                ((msg[8] == 0x00 &&  // data     (mode-1)
+                  msg[9] == 0x01) || // checksum (mode-1)
+                 (msg[8] == 0x01 &&  // data     (mode-2)
+                  msg[9] == 0x00)))  // checksum (mode-2)
+              {
+                // sc-88 system mode set
+                // F0 41 <dev> 42 12 00 00 7F 00 01 F7 (mode-1)
+                // F0 41 <dev> 42 12 00 00 7F 01 00 F7 (mode-2)
+                return true;
+              }
+              else if (len == 11 &&
+                       msg[5] == 0x40 && // address msb
+                       msg[6] == 0x00 && // address
+                       msg[7] == 0x7F && // address lsb
+                       msg[8] == 0x00 && // data (gs reset)
+                       msg[9] == 0x41)   // checksum
+              {
+                // gs reset
+                // F0 41 <dev> 42 12 40 00 7F 00 41 F7
+                return true;
+              }
+              break;
+          }
+          break;
+      }
+      break;
+
+    case 0x43: // yamaha
+      switch (msg[3])
+      {
+        case 0x2B: // tg300
+          if (len == 10 &&
+              msg[4] == 0x00 && // start address b20 - b14
+              msg[5] == 0x00 && // start address b13 - b7
+              msg[6] == 0x7F && // start address b6 - b0
+              msg[7] == 0x00 && // data
+              msg[8] == 0x01)   // checksum
+          {
+            // tg300 all parameter reset
+            // F0 43 <dev> 2B 00 00 7F 00 01 F7
+            return true;
+          }
+          break;
+
+        case 0x4C: // xg
+          if (len == 9 &&
+              msg[4] == 0x00 && // address high
+              msg[5] == 0x00 && // address mid
+              msg[6] == 0x7E && // address low
+              msg[7] == 0x00)   // data
+          {
+            // xg system on
+            // F0 43 <dev> 4C 00 00 7E 00 F7
+            return true;
+          }
+          else if (len == 9 &&
+                   msg[4] == 0x00 && // address high
+                   msg[5] == 0x00 && // address mid
+                   msg[6] == 0x7F && // address low
+                   msg[7] == 0x00)   // data
+          {
+            // xg all parameter reset
+            // F0 43 <dev> 4C 00 00 7F 00 F7
+            return true;
+          }
+          break;
+      }
+      break;
+
+    case 0x7E: // universal non-real time
+      switch (msg[3])
+      {
+        case 0x09: // general midi
+          if (len == 6 &&
+             (msg[4] == 0x01 || // gm system on
+              msg[4] == 0x02 || // gm system off
+              msg[4] == 0x03))  // gm2 system on
+          {
+            // gm system on/off, gm2 system on
+            // F0 7E <dev> 09 01 F7
+            // F0 7E <dev> 09 02 F7
+            // F0 7E <dev> 09 03 F7
+            return true;
+          }
+          break;
+      }
+      break;
+  }
+
+  return false;
 }
 
 static void writesysex (unsigned long when, int etype, byte *data, int len)
@@ -480,7 +582,7 @@ static void writesysex (unsigned long when, int etype, byte *data, int len)
 
     Pm_WriteSysEx (pm_stream, when, sysexbuff);
 
-    if (is_sysex_reset(sysexbuff))
+    if (is_sysex_reset(sysexbuff, sysexbufflen))
     {
       use_reset_delay = mus_portmidi_reset_delay > 0;
 
