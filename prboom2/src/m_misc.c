@@ -455,17 +455,13 @@ default_t defaults[] =
   def_bool,ss_none}, // low-pass filter borrowed from Chocolate Doom so upscaling old audio doesn't sound too horrible
   {"full_sounds",{&full_sounds},{0},0,1,def_bool,ss_none}, // disable sound cutoffs
 
-#ifdef _WIN32
-  {"mus_extend_volume",{&mus_extend_volume},{0},0,1,
-   def_bool,ss_none}, // e6y: apply midi volume to all midi devices
-#endif
   {"mus_fluidsynth_chorus",{&mus_fluidsynth_chorus},{0},0,1,def_bool,ss_none},
   {"mus_fluidsynth_reverb",{&mus_fluidsynth_reverb},{0},0,1,def_bool,ss_none},
   {"mus_fluidsynth_gain",{&mus_fluidsynth_gain},{50},0,1000,def_int,ss_none}, // NSM  fine tune fluidsynth output level
   {"mus_opl_gain",{&mus_opl_gain},{50},0,1000,def_int,ss_none}, // NSM  fine tune opl output level
-  {"mus_portmidi_reset_type",{NULL, &mus_portmidi_reset_type},{0,"gs"},UL,UL,def_str,ss_none}, // portmidi reset type (gs, gm, gm2, xg)
+  {"mus_portmidi_reset_type",{NULL, &mus_portmidi_reset_type},{0,""},UL,UL,def_str,ss_none}, // portmidi reset type (none, gs, gm, gm2, xg)
   {"mus_portmidi_reset_delay",{&mus_portmidi_reset_delay},{0},0,2000,def_int,ss_none}, // portmidi delay after reset (milliseconds)
-  {"mus_portmidi_filter_sysex",{&mus_portmidi_filter_sysex},{0},0,1,def_bool,ss_none}, // portmidi block sysex from midi files
+  {"mus_portmidi_filter_sysex",{&mus_portmidi_filter_sysex},{1},0,1,def_bool,ss_none}, // portmidi block sysex from midi files
   {"mus_portmidi_reverb_level",{&mus_portmidi_reverb_level},{40},0,127,def_int,ss_none}, // portmidi reverb send level
   {"mus_portmidi_chorus_level",{&mus_portmidi_chorus_level},{0},0,127,def_int,ss_none}, // portmidi chorus send level
 
