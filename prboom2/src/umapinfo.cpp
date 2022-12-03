@@ -641,11 +641,16 @@ static int ParseMapEntry(Scanner &scanner, MapEntry *val)
 
 	scanner.MustGetIdentifier("map");
 	scanner.MustGetToken(TK_Identifier);
-	if (!G_ValidateMapName(scanner.string, NULL, NULL))
+	int ep;
+	if (!G_ValidateMapName(scanner.string, &ep, NULL))
 	{
 		scanner.ErrorF("Invalid map name %s", scanner.string);
 		return 0;
 	}
+
+	// Disable boss actions by default in non-vanilla episodes.
+	if (ep > 4)
+		val->numbossactions = -1;
 
 	ReplaceString(&val->mapname, scanner.string);
 	scanner.MustGetToken('{');
