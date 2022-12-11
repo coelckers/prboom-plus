@@ -313,8 +313,6 @@ static const void *pm_registersong (const void *data, unsigned len)
   }
   eventpos = 0;
 
-  // implicit 120BPM (this is correct to spec)
-  //spmc = compute_spmc (MIDI_GetFileTimeDivision (midifile), 500000, 1000);
   spmc = MIDI_spmc (midifile, NULL, 1000);
 
   // handle not used
@@ -343,7 +341,7 @@ static void pm_setvolume (int v)
     return;
 
   pm_volume = v;
-  volume_scale = sqrt((float)pm_volume / 15);
+  volume_scale = sqrtf((float)pm_volume / 15);
   write_mastervol(0);
 }
 
@@ -379,13 +377,10 @@ static void pm_play (const void *handle, int looping)
   eventpos = 0;
   pm_looping = looping;
   pm_playing = 1;
-  //pm_paused = 0;
   pm_delta = 0.0;
   mastervol = DEFAULT_MASTERVOL;
   if (pm_volume != -1) // set pm_volume first, see pm_setvolume()
-  {
     write_mastervol(0);
-  }
   trackstart = Pt_Time ();
 }
 
@@ -493,22 +488,14 @@ static dboolean is_sysex_reset (byte *msg, int len)
 
         case 0x4C: // xg
           if (len == 9 &&
-              msg[4] == 0x00 && // address high
-              msg[5] == 0x00 && // address mid
-              msg[6] == 0x7E && // address low
-              msg[7] == 0x00)   // data
+              msg[4] == 0x00 &&  // address high
+              msg[5] == 0x00 &&  // address mid
+             (msg[6] == 0x7E ||  // address low (xg system on)
+              msg[6] == 0x7F) && // address low (xg all parameter reset)
+              msg[7] == 0x00)    // data
           {
-            // xg system on
+            // xg system on, xg all parameter reset
             // F0 43 <dev> 4C 00 00 7E 00 F7
-            return true;
-          }
-          else if (len == 9 &&
-                   msg[4] == 0x00 && // address high
-                   msg[5] == 0x00 && // address mid
-                   msg[6] == 0x7F && // address low
-                   msg[7] == 0x00)   // data
-          {
-            // xg all parameter reset
             // F0 43 <dev> 4C 00 00 7F 00 F7
             return true;
           }
