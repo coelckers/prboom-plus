@@ -535,12 +535,8 @@ static void writesysex (unsigned long when, int etype, byte *data, int len)
     Pm_WriteSysEx (pm_stream, when, sysexbuff);
 
     if (is_sysex_reset(sysexbuff, sysexbufflen))
-    {
-      use_reset_delay = mus_portmidi_reset_delay > 0;
-
-      // sysex reset from midi file, reapply volume
       reset_volume();
-    }
+
     sysexbufflen = 0;
   }
 }
