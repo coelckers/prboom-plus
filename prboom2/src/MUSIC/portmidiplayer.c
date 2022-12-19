@@ -115,9 +115,8 @@ static const char *pm_name (void)
 #include <delayimp.h>
 #endif
 
-#define DEFAULT_MASTERVOL 16383
-static byte mastervol_msg[] = {0xF0, 0x7F, 0x7F, 0x04, 0x01, 0x00, 0x00, 0xF7};
-static unsigned int mastervol;
+#define DEFAULT_VOLUME 100
+static int channel_volume[16];
 static float volume_scale;
 
 static dboolean use_reset_delay;
@@ -247,6 +246,10 @@ static int pm_init (int samplerate)
 
   init_reset_buffer();
   reset_device();
+
+  for (int i = 0; i < 16; i++)
+    channel_volume[i] = DEFAULT_VOLUME;
+
   return 1;
 }
 
@@ -313,8 +316,6 @@ static const void *pm_registersong (const void *data, unsigned len)
   }
   eventpos = 0;
 
-  // implicit 120BPM (this is correct to spec)
-  //spmc = compute_spmc (MIDI_GetFileTimeDivision (midifile), 500000, 1000);
   spmc = MIDI_spmc (midifile, NULL, 1000);
 
   // handle not used
@@ -329,12 +330,23 @@ static void writeevent (unsigned long when, int eve, int channel, int v1, int v2
   Pm_WriteShort (pm_stream, when, m);
 }
 
-static void write_mastervol (unsigned long when)
+static void write_volume (unsigned long when, int channel, int volume)
 {
-  unsigned int vol = mastervol * volume_scale + 0.5f;
-  mastervol_msg[5] = vol & 0x7F;
-  mastervol_msg[6] = (vol >> 7) & 0x7F;
-  Pm_WriteSysEx(pm_stream, when, mastervol_msg);
+  int vol = volume * volume_scale + 0.5f;
+  writeevent (when, MIDI_EVENT_CONTROLLER, channel, MIDI_CONTROLLER_MAIN_VOLUME, vol);
+  channel_volume[channel] = volume;
+}
+
+static void update_volume (void)
+{
+  for (int i = 0; i < 16; i++)
+    write_volume (0, i, channel_volume[i]);
+}
+
+static void reset_volume (void)
+{
+  for (int i = 0; i < 16; i++)
+    write_volume (0, i, DEFAULT_VOLUME);
 }
 
 static void pm_setvolume (int v)
@@ -343,8 +355,8 @@ static void pm_setvolume (int v)
     return;
 
   pm_volume = v;
-  volume_scale = sqrt((float)pm_volume / 15);
-  write_mastervol(0);
+  volume_scale = sqrtf((float)pm_volume / 15);
+  update_volume();
 }
 
 static void pm_unregistersong (const void *handle)
@@ -379,54 +391,10 @@ static void pm_play (const void *handle, int looping)
   eventpos = 0;
   pm_looping = looping;
   pm_playing = 1;
-  //pm_paused = 0;
   pm_delta = 0.0;
-  mastervol = DEFAULT_MASTERVOL;
   if (pm_volume != -1) // set pm_volume first, see pm_setvolume()
-  {
-    write_mastervol(0);
-  }
+    reset_volume();
   trackstart = Pt_Time ();
-}
-
-static dboolean is_mastervol (byte *msg, int len, unsigned int *volume)
-{
-  // general midi (F0 7F <dev> 04 01 <lsb> <msb> F7)
-  if (len == 8 &&
-      msg[1] == 0x7F && // universal real time
-      msg[3] == 0x04 && // device control
-      msg[4] == 0x01)   // master volume
-  {
-    *volume = msg[5] | msg[6] << 7;
-    return true;
-  }
-
-  // roland (F0 41 <dev> 42 12 40 00 04 <vol> <sum> F7)
-  if (len == 11 &&
-      msg[1] == 0x41 && // roland
-      msg[3] == 0x42 && // gs
-      msg[4] == 0x12 && // dt1
-      msg[5] == 0x40 && // address msb
-      msg[6] == 0x00 && // address
-      msg[7] == 0x04)   // address lsb
-  {
-    *volume = DEFAULT_MASTERVOL * msg[8] / 127;
-    return true;
-  }
-
-  // yamaha (F0 43 <dev> 4C 00 00 04 <vol> F7)
-  if (len == 9 &&
-      msg[1] == 0x43 && // yamaha
-      msg[3] == 0x4C && // xg
-      msg[4] == 0x00 && // address high
-      msg[5] == 0x00 && // address mid
-      msg[6] == 0x04)   // address low
-  {
-    *volume = DEFAULT_MASTERVOL * msg[7] / 127;
-    return true;
-  }
-
-  return false;
 }
 
 static dboolean is_sysex_reset (byte *msg, int len)
@@ -493,22 +461,14 @@ static dboolean is_sysex_reset (byte *msg, int len)
 
         case 0x4C: // xg
           if (len == 9 &&
-              msg[4] == 0x00 && // address high
-              msg[5] == 0x00 && // address mid
-              msg[6] == 0x7E && // address low
-              msg[7] == 0x00)   // data
+              msg[4] == 0x00 &&  // address high
+              msg[5] == 0x00 &&  // address mid
+             (msg[6] == 0x7E ||  // address low (xg system on)
+              msg[6] == 0x7F) && // address low (xg all parameter reset)
+              msg[7] == 0x00)    // data
           {
-            // xg system on
+            // xg system on, xg all parameter reset
             // F0 43 <dev> 4C 00 00 7E 00 F7
-            return true;
-          }
-          else if (len == 9 &&
-                   msg[4] == 0x00 && // address high
-                   msg[5] == 0x00 && // address mid
-                   msg[6] == 0x7F && // address low
-                   msg[7] == 0x00)   // data
-          {
-            // xg all parameter reset
             // F0 43 <dev> 4C 00 00 7F 00 F7
             return true;
           }
@@ -572,24 +532,11 @@ static void writesysex (unsigned long when, int etype, byte *data, int len)
   // process message if it's complete, otherwise do nothing yet
   if (sysexbuff[sysexbufflen - 1] == MIDI_EVENT_SYSEX_SPLIT)
   {
-    if (is_mastervol(sysexbuff, sysexbufflen, &mastervol))
-    {
-      // master volume message from midi file, scale by volume slider
-      write_mastervol(when);
-      sysexbufflen = 0;
-      return;
-    }
-
     Pm_WriteSysEx (pm_stream, when, sysexbuff);
 
     if (is_sysex_reset(sysexbuff, sysexbufflen))
-    {
-      use_reset_delay = mus_portmidi_reset_delay > 0;
+      reset_volume();
 
-      // sysex reset from midi file, reapply master volume
-      mastervol = DEFAULT_MASTERVOL;
-      write_mastervol(when);
-    }
     sysexbufflen = 0;
   }
 }
@@ -668,6 +615,13 @@ static void pm_render (void *vdest, unsigned bufflen)
             return;
         }
         break; // not interested in most metas
+      case MIDI_EVENT_CONTROLLER:
+        if (currevent->data.channel.param1 == MIDI_CONTROLLER_MAIN_VOLUME)
+        {
+          write_volume (when, currevent->data.channel.channel, currevent->data.channel.param2);
+          break;
+        }
+        // fall through
       default:
         writeevent (when, currevent->event_type, currevent->data.channel.channel, currevent->data.channel.param1, currevent->data.channel.param2);
         break;
