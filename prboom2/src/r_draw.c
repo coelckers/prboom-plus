@@ -1003,6 +1003,8 @@ void R_InitBuffersRes(void)
   byte_tempbuf = calloc(1, (SCREENHEIGHT * 4) * sizeof(*byte_tempbuf));
   short_tempbuf = calloc(1, (SCREENHEIGHT * 4) * sizeof(*short_tempbuf));
   int_tempbuf = calloc(1, (SCREENHEIGHT * 4) * sizeof(*int_tempbuf));
+
+  temp_x = 0;
 }
 
 //
