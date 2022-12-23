@@ -965,7 +965,7 @@ char* e6y_I_FindFile(const char* ext)
     strcpy(d, "");
     switch(i) {
     case 0:
-      getcwd(d, sizeof(d));
+      M_getcwd(d, sizeof(d));
       break;
     case 1:
       if (!M_getenv("DOOMWADDIR"))

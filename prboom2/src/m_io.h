@@ -20,11 +20,12 @@
 #include <stdio.h>
 #include <sys/stat.h>
 
-FILE* M_fopen(const char *filename, const char *mode);
+FILE *M_fopen(const char *filename, const char *mode);
 int M_remove(const char *path);
 int M_stat(const char *path, struct stat *buf);
 int M_open(const char *filename, int oflag);
 int M_access(const char *path, int mode);
+char *M_getcwd(char *buffer, int len);
 int M_mkdir(const char *dir);
 char *M_getenv(const char *name);
 

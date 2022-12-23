@@ -301,6 +301,50 @@ int M_access(const char *path, int mode)
 #endif
 }
 
+char *M_getcwd(char *buffer, int len)
+{
+#ifdef _WIN32
+    wchar_t *wret;
+    char *ret;
+
+    wret = _wgetcwd(NULL, 0);
+
+    if (!wret)
+    {
+        return NULL;
+    }
+
+    ret = ConvertWideToUtf8(wret);
+
+    free(wret);
+
+    if (!ret)
+    {
+        return NULL;
+    }
+
+    if (buffer)
+    {
+        if (strlen(ret) >= len)
+        {
+            free(ret);
+            return NULL;
+        }
+
+        strcpy(buffer, ret);
+        free(ret);
+
+        return buffer;
+    }
+    else
+    {
+        return ret;
+    }
+#else
+    return getcwd(buffer, len);
+#endif
+}
+
 int M_mkdir(const char *path)
 {
 #ifdef _WIN32

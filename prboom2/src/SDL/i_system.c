@@ -303,7 +303,7 @@ const char *I_DoomExeDir(void)
       {
         free(base);
         base = (char*)malloc(1024);
-        if (!getcwd(base,1024) || M_access(base, W_OK) != 0)
+        if (!M_getcwd(base,1024) || M_access(base, W_OK) != 0)
           strcpy(base, current_dir_dummy);
       }
     }

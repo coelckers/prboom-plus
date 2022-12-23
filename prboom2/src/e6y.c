@@ -1307,7 +1307,7 @@ int GetFullPath(const char* FileName, const char* ext, char *Buffer, size_t Buff
     switch(i)
     {
     case 0:
-      getcwd(dir, sizeof(dir));
+      M_getcwd(dir, sizeof(dir));
       break;
     case 1:
       if (!M_getenv("DOOMWADDIR"))
