@@ -16,6 +16,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <errno.h>
 
 #ifdef _WIN32
@@ -27,9 +28,10 @@
   #endif
 #else
   #include <sys/types.h>
+  #include <unistd.h>
+  #include <fcntl.h>
 #endif
 
-#include <sys/types.h>
 #include <sys/stat.h>
 
 #include "doomtype.h"
