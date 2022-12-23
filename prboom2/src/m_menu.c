@@ -66,9 +66,9 @@
 #include "r_demo.h"
 #include "r_fps.h"
 #include "e6y.h"//e6y
+#include "m_io.h"
 #ifdef _WIN32
 #include "e6y_launcher.h"
-#include "WIN/win_fopen.h"
 #endif
 
 extern patchnum_t hu_font[HU_FONTSIZE];
@@ -806,7 +806,7 @@ static void M_DeleteGame(int i)
   len = G_SaveGameName(NULL, 0, i, false);
   name = malloc(len+1);
   G_SaveGameName(name, len+1, i, false);
-  remove(name);
+  M_remove(name);
   free(name);
 
   M_ReadSaveStrings();
@@ -954,7 +954,7 @@ void M_ReadSaveStrings(void)
     len = G_SaveGameName(NULL, 0, i, false);
     name = malloc(len+1);
     G_SaveGameName(name, len+1, i, false);
-    fp = fopen(name,"rb");
+    fp = M_fopen(name,"rb");
     free(name);
     if (!fp) {   // Ty 03/27/98 - externalized:
       strcpy(&savegamestrings[i][0],s_EMPTYSTRING);

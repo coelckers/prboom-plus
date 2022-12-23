@@ -9,9 +9,7 @@
 #include "doomstat.h" /* players{,ingame} */
 #include "lprintf.h"
 
-#ifdef _WIN32
-#include "WIN/win_fopen.h"
-#endif
+#include "m_io.h"
 
 /* forward decls */
 static void p_checksum_cleanup(void);
@@ -37,7 +35,7 @@ void P_RecordChecksum(const char *file) {
     if(0 == strncmp("-",file,MIN(1,fnsize)))
         outfile = stdout;
     else {
-        outfile = fopen(file,"wb");
+        outfile = M_fopen(file,"wb");
         if(NULL == outfile) {
             I_Error("cannot open %s for writing checksum:\n%s\n",
                     file, strerror(errno));

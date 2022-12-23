@@ -71,9 +71,7 @@
 #include "lprintf.h"
 #include "e6y.h"
 
-#ifdef _WIN32
-#include "WIN/win_fopen.h"
-#endif
+#include "m_io.h"
 
 static dboolean   server;
 static int       remotetic; // Tic expected from the remote
@@ -249,7 +247,7 @@ dboolean D_NetGetWad(const char* name)
     }
     /* This is the parent, i.e. main LxDoom process */
     wait(&rv);
-    if (!(done = !access(name, R_OK))) {
+    if (!(done = !M_access(name, R_OK))) {
       if (!strcmp(p+strlen(p)-4, ".zip")) {
   p = strrchr(p, '/')+1;
   if ((pid = fork()) == -1)
@@ -260,7 +258,7 @@ dboolean D_NetGetWad(const char* name)
   }
   /* Parent waits for the file */
   wait(&rv);
-  done = !!access(name, R_OK);
+  done = !!M_access(name, R_OK);
       }
       /* Add more decompression protocols here as desired */
     }

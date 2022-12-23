@@ -54,9 +54,7 @@
 #include "am_map.h"
 #include "lprintf.h"
 
-#ifdef _WIN32
-#include "WIN/win_fopen.h"
-#endif
+#include "m_io.h"
 
 static FILE *levelinfo;
 
@@ -864,7 +862,7 @@ static void gld_PreprocessSectors(void)
 #endif
 
 #ifdef PRBOOM_DEBUG
-  levelinfo=fopen("levelinfo.txt","a");
+  levelinfo=M_fopen("levelinfo.txt","a");
   if (levelinfo)
   {
     if (gamemode==commercial)
