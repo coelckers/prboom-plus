@@ -60,9 +60,7 @@
 #include <dpmi.h>
 #endif
 
-#ifdef _WIN32
-#include "WIN/win_fopen.h"
-#endif
+#include "m_io.h"
 
 // Tunables
 
@@ -182,7 +180,7 @@ void Z_DumpMemory(void)
   len = doom_snprintf(NULL, 0, "%s/memdump.%d", HEAPDUMP_DIR, dump);
   buf = malloc(len+1);
   doom_snprintf(buf, len+1, "%s/memdump.%d", HEAPDUMP_DIR, dump);
-  fp = fopen(buf, "w");
+  fp = M_fopen(buf, "w");
   for (tag = PU_FREE; tag < PU_MAX; tag++)
   {
     memblock_t* end_block, *block;

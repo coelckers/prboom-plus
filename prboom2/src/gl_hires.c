@@ -63,9 +63,7 @@
 #include "m_misc.h"
 #include "e6y.h"
 
-#ifdef _WIN32
-#include "WIN/win_fopen.h"
-#endif
+#include "m_io.h"
 
 unsigned int gl_has_hires = 0;
 int gl_texture_external_hires = -1;
@@ -354,7 +352,7 @@ GLGenericImage * ReadDDSFile(const char *filename, int * bufsize, int * numMipma
   int result = false;
 
   /* try to open the file */
-  fp = fopen(filename, "rb");
+  fp = M_fopen(filename, "rb");
   if (fp != NULL)
   {
     if ((fread(filecode, 4, 1, fp) == 1) &&
@@ -730,7 +728,7 @@ static int gld_HiRes_GetExternalName(GLTexture *gltexture, char *img_path, char 
     if (checklist->exists == -1)
     {
       doom_snprintf(checkName, sizeof(checkName), checklist->path, hiresdir, "", "");
-      if (!access(checkName, F_OK))
+      if (!M_access(checkName, F_OK))
         checklist->exists = 1;
       else
         checklist->exists = 0;
@@ -745,7 +743,7 @@ static int gld_HiRes_GetExternalName(GLTexture *gltexture, char *img_path, char 
       if (GLEXT_glCompressedTexImage2DARB && dds_path[0] == '\0')
       {
         doom_snprintf(checkName, sizeof(checkName), checklist->path, hiresdir, texname, "dds");
-        if (!access(checkName, F_OK))
+        if (!M_access(checkName, F_OK))
         {
           strcpy(dds_path, checkName);
         }
@@ -755,7 +753,7 @@ static int gld_HiRes_GetExternalName(GLTexture *gltexture, char *img_path, char 
       {
         doom_snprintf(checkName, sizeof(checkName), checklist->path, hiresdir, texname, *extp);
 
-        if (!access(checkName, F_OK))
+        if (!M_access(checkName, F_OK))
         {
           strcpy(img_path, checkName);
           return true;
@@ -942,7 +940,7 @@ int gld_HiRes_BuildTables(void)
     {
       struct stat RGB24to8_stat;
       memset(&RGB24to8_stat, 0, sizeof(RGB24to8_stat));
-      stat(RGB2PAL_fname, &RGB24to8_stat);
+      M_stat(RGB2PAL_fname, &RGB24to8_stat);
       size = 0;
       if (RGB24to8_stat.st_size == RGB2PAL_size)
       {
@@ -964,7 +962,7 @@ int gld_HiRes_BuildTables(void)
     if (gl_hires_24bit_colormap)
     {
       doom_snprintf(fname, sizeof(fname), "%s/"RGB2PAL_NAME".dat", I_DoomExeDir());
-      RGB2PAL_fp = fopen(fname, "wb");
+      RGB2PAL_fp = M_fopen(fname, "wb");
       ok = RGB2PAL_fp != NULL;
     }
 
@@ -1141,12 +1139,12 @@ static int gld_HiRes_LoadFromCache(GLTexture* gltexture, GLuint* texid, const ch
   unsigned char *tex_buffer;
 
   memset(&tex_stat, 0, sizeof(tex_stat));
-  stat(img_path, &tex_stat);
+  M_stat(img_path, &tex_stat);
   
   cache_filename = malloc(strlen(img_path) + 16);
   sprintf(cache_filename, "%s.cache", img_path);
 
-  cachefp = fopen(cache_filename, "rb");
+  cachefp = M_fopen(cache_filename, "rb");
   if (cachefp)
   {
     if (fread(&tex_width, sizeof(tex_width), 1, cachefp) == 1 &&
@@ -1188,14 +1186,14 @@ static int gld_HiRes_WriteCache(GLTexture* gltexture, GLuint* texid, const char*
   FILE *cachefp;
 
   doom_snprintf(cache_filename, sizeof(cache_filename), "%s.cache", img_path);
-  if (access(cache_filename, F_OK))
+  if (M_access(cache_filename, F_OK))
   {
     buf = gld_GetTextureBuffer(*texid, 0, &w, &h);
     if (buf)
     {
       memset(&tex_stat, 0, sizeof(tex_stat));
-      stat(img_path, &tex_stat);
-      cachefp = fopen(cache_filename, "wb");
+      M_stat(img_path, &tex_stat);
+      cachefp = M_fopen(cache_filename, "wb");
       if (cachefp)
       {
         result =

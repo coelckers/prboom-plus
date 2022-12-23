@@ -162,7 +162,7 @@ int I_RegisterSong(const void *data, size_t len)
 
   if ( music_tmp == NULL )
     return 0;
-  midfile = fopen(music_tmp, "wb");
+  midfile = M_fopen(music_tmp, "wb");
   if ( midfile == NULL ) {
     lprintf(LO_ERROR,"Couldn't write MIDI to %s\n", music_tmp);
     return 0;

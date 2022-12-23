@@ -86,9 +86,7 @@
 // NSM
 #include "i_capture.h"
 
-#ifdef _WIN32
-#include "WIN/win_fopen.h"
-#endif
+#include "m_io.h"
 
 /* cph - disk icon not implemented */
 static inline void I_BeginRead(void) {}
@@ -106,7 +104,7 @@ dboolean M_WriteFile(char const *name, const void *source, size_t length)
 
   errno = 0;
 
-  if (!(fp = fopen(name, "wb")))       // Try opening file
+  if (!(fp = M_fopen(name, "wb")))       // Try opening file
     return 0;                          // Could not open file for writing
 
   I_BeginRead();                       // Disk icon on
@@ -115,7 +113,7 @@ dboolean M_WriteFile(char const *name, const void *source, size_t length)
   I_EndRead();                         // Disk icon off
 
   if (!length)                         // Remove partially written file
-    remove(name);
+    M_remove(name);
 
   return length;
 }
@@ -130,7 +128,7 @@ int M_ReadFile(char const *name, byte **buffer)
 {
   FILE *fp;
 
-  if ((fp = fopen(name, "rb")))
+  if ((fp = M_fopen(name, "rb")))
     {
       size_t length;
 
@@ -1434,7 +1432,7 @@ void M_SaveDefaults (void)
   FILE* f;
   int maxlen = 0;
 
-  f = fopen (defaultfile, "w");
+  f = M_fopen (defaultfile, "w");
   if (!f)
     return; // can't write the file, but don't complain
 
@@ -1605,7 +1603,7 @@ void M_LoadDefaults (void)
 
   // read the file in, overriding any set defaults
 
-  f = fopen (defaultfile, "r");
+  f = M_fopen (defaultfile, "r");
   if (f)
     {
     while (!feof(f))
@@ -1789,7 +1787,7 @@ const char* M_CheckWritableDir(const char *dir)
 
     if (base[len - 1] != '\\' && base[len - 1] != '/')
       strcat(base, "/");
-    if (!access(base, O_RDWR))
+    if (!M_access(base, O_RDWR))
     {
       base[strlen(base) - 1] = 0;
       result = base;
@@ -1816,7 +1814,7 @@ void M_ScreenShot(void)
 #ifdef _WIN32
     shot_dir = M_CheckWritableDir(I_DoomExeDir());
 #else
-    shot_dir = (!access(SCREENSHOT_DIR, 2) ? SCREENSHOT_DIR : NULL);
+    shot_dir = (!M_access(SCREENSHOT_DIR, 2) ? SCREENSHOT_DIR : NULL);
 #endif
 
   if (shot_dir)
@@ -1828,9 +1826,9 @@ void M_ScreenShot(void)
       lbmname = realloc(lbmname, size+1);
       doom_snprintf(lbmname, size+1, "%s/doom%02d" SCREENSHOT_EXT, shot_dir, shot);
       shot++;
-    } while (!access(lbmname,0) && (shot != startshot) && (shot < 10000));
+    } while (!M_access(lbmname,0) && (shot != startshot) && (shot < 10000));
 
-    if (access(lbmname,0))
+    if (M_access(lbmname,0))
     {
       S_StartSound(NULL,gamemode==commercial ? sfx_radio : sfx_tink);
       M_DoScreenShot(lbmname); // cph

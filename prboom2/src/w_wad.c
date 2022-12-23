@@ -61,9 +61,7 @@
 #include "r_demo.h"
 #include "e6y.h"
 
-#ifdef _WIN32
-#include "WIN/win_fopen.h"
-#endif
+#include "m_io.h"
 
 //
 // GLOBALS
@@ -153,11 +151,11 @@ static void W_AddFile(wadfile_info_t *wadfile)
 
   // open the file and add to directory
 
-  wadfile->handle = open(wadfile->name,O_RDONLY | O_BINARY);
+  wadfile->handle = M_open(wadfile->name,O_RDONLY | O_BINARY);
 
 #ifdef HAVE_NET
   if (wadfile->handle == -1 && D_NetGetWad(wadfile->name)) // CPhipps
-    wadfile->handle = open(wadfile->name,O_RDONLY | O_BINARY);
+    wadfile->handle = M_open(wadfile->name,O_RDONLY | O_BINARY);
 #endif
 
   if (wadfile->handle == -1 &&
@@ -166,7 +164,7 @@ static void W_AddFile(wadfile_info_t *wadfile)
     !strcasecmp(wadfile->name + strlen(wadfile->name) - 4 , ".wad") &&
     D_TryGetWad(wadfile->name))
   {
-    wadfile->handle = open(wadfile->name, O_RDONLY | O_BINARY);
+    wadfile->handle = M_open(wadfile->name, O_RDONLY | O_BINARY);
   }
 
   if (wadfile->handle == -1) 

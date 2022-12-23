@@ -87,9 +87,7 @@
 #include "e6y.h"//e6y
 #include "statdump.h"
 
-#ifdef _WIN32
-#include "WIN/win_fopen.h"
-#endif
+#include "m_io.h"
 
 // ano - used for version 255+ demos, like EE or MBF
 static char     prdemosig[] = "PR+UM";
@@ -2569,7 +2567,7 @@ static char *G_NewDemoName(const char *name)
   snprintf(demoname, demoname_size, "%s.lmp", name);
 
   // prevent overriding demos by adding a file name suffix
-  for ( ; j <= 99999 && (fp = fopen(demoname, "rb")) != NULL; j++)
+  for ( ; j <= 99999 && (fp = M_fopen(demoname, "rb")) != NULL; j++)
   {
     snprintf(demoname, demoname_size, "%s-%05d.lmp", name, j);
     fclose(fp);
@@ -3132,7 +3130,7 @@ void G_RecordDemo (const char* name)
   */
 
   demofp = NULL;
-  if (access(demoname, F_OK) || democontinue ||
+  if (M_access(demoname, F_OK) || democontinue ||
      (demo_compatibility && demo_overwriteexisting))
   {
     if (strlen(demoname) > 4
@@ -3140,7 +3138,7 @@ void G_RecordDemo (const char* name)
       I_Error("G_RecordDemo: Cowardly refusing to record over "
               "what appears to be a WAD. (%s)", demoname);
 
-    demofp = fopen(demoname, "wb");
+    demofp = M_fopen(demoname, "wb");
   }
   else
   {
@@ -3149,7 +3147,7 @@ void G_RecordDemo (const char* name)
       I_Error("G_RecordDemo: file %s already exists", name);
     }
 
-    demofp = fopen(demoname, "rb+");
+    demofp = M_fopen(demoname, "rb+");
     if (demofp)
     {
       int slot = -1;
@@ -3207,7 +3205,7 @@ void G_RecordDemo (const char* name)
       {
         //restoration of all data which could be changed by G_ReadDemoHeader
         G_SaveRestoreGameOptions(false);
-        demofp = fopen(demoname, "wb");
+        demofp = M_fopen(demoname, "wb");
       }
       else
       {

@@ -97,9 +97,7 @@
 
 #include "z_zone.h"
 
-#ifdef _WIN32
-#include "../WIN/win_fopen.h"
-#endif
+#include "m_io.h"
 
 void I_uSleep(unsigned long usecs)
 {
@@ -189,7 +187,7 @@ dboolean I_FileToBuffer(const char *filename, byte **data, int *size)
   byte *buffer = NULL;
   size_t filesize = 0;
 
-  hfile = fopen(filename, "rb");
+  hfile = M_fopen(filename, "rb");
   if (hfile)
   {
     fseek(hfile, 0, SEEK_END);
@@ -301,11 +299,11 @@ const char *I_DoomExeDir(void)
         *p--=0;
       if (*p=='/' || *p=='\\')
         *p--=0;
-      if (strlen(base)<2 || access(base, W_OK) != 0)
+      if (strlen(base)<2 || M_access(base, W_OK) != 0)
       {
         free(base);
         base = (char*)malloc(1024);
-        if (!getcwd(base,1024) || access(base, W_OK) != 0)
+        if (!M_getcwd(base,1024) || M_access(base, W_OK) != 0)
           strcpy(base, current_dir_dummy);
       }
     }
@@ -353,7 +351,7 @@ const char *I_DoomExeDir(void)
 
   if (!base)        // cache multiple requests
     {
-      char *home = getenv("HOME");
+      char *home = M_getenv("HOME");
       char *p_home = strdup(home);
       size_t len = strlen(home);
       size_t p_len = (len + strlen(prboom_dir) + 3);
@@ -367,7 +365,7 @@ const char *I_DoomExeDir(void)
 
       // if ~/.$prboom_dir doesn't exist,
       // create and use directory in XDG_DATA_HOME
-      if (stat(base, &data_dir) || !S_ISDIR(data_dir.st_mode))
+      if (M_stat(base, &data_dir) || !S_ISDIR(data_dir.st_mode))
         {
           // SDL creates this directory if it doesn't exist
           char *prefpath = SDL_GetPrefPath("", prboom_dir);
@@ -471,7 +469,7 @@ char* I_FindFileInternal(const char* wfname, const char* ext, dboolean isStatic)
     memcpy(search, search0, num_search * sizeof(*search));
 
     // add each directory from the $DOOMWADPATH environment variable
-    if ((dwp = getenv("DOOMWADPATH")))
+    if ((dwp = M_getenv("DOOMWADPATH")))
     {
       char *left, *ptr, *dup_dwp;
 
@@ -517,7 +515,7 @@ char* I_FindFileInternal(const char* wfname, const char* ext, dboolean isStatic)
      * and optionally s to a subdirectory of d */
     // switch replaced with lookup table
     if (search[i].env) {
-      if (!(d = getenv(search[i].env)))
+      if (!(d = M_getenv(search[i].env)))
         continue;
     } else if (search[i].func)
       d = search[i].func();
@@ -531,9 +529,9 @@ char* I_FindFileInternal(const char* wfname, const char* ext, dboolean isStatic)
                              s ? s : "", (s && !HasTrailingSlash(s)) ? "/" : "",
                              wfname);
 
-    if (ext && access(p,F_OK))
+    if (ext && M_access(p,F_OK))
       strcat(p, ext);
-    if (!access(p,F_OK)) {
+    if (!M_access(p,F_OK)) {
       if (!isStatic)
         lprintf(LO_INFO, " found %s\n", p);
       return p;

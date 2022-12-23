@@ -54,9 +54,7 @@
 // CPhipps - modify to use logical output routine
 #include "lprintf.h"
 
-#ifdef _WIN32
-#include "WIN/win_fopen.h"
-#endif
+#include "m_io.h"
 
 #define TRUE 1
 #define FALSE 0
@@ -1613,7 +1611,7 @@ void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum)
       if (!strcmp(outfilename, "-"))
         fileout = stdout;
       else
-        if (!(fileout=fopen(outfilename, firstfile ? "wt" : "at")))
+        if (!(fileout=M_fopen(outfilename, firstfile ? "wt" : "at")))
           {
             lprintf(LO_WARN, "Could not open -dehout file %s\n... using stdout.\n",
                    outfilename);
@@ -1626,7 +1624,7 @@ void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum)
 
   if (filename)
     {
-      if (!(infile.f = fopen(filename,"rt")))
+      if (!(infile.f = M_fopen(filename,"rt")))
         {
           lprintf(LO_WARN, "-deh file %s not found\n",filename);
           return;  // should be checked up front anyway
