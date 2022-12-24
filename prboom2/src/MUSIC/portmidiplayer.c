@@ -240,10 +240,6 @@ static int pm_init (int samplerate)
     return 0;
   }
 
-  // option to block sysex messages from midi file
-  if (mus_portmidi_filter_sysex)
-    Pm_SetFilter(pm_stream, PM_FILT_ACTIVE | PM_FILT_SYSEX);
-
   init_reset_buffer();
   reset_device();
 
@@ -594,7 +590,8 @@ static void pm_render (void *vdest, unsigned bufflen)
     {
       case MIDI_EVENT_SYSEX:
       case MIDI_EVENT_SYSEX_SPLIT:
-        writesysex (when, currevent->event_type, currevent->data.sysex.data, currevent->data.sysex.length);
+        if (!mus_portmidi_filter_sysex)
+          writesysex (when, currevent->event_type, currevent->data.sysex.data, currevent->data.sysex.length);
         break;
       case MIDI_EVENT_META:
         switch (currevent->data.meta.type)
