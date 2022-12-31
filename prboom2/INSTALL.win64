@@ -1,0 +1,89 @@
+Basic Installation (ZIP, tarball, Git)
+==================
+
+  1. The compiler, libraries, build systems and other tools that we will use will be in msys2's mingw
+     Go to the msys2 page (https://www.msys2.org/) and follow the instructionsstep-by-step instructions to install it.
+     Once msys2 is installed, update it with the command
+      
+     pacman -Syu
+
+     WARNING: Before continuing make a backup of your PATH variable
+     Now let's add the path of the msys2-mingw64 binaries to the path with the following command 
+     (you must run this command from an elevated command prompt).
+
+     setx /M PATH "%path%;C:\msys64\mingw64\bin"
+
+  2. The two build tools we will use will be cmake and make, in this step we will install cmake
+      
+     Go to the official cmake page (https://cmake.org/download/) and download Windows x64 Installer
+     Once cmake is installed, we will create a system variable to specify the build system, 
+     in this case, make(you must run this command from an elevated command prompt).
+
+     setx /M CMAKE_GENERATOR "MinGW Makefiles"
+
+  3. To compile PrBoom-Plus, you need at least SDL2. To enable various
+     extensions and optional features, the following are required:
+     - SDL2_net (for network play)
+     - SDL2_image (for high-res textures in OpenGL, and PNG screenshots)
+     - PCRE (for demo filename pattern matching)
+     - for music support, some or all of
+       * SDL2_mixer (midi, timidity)
+       * Fluidsynth (midi)
+       * ALSA (midi)
+       * Portmidi (midi)
+       * MAD (mp3)
+       * DUMB (various tracker-style formats)
+       * vorbisfile (ogg)
+    On Msys2-MinGW64 system this may be sufficient:
+      pacman -S mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_gfx \
+	mingw-w64-x86_64-SDL2_image mingw-w64-x86_64-SDL2_mixer \
+	mingw-w64-x86_64-SDL2_net mingw-w64-x86_64-SDL2_ttf \
+	pcre mingw-w64-x86_64-make
+         
+  4. `cd' to the directory containing the PrBoom distribution (the directory
+     this file is in, prboom2).
+     
+     Create a new `build` folder and `cd` into it. 
+     `mkdir build && cd build`
+     
+     Run `cmake .. -DCMAKE_BUILD_TYPE=Release` from this folder, or 
+     `cmake .. -DCMAKE_BUILD_TYPE=Debug` for a debug build. (This gives
+     slightly lower performance, but more details in the event of 
+     issues).
+     
+     This should end with the message "Build files have been written to: [folderpath]".
+
+  5. Type `make` to compile PrBoom. This may take some time; while it's
+     compiling I suggest you read the README, or maybe go and look for some
+     good doom levels to play when it's finished :-).
+
+  6. Copy your Doom, Doom 2, Ultimate Doom or Final Doom IWAD (doom.wad or
+     doom2.wad) to the build directory (or symlink it from there).
+     Or if you don't have any of those, use the shareware IWAD, which you can
+     get from http://www.doomworld.com/ or http://www.idsoftware.com/.
+
+     If you have a system with many users, you should read the license for
+     your version of Doom, and make sure only those users allowed to use it
+     can access the IWAD file.
+     
+     You may also aquire FreeDoom from https://freedoom.github.io/ which is a 
+     free replacement to the iD Doom iWADs.
+
+  7. You can remove the program binaries and object files from the
+     source directory by typing `make clean`.
+
+  8. PrBoom is now ready for use.
+
+Compilers and Options
+=====================
+
+   Some systems require unusual options for compilation or linking that
+the `configure' script does not know about.  You can give `configure'
+initial values for variables by setting them in the environment.  Using
+a Bourne-compatible shell, you can do that on the command line like
+this:
+     CC=c89 CFLAGS=-O2 LIBS=-lposix ./configure
+
+Or on systems that have the `env' program, you can do it like this:
+     env CPPFLAGS=-I/usr/local/include LDFLAGS=-s ./configure
+
