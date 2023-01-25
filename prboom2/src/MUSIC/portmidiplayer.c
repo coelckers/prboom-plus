@@ -610,7 +610,10 @@ static void pm_render (void *vdest, unsigned bufflen)
               eventpos = 0;
               // prevent hanging notes (doom2.wad MAP14, MAP22)
               for (int i = 0; i < 16; i++)
+              {
                 writeevent (when, 0xB0, i, 0x7B, 0x00); // all notes off
+                writeevent (when, 0xB0, i, 0x40, 0x00); // hold1 (damper/sustain) pedal
+              }
               continue;
             }
             pm_stop();
