@@ -612,7 +612,7 @@ static void pm_render (void *vdest, unsigned bufflen)
               for (int i = 0; i < 16; i++)
               {
                 writeevent (when, 0xB0, i, 0x7B, 0x00); // all notes off
-                writeevent (when, 0xB0, i, 0x40, 0x00); // hold1 (damper/sustain) pedal
+                writeevent (when, 0xB0, i, 0x79, 0x00); // reset all controllers
               }
               continue;
             }
