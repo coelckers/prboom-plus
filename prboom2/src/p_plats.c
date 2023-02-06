@@ -115,13 +115,13 @@ void T_PlatRaise(plat_t* plat)
           {
             case blazeDWUS:
             case downWaitUpStay:
+            case raiseAndChange:
             case genLift:
               P_RemoveActivePlat(plat);     // killough
               break;
 
-            case raiseAndChange:
             case raiseToNearestAndChange:
-            // In versions <= v1.2 these platform types always remain active.
+            // In versions before v1.666 these platform types always remain active.
             if (compatibility_level > doom_12_compatibility)
             {
               P_RemoveActivePlat(plat);
