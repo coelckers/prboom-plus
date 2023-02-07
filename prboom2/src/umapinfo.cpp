@@ -453,7 +453,7 @@ static int ParseStandardProperty(Scanner &scanner, MapEntry *mape)
 		ParseLumpName(scanner, mape->nextsecret);
 		if (!G_ValidateMapName(mape->nextsecret, NULL, NULL))
 		{
-			scanner.ErrorF("Invalid map name %s", mape->nextmap);
+			scanner.ErrorF("Invalid map name %s", mape->nextsecret);
 			return 0;
 		}
 	}
@@ -557,6 +557,7 @@ static int ParseStandardProperty(Scanner &scanner, MapEntry *mape)
 				{
 					scanner.MustGetToken(TK_StringConst);
 					key = strdup(scanner.string);
+					key[0] = tolower(key[0]);
 				}
 			}
 
@@ -677,13 +678,13 @@ int ParseUMapInfo(const unsigned char *buffer, size_t length, umapinfo_errorfunc
 		// Set default level progression here to simplify the checks elsewhere. Doing this lets us skip all normal code for this if nothing has been defined.
 		if (parsed.endpic[0] && (strcmp(parsed.endpic, "-") != 0))
 		{
-			parsed.nextmap[0] = parsed.nextsecret[0] = 0;
+			parsed.nextmap[0] = 0;
 		}
 		else if (!parsed.nextmap[0] && !parsed.endpic[0])
 		{
 			if (!stricmp(parsed.mapname, "MAP30")) strcpy(parsed.endpic, "$CAST");
 			else if (!stricmp(parsed.mapname, "E1M8"))  strcpy(parsed.endpic, gamemode == retail? "CREDIT" : "HELP2");
-			else if (!stricmp(parsed.mapname, "E2M8"))  strcpy(parsed.endpic, "VICTORY");
+			else if (!stricmp(parsed.mapname, "E2M8"))  strcpy(parsed.endpic, "VICTORY2");
 			else if (!stricmp(parsed.mapname, "E3M8"))  strcpy(parsed.endpic, "$BUNNY");
 			else if (!stricmp(parsed.mapname, "E4M8"))  strcpy(parsed.endpic, "ENDPIC");
 			else if (gamemission == chex && !stricmp(parsed.mapname, "E1M5"))  strcpy(parsed.endpic, "CREDIT");

@@ -1,3 +1,38 @@
+PrBoom-Plus 2.6.2 @ 11 Feb 2022
+- added a prospective fix for OpenGL rendering: don't bleed walls through sky floors
+- account for proper crosshair offsets when locked on to monsters
+- relaxed "IWAD tag not present" error to a warning, which allows loading REKKR IWAD
+- fixed processing of multiple DEHs
+- UMAPINFO: fixed error reporting if token == TK_NoToken
+- fixed intermission screen for E0Mx
+- fixed Alt+Tabbing on Windows, broken in new SDL2 version
+- UMAPINFO: fixed using_FMI reset * no more crashes at textscreens
+  (e.g. after MAP06, MAP11 or MAP20) after viewing finale picture upon finishing
+  a level with UMAPINFO 'endpic' property
+- fixed freezing at TITLEPIC while using mousewheel in menus
+- fixed looping forever in G_NextWeapon()
+- UMAPINFO: fix 'entering' and 'enterpic' shown on exit levels
+- GL: adjust sky offsets for non-standard FOVs
+- fixed stuttering with uncapped framerate
+- added support for widescreen low resolutions
+- added REKKR to launcher string list
+- let G_GotoNextLevel() close the circle for maps with an endpic
+- Launcher: identify IWADs either by IWAD tag, or by PWAD tag and matching filename
+- Portmidi: fix freeze after song change
+- fixed scaled time interpolation when changing game speed
+- fixed wrong pitch of SFX when MIDI Player is set to SDL
+- v1.2 compat:
+   * do not use sfx_getpow for powerups
+   * do not render powerups and attacking Spiderdemon fullbright
+- UMAPINFO: fixed par times not showing
+- fixed demo playback warp consistency
+- added SKILL cheat to display current skill level
+- fixed calculation of interpolation frac value
+- guard against screen buffer underflow
+- fixed crash at startup by properly closing IWAD file handle
+- added vanilla_keymap option à la Chocolate Doom
+- added 'run' as a mouse-settable control (mouseb_speed)
+
 PrBoom-Plus 2.6.1um @ 16 Aug 2021
 - fixed MOD playback with DUMB 2.x
 - added TNTCLxx cheat, e.g. TNTCL04 sets complevel 4 (Final DOOM)

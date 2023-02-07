@@ -39,9 +39,7 @@
 #include "i_system.h"
 #include "i_capture.h"
 
-#ifdef _WIN32
-#include "WIN/win_fopen.h"
-#endif
+#include "m_io.h"
 
 int capturing_video = 0;
 static const char *vid_fname;
@@ -73,6 +71,7 @@ const char *cap_tempfile2;
 int cap_remove_tempfiles;
 int cap_fps;
 int cap_frac;
+int cap_wipescreen;
 
 // parses a command with simple printf-style replacements.
 
@@ -463,7 +462,7 @@ static int threadstdoutproc (void *data)
 
   pipeinfo_t *p = (pipeinfo_t *) data;
 
-  FILE *f = fopen (p->stdoutdumpname, "w");
+  FILE *f = M_fopen (p->stdoutdumpname, "w");
 
   if (!f || !p->f_stdout)
     return 0;
@@ -483,7 +482,7 @@ static int threadstderrproc (void *data)
 
   pipeinfo_t *p = (pipeinfo_t *) data;
 
-  FILE *f = fopen (p->stderrdumpname, "w");
+  FILE *f = M_fopen (p->stderrdumpname, "w");
 
   if (!f || !p->f_stderr)
     return 0;
@@ -640,7 +639,7 @@ void I_CaptureFinish (void)
   // unlink any files user wants gone
   if (cap_remove_tempfiles)
   {
-    remove (cap_tempfile1);
-    remove (cap_tempfile2);
+    M_remove (cap_tempfile1);
+    M_remove (cap_tempfile2);
   }
 }

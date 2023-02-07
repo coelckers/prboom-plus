@@ -87,9 +87,7 @@
 #include "d_deh.h"
 #include "e6y.h"
 
-#ifdef _WIN32
-#include "WIN/win_fopen.h"
-#endif
+#include "m_io.h"
 
 dboolean wasWiped = false;
 
@@ -220,7 +218,7 @@ void e6y_assert(const char *format, ...)
   va_list argptr;
   va_start(argptr,format);
   //if (!f)
-    f = fopen("d:\\a.txt", "ab+");
+    f = M_fopen("d:\\a.txt", "ab+");
   vfprintf(f, format, argptr);
   fclose(f);
   va_end(argptr);
@@ -967,7 +965,7 @@ void e6y_WriteStats(void)
   tmpdata_t *all;
   size_t allkills_len=0, allitems_len=0, allsecrets_len=0;
 
-  f = fopen("levelstat.txt", "wb");
+  f = M_fopen("levelstat.txt", "wb");
   
   all = malloc(sizeof(*all) * numlevels);
   memset(&max, 0, sizeof(timetable_t));
@@ -1309,12 +1307,12 @@ int GetFullPath(const char* FileName, const char* ext, char *Buffer, size_t Buff
     switch(i)
     {
     case 0:
-      getcwd(dir, sizeof(dir));
+      M_getcwd(dir, sizeof(dir));
       break;
     case 1:
-      if (!getenv("DOOMWADDIR"))
+      if (!M_getenv("DOOMWADDIR"))
         continue;
-      strcpy(dir, getenv("DOOMWADDIR"));
+      strcpy(dir, M_getenv("DOOMWADDIR"));
       break;
     case 2:
       strcpy(dir, I_DoomExeDir());
@@ -1327,49 +1325,6 @@ int GetFullPath(const char* FileName, const char* ext, char *Buffer, size_t Buff
   }
 
   return false;
-}
-#endif
-
-#ifdef _WIN32
-#include <Mmsystem.h>
-#ifndef __GNUC__
-#pragma comment( lib, "winmm.lib" )
-#endif
-int mus_extend_volume;
-void I_midiOutSetVolumes(int volume)
-{
-  // NSM changed to work on the 0-15 volume scale,
-  // and to check mus_extend_volume itself.
-  
-  MMRESULT result;
-  int calcVolume;
-  MIDIOUTCAPS capabilities;
-  unsigned int i;
-
-  if (volume > 15)
-    volume = 15;
-  if (volume < 0)
-    volume = 0;
-  calcVolume = (65535 * volume / 15);
-
-  //SDL_LockAudio(); // this function doesn't touch anything the audio callback touches
-
-  //Device loop
-  for (i = 0; i < midiOutGetNumDevs(); i++)
-  {
-    //Get device capabilities
-    result = midiOutGetDevCaps(i, &capabilities, sizeof(capabilities));
-    if (result == MMSYSERR_NOERROR)
-    {
-      //Adjust volume on this candidate
-      if ((capabilities.dwSupport & MIDICAPS_VOLUME))
-      {
-        midiOutSetVolume((HMIDIOUT)i, MAKELONG(calcVolume, calcVolume));
-      }
-    }
-  }
-
-  //SDL_UnlockAudio();
 }
 #endif
 
