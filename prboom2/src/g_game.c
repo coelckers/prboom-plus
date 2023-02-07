@@ -3582,15 +3582,21 @@ void G_BeginRecording (void)
         break;
       }
     }
+    if (compatibility_level > doom_12_compatibility || prboom_comp[PC_v12_FORCE_INCORRECT_DEMO_HEADER].state)
+    {
     *demo_p++ = v;
+    }
     *demo_p++ = gameskill;
     *demo_p++ = gameepisode;
     *demo_p++ = gamemap;
+    if (compatibility_level > doom_12_compatibility || prboom_comp[PC_v12_FORCE_INCORRECT_DEMO_HEADER].state)
+    {
     *demo_p++ = deathmatch;
     *demo_p++ = respawnparm;
     *demo_p++ = fastparm;
     *demo_p++ = nomonsters;
     *demo_p++ = consoleplayer;
+    }
     for (i=0; i<4; i++)  // intentionally hard-coded 4 -- killough
       *demo_p++ = playeringame[i];
   }
