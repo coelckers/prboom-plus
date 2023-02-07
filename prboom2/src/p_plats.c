@@ -122,7 +122,7 @@ void T_PlatRaise(plat_t* plat)
 
             case raiseToNearestAndChange:
             // In versions before v1.666 these platform types always remain active.
-            if (compatibility_level > doom_12_compatibility)
+            if (compatibility_level > doom_12_compatibility || prboom_comp[PC_v12_REMOVE_ACTIVE_PLATS].state)
             {
               P_RemoveActivePlat(plat);
               break;

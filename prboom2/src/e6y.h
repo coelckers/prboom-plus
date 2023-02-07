@@ -255,6 +255,7 @@ enum
   PC_DO_NOT_USE_MISC12_FRAME_PARAMETERS_IN_A_MUSHROOM,
   PC_APPLY_MBF_CODEPOINTERS_TO_ANY_COMPLEVEL,
   PC_RESET_MONSTERSPAWNER_PARAMS_AFTER_LOADING,
+  PC_v12_REMOVE_ACTIVE_PLATS,
   PC_MAX
 };
 
@@ -355,10 +356,5 @@ void I_Warning(const char *message, ...);
 int I_MessageBox(const char* text, unsigned int type);
 
 dboolean SmoothEdges(unsigned char * buffer,int w, int h);
-
-#ifdef _WIN32
-extern int mus_extend_volume;
-void I_midiOutSetVolumes(int volume);
-#endif
 
 #endif
