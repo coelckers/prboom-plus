@@ -3582,14 +3582,14 @@ void G_BeginRecording (void)
         break;
       }
     }
-    if (compatibility_level > doom_12_compatibility || prboom_comp[PC_v12_FORCE_INCORRECT_DEMO_HEADER].state)
+    if (compatibility_level > doom_12_compatibility)
     {
     *demo_p++ = v;
     }
     *demo_p++ = gameskill;
     *demo_p++ = gameepisode;
     *demo_p++ = gamemap;
-    if (compatibility_level > doom_12_compatibility || prboom_comp[PC_v12_FORCE_INCORRECT_DEMO_HEADER].state)
+    if (compatibility_level > doom_12_compatibility)
     {
     *demo_p++ = deathmatch;
     *demo_p++ = respawnparm;

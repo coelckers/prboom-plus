@@ -270,7 +270,6 @@ prboom_comp_t prboom_comp[PC_MAX] = {
   {0x00000000, 0x02050007, 0, "-do_not_use_misc12_frame_parameters_in_a_mushroom"},
   {0x00000000, 0x02050102, 0, "-apply_mbf_codepointers_to_any_complevel"},
   {0x00000000, 0x02050104, 0, "-reset_monsterspawner_params_after_loading"},
-  {0x02050104, 0x02060200, 0, "-force_incorrect_demo_header"},
 };
 
 void e6y_InitCommandLine(void)
