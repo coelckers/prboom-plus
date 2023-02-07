@@ -1655,7 +1655,9 @@ static void D_DoomMainSetup(void)
   // jff 1/24/98 set both working and command line value of play parms
   nomonsters = clnomonsters = M_CheckParm ("-nomonsters");
   respawnparm = clrespawnparm = M_CheckParm ("-respawn");
-  fastparm = clfastparm = M_CheckParm ("-fast");
+  // -fast was not an option until v1.4
+  if (compatibility_level > doom_12_compatibility)
+    fastparm = clfastparm = M_CheckParm ("-fast");
   // jff 1/24/98 end of set to both working and command line value
 
   devparm = M_CheckParm ("-devparm");
