@@ -2667,9 +2667,7 @@ void P_SpawnSpecials (void)
 
       case 17:
         // fire flickering
-        // first introduced in official v1.4 beta
-        if (compatibility_level > doom_12_compatibility)
-          P_SpawnFireFlicker(sector);
+        P_SpawnFireFlicker(sector);
         break;
     }
   }
