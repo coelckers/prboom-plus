@@ -2641,13 +2641,13 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   // find map name
   if (gamemode == commercial)
   {
-    sprintf(lumpname, "map%02d", map);           // killough 1/24/98: simplify
-    sprintf(gl_lumpname, "gl_map%02d", map);    // figgi
+    snprintf(lumpname, 9, "map%02d", map);           // killough 1/24/98: simplify
+    snprintf(gl_lumpname, 9, "gl_map%02d", map);    // figgi
   }
   else
   {
-    sprintf(lumpname, "E%dM%d", episode, map);   // killough 1/24/98: simplify
-    sprintf(gl_lumpname, "GL_E%iM%i", episode, map); // figgi
+    snprintf(lumpname, 9, "E%dM%d", episode, map);   // killough 1/24/98: simplify
+    snprintf(gl_lumpname, 9, "GL_E%iM%i", episode, map); // figgi
   }
 
   lumpnum = W_GetNumForName(lumpname);
