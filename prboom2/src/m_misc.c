@@ -460,8 +460,8 @@ default_t defaults[] =
   {"mus_portmidi_reset_type",{NULL, &mus_portmidi_reset_type},{0,"gm"},UL,UL,def_str,ss_none}, // portmidi reset type (none, gs, gm, gm2, xg)
   {"mus_portmidi_reset_delay",{&mus_portmidi_reset_delay},{0},0,2000,def_int,ss_none}, // portmidi delay after reset (milliseconds)
   {"mus_portmidi_filter_sysex",{&mus_portmidi_filter_sysex},{1},0,1,def_bool,ss_none}, // portmidi block sysex from midi files
-  {"mus_portmidi_reverb_level",{&mus_portmidi_reverb_level},{40},0,127,def_int,ss_none}, // portmidi reverb send level
-  {"mus_portmidi_chorus_level",{&mus_portmidi_chorus_level},{0},0,127,def_int,ss_none}, // portmidi chorus send level
+  {"mus_portmidi_reverb_level",{&mus_portmidi_reverb_level},{-1},-1,127,def_int,ss_none}, // portmidi reverb send level
+  {"mus_portmidi_chorus_level",{&mus_portmidi_chorus_level},{-1},-1,127,def_int,ss_none}, // portmidi chorus send level
 
   {"Video settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"videomode",{NULL, &default_videomode},{0,"8bit"},UL,UL,def_str,ss_none},
