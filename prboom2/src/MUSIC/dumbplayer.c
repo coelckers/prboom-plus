@@ -68,9 +68,10 @@ const music_player_t db_player =
 #if !defined(_FILE_OFFSET_BITS) || (_FILE_OFFSET_BITS < 64)
 #ifdef _MSC_VER
 #define DUMB_OFF_T_CUSTOM __int64
-#else /* !_MSC_VER */
-#define DUMB_OFF_T_CUSTOM off64_t
-#endif /* _MSC_VER */
+#else
+#include <stdint.h>
+#define DUMB_OFF_T_CUSTOM int64_t
+#endif
 #endif
 
 #include <dumb.h>
@@ -116,28 +117,26 @@ static const void* db_registersong (const void *data, unsigned len)
   // because dumbfiles don't have any concept of backward seek or
   // rewind, you have to reopen if any loader fails
 
-  if (1)
+  dfil = dumbfile_open_memory ((const char *)data, len);
+  duh = read_duh (dfil);
+
+  if (!duh)
   {
-    dfil = dumbfile_open_memory ((const char *)data, len);
-    duh = read_duh (dfil);
+    dumbfile_close (dfil);
+    dfil = dumbfile_open_memory ((const char*)data, len);
+    duh = dumb_read_it_quick (dfil);
   }
   if (!duh)
   {
     dumbfile_close (dfil);
     dfil = dumbfile_open_memory ((const char*)data, len);
-    duh = dumb_read_it_quick (dfil);  
+    duh = dumb_read_xm_quick (dfil);
   }
   if (!duh)
   {
     dumbfile_close (dfil);
     dfil = dumbfile_open_memory ((const char*)data, len);
-    duh = dumb_read_xm_quick (dfil);  
-  }
-  if (!duh)
-  {
-    dumbfile_close (dfil);
-    dfil = dumbfile_open_memory ((const char*)data, len);
-    duh = dumb_read_s3m_quick (dfil);  
+    duh = dumb_read_s3m_quick (dfil);
   }
   if (!duh)
   {
@@ -170,7 +169,6 @@ static const void* db_registersong (const void *data, unsigned len)
   {
     dumbfile_close (dfil);
     dfil = NULL;
-    lprintf (LO_WARN, "db_registersong: couldn't load as tracker\n");
     return NULL;
   }
   // handle not used
@@ -212,7 +210,7 @@ static void db_stop (void)
   dsren = NULL;
   db_playing = 0;
 }
-  
+
 static void db_pause (void)
 {
   db_paused = 1;
@@ -230,26 +228,35 @@ static void db_render (void *dest, unsigned nsamp)
 
   if (db_playing && !db_paused)
   {
-    nsampwrit = duh_render (dsren, 16, 0, db_volume, db_delta, nsamp, dest);
+#if ( DUMB_MAJOR_VERSION >= 2 )
+    sample_t **sig_samples = NULL;
+    long sig_samples_size = 0;
+
+    nsampwrit = duh_render_int(dsren, &sig_samples, &sig_samples_size,
+                               16, 0, db_volume, db_delta, nsamp, dest);
+    destroy_sample_buffer(sig_samples);
+#else
+    nsampwrit = duh_render(dsren, 16, 0, db_volume, db_delta, nsamp, dest);
+#endif
     if (nsampwrit != nsamp)
     { // end of file
       // tracker formats can have looping imbedded in them, in which case
       // we'll never reach this (even if db_looping is 0!!)
-      
+
       cdest += nsampwrit * 4;
 
 
       if (db_looping)
       { // but if the tracker doesn't loop, and we want loop anyway, restart
         // from beginning
-        
+
         if (nsampwrit == 0)
         { // special case: avoid infinite recursion
           db_stop ();
           lprintf (LO_WARN, "db_render: problem (0 length tracker file on loop?\n");
           return;
         }
-        
+
         // im not sure if this is the best way to seek, but there isn't
         // a sigrenderer_rewind type function
         db_stop ();
@@ -286,6 +293,3 @@ const music_player_t db_player =
 
 
 #endif // HAVE_DUMB
-
-
-

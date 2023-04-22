@@ -97,9 +97,7 @@
 
 #include "z_zone.h"
 
-#ifdef _WIN32
-#include "../WIN/win_fopen.h"
-#endif
+#include "m_io.h"
 
 void I_uSleep(unsigned long usecs)
 {
@@ -140,10 +138,7 @@ fixed_t I_GetTimeFrac (void)
   }
   else
   {
-    int tic_time = I_TickElapsedTime();
-
-    frac = tic_time * FRACUNIT * TICRATE / 1000;
-    frac = BETWEEN(0, FRACUNIT, frac);
+    frac = I_TickElapsedTime();
   }
 
   return frac;
@@ -192,7 +187,7 @@ dboolean I_FileToBuffer(const char *filename, byte **data, int *size)
   byte *buffer = NULL;
   size_t filesize = 0;
 
-  hfile = fopen(filename, "rb");
+  hfile = M_fopen(filename, "rb");
   if (hfile)
   {
     fseek(hfile, 0, SEEK_END);
@@ -304,11 +299,11 @@ const char *I_DoomExeDir(void)
         *p--=0;
       if (*p=='/' || *p=='\\')
         *p--=0;
-      if (strlen(base)<2 || access(base, W_OK) != 0)
+      if (strlen(base)<2 || M_access(base, W_OK) != 0)
       {
         free(base);
         base = (char*)malloc(1024);
-        if (!getcwd(base,1024) || access(base, W_OK) != 0)
+        if (!M_getcwd(base,1024) || M_access(base, W_OK) != 0)
           strcpy(base, current_dir_dummy);
       }
     }
@@ -347,22 +342,42 @@ const char* I_GetTempDir(void)
 // cph - V.Aguilar (5/30/99) suggested return ~/.lxdoom/, creating
 //  if non-existant
 // cph 2006/07/23 - give prboom+ its own dir
-static const char prboom_dir[] = {"/.prboom-plus"}; // Mead rem extra slash 8/21/03
+static const char prboom_dir[] = {"prboom-plus"};
 
 const char *I_DoomExeDir(void)
 {
   static char *base;
+  struct stat data_dir;
+
   if (!base)        // cache multiple requests
     {
-      char *home = getenv("HOME");
+      char *home = M_getenv("HOME");
+      char *p_home = strdup(home);
       size_t len = strlen(home);
+      size_t p_len = (len + strlen(prboom_dir) + 3);
 
-      base = malloc(len + strlen(prboom_dir) + 1);
-      strcpy(base, home);
       // I've had trouble with trailing slashes before...
-      if (base[len-1] == '/') base[len-1] = 0;
-      strcat(base, prboom_dir);
-      mkdir(base, S_IRUSR | S_IWUSR | S_IXUSR); // Make sure it exists
+      if (p_home[len-1] == '/') p_home[len-1] = 0;
+
+      base = malloc(p_len);
+      snprintf(base, p_len, "%s/.%s", p_home, prboom_dir);
+      free(p_home);
+
+      // if ~/.$prboom_dir doesn't exist,
+      // create and use directory in XDG_DATA_HOME
+      if (M_stat(base, &data_dir) || !S_ISDIR(data_dir.st_mode))
+        {
+          // SDL creates this directory if it doesn't exist
+          char *prefpath = SDL_GetPrefPath("", prboom_dir);
+          size_t prefsize = strlen(prefpath);
+
+          free(base);
+          base = strdup(prefpath);
+          // SDL_GetPrefPath always returns with trailing slash
+          if (base[prefsize-1] == '/') base[prefsize-1] = 0;
+          SDL_free(prefpath);
+        }
+//    mkdir(base, S_IRUSR | S_IWUSR | S_IXUSR);
     }
   return base;
 }
@@ -454,7 +469,7 @@ char* I_FindFileInternal(const char* wfname, const char* ext, dboolean isStatic)
     memcpy(search, search0, num_search * sizeof(*search));
 
     // add each directory from the $DOOMWADPATH environment variable
-    if ((dwp = getenv("DOOMWADPATH")))
+    if ((dwp = M_getenv("DOOMWADPATH")))
     {
       char *left, *ptr, *dup_dwp;
 
@@ -500,7 +515,7 @@ char* I_FindFileInternal(const char* wfname, const char* ext, dboolean isStatic)
      * and optionally s to a subdirectory of d */
     // switch replaced with lookup table
     if (search[i].env) {
-      if (!(d = getenv(search[i].env)))
+      if (!(d = M_getenv(search[i].env)))
         continue;
     } else if (search[i].func)
       d = search[i].func();
@@ -514,9 +529,9 @@ char* I_FindFileInternal(const char* wfname, const char* ext, dboolean isStatic)
                              s ? s : "", (s && !HasTrailingSlash(s)) ? "/" : "",
                              wfname);
 
-    if (ext && access(p,F_OK))
+    if (ext && M_access(p,F_OK))
       strcat(p, ext);
-    if (!access(p,F_OK)) {
+    if (!M_access(p,F_OK)) {
       if (!isStatic)
         lprintf(LO_INFO, " found %s\n", p);
       return p;

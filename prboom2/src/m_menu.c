@@ -66,9 +66,9 @@
 #include "r_demo.h"
 #include "r_fps.h"
 #include "e6y.h"//e6y
+#include "m_io.h"
 #ifdef _WIN32
 #include "e6y_launcher.h"
-#include "WIN/win_fopen.h"
 #endif
 
 extern patchnum_t hu_font[HU_FONTSIZE];
@@ -806,7 +806,7 @@ static void M_DeleteGame(int i)
   len = G_SaveGameName(NULL, 0, i, false);
   name = malloc(len+1);
   G_SaveGameName(name, len+1, i, false);
-  remove(name);
+  M_remove(name);
   free(name);
 
   M_ReadSaveStrings();
@@ -954,7 +954,7 @@ void M_ReadSaveStrings(void)
     len = G_SaveGameName(NULL, 0, i, false);
     name = malloc(len+1);
     G_SaveGameName(name, len+1, i, false);
-    fp = fopen(name,"rb");
+    fp = M_fopen(name,"rb");
     free(name);
     if (!fp) {   // Ty 03/27/98 - externalized:
       strcpy(&savegamestrings[i][0],s_EMPTYSTRING);
@@ -2458,7 +2458,7 @@ setup_menu_t keys_settings1[] =  // Key Binding screen strings
   {"BACKWARD"    ,S_KEY       ,m_scrn,KB_X,KB_Y+2*8,{&key_down},&mousebbackward},
   {"TURN LEFT"   ,S_KEY       ,m_scrn,KB_X,KB_Y+3*8,{&key_left},&mousebturnleft},
   {"TURN RIGHT"  ,S_KEY       ,m_scrn,KB_X,KB_Y+4*8,{&key_right},&mousebturnright},
-  {"RUN"         ,S_KEY       ,m_scrn,KB_X,KB_Y+5*8,{&key_speed},0,&joybspeed},
+  {"RUN"         ,S_KEY       ,m_scrn,KB_X,KB_Y+5*8,{&key_speed},&mousebspeed,&joybspeed},
   {"STRAFE LEFT" ,S_KEY       ,m_scrn,KB_X,KB_Y+6*8,{&key_strafeleft},0,&joybstrafeleft},
   {"STRAFE RIGHT",S_KEY       ,m_scrn,KB_X,KB_Y+7*8,{&key_straferight},0,&joybstraferight},
   {"STRAFE"      ,S_KEY       ,m_scrn,KB_X,KB_Y+8*8,{&key_strafe},&mousebstrafe,&joybstrafe},
@@ -3300,25 +3300,25 @@ static const char *gen_skillstrings[] = {
 
 static const char *gen_compstrings[] =
 {
-  "Default",
-  "Doom v1.2",
-  "Doom v1.666",
-  "Doom/2 v1.9",
-  "Ultimate Doom",
-  "Final Doom",
-  "DosDoom",
-  "TASDoom",
-  "Boom's vanilla",
-  "Boom v2.01",
-  "Boom",
-  "LxDoom",
-  "MBF",
-  "PrBoom 2.03b",
-  "PrBoom 2.1.x",
-  "PrBoom 2.2.x",
-  "PrBoom 2.3.x",
-  "PrBoom 2.4.0",
-  "Latest PrBoom+",
+  "17/Default",
+  "0/Doom v1.2",
+  "1/Doom v1.666",
+  "2/Doom (2) v1.9",
+  "3/Ultimate v1.9",
+  "4/Final Doom",
+  "5/DosDoom",
+  "6/TASDoom",
+  "7/Boom vanilla",
+  "8/Boom v2.01",
+  "9/Boom",
+  "10/LxDoom",
+  "11/MBF",
+  "12/PrB 2.03b",
+  "13/PrB 2.1.x",
+  "14/PrB 2.2.x",
+  "15/PrB 2.3.x",
+  "16/PrB 2.4.0",
+  "17/PrB+ Latest",
   NULL
 };
 
@@ -4411,7 +4411,7 @@ setup_menu_t helpstrings[] =  // HELP screen strings
   {"BACKWARD"    ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y3+ 2*8,{&key_down},&mousebbackward},
   {"TURN LEFT"   ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y3+ 3*8,{&key_left},&mousebturnleft},
   {"TURN RIGHT"  ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y3+ 4*8,{&key_right},&mousebturnright},
-  {"RUN"         ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y3+ 5*8,{&key_speed},0,&joybspeed},
+  {"RUN"         ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y3+ 5*8,{&key_speed},&mousebspeed,&joybspeed},
   {"STRAFE LEFT" ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y3+ 6*8,{&key_strafeleft},0,&joybstrafeleft},
   {"STRAFE RIGHT",S_SKIP|S_KEY,m_null,KT_X3,KT_Y3+ 7*8,{&key_straferight},0,&joybstraferight},
   {"STRAFE"      ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y3+ 8*8,{&key_strafe},&mousebstrafe,&joybstrafe},

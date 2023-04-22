@@ -1552,7 +1552,7 @@ static void P_LoadLineDefs (int lump)
         if ((ld->sidenum[1] == NO_INDEX) && (ld->flags & ML_TWOSIDED)) {
           // e6y
           // ML_TWOSIDED flag shouldn't be cleared for compatibility purposes
-          // see CLNJ-506.LMP at http://doomedsda.us/wad1005.html
+          // see CLNJ-506.LMP at https://dsdarchive.com/wads/challenj
           MissedBackSideOverrun(ld);
           if (!demo_compatibility || !EMULATE(OVERFLOW_MISSEDBACKSIDE))
           {
@@ -2641,13 +2641,13 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   // find map name
   if (gamemode == commercial)
   {
-    sprintf(lumpname, "map%02d", map);           // killough 1/24/98: simplify
-    sprintf(gl_lumpname, "gl_map%02d", map);    // figgi
+    snprintf(lumpname, sizeof(lumpname), "map%02d", map);           // killough 1/24/98: simplify
+    snprintf(gl_lumpname, sizeof(gl_lumpname), "gl_map%02d", map);    // figgi
   }
   else
   {
-    sprintf(lumpname, "E%dM%d", episode, map);   // killough 1/24/98: simplify
-    sprintf(gl_lumpname, "GL_E%iM%i", episode, map); // figgi
+    snprintf(lumpname, sizeof(lumpname), "E%dM%d", episode, map);   // killough 1/24/98: simplify
+    snprintf(gl_lumpname, sizeof(gl_lumpname), "GL_E%iM%i", episode, map); // figgi
   }
 
   lumpnum = W_GetNumForName(lumpname);

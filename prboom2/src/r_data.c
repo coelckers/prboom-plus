@@ -44,9 +44,7 @@
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
 #include "p_tick.h"
 
-#ifdef _WIN32
-#include "WIN/win_fopen.h"
-#endif
+#include "m_io.h"
 
 //
 // Graphics.
@@ -442,7 +440,7 @@ void R_InitTranMap(int progress)
       fnlen = doom_snprintf(NULL, 0, "%s/tranmap.dat", I_DoomExeDir());
       fname = malloc(fnlen+1);
       doom_snprintf(fname, fnlen+1, "%s/tranmap.dat", I_DoomExeDir());
-      cachefp = fopen(fname, "rb");
+      cachefp = M_fopen(fname, "rb");
 
       main_tranmap = my_tranmap = Z_Malloc(256*256, PU_STATIC, 0);  // killough 4/11/98
 
@@ -511,7 +509,7 @@ void R_InitTranMap(int progress)
                   }
               }
           }
-          if ((cachefp = fopen(fname,"wb")) != NULL) // write out the cached translucency map
+          if ((cachefp = M_fopen(fname,"wb")) != NULL) // write out the cached translucency map
             {
               cache.pct = tran_filter_pct;
               memcpy(cache.playpal, playpal, sizeof cache.playpal);

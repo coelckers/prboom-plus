@@ -88,28 +88,20 @@ static int basetime = 0;
 
 static int I_GetTime_MS(void)
 {
-    int ticks = SDL_GetTicks();
+  int ticks = SDL_GetTicks();
 
-    if (basetime == 0)
-        basetime = ticks;
+  if (basetime == 0)
+    basetime = ticks;
 
-    return ticks - basetime;
+  return ticks - basetime;
 }
 
 int ms_to_next_tick;
 
 int I_GetTime_RealTime (void)
 {
-  int i;
-  int t = SDL_GetTicks();
-
-  //e6y: removing startup delay
-  if (basetime == 0)
-    basetime = t;
-
-  t -= basetime;
-
-  i = t * TICRATE / 1000;
+  int64_t t = I_GetTime_MS();
+  int64_t i = t * TICRATE / 1000;
 
   ms_to_next_tick = (i + 1) * 1000 / TICRATE - t;
   ms_to_next_tick = BETWEEN(0, 1000 / TICRATE, ms_to_next_tick);
@@ -121,23 +113,14 @@ int realtic_clock_rate = 100;
 
 static int I_GetTime_Scaled(void)
 {
-  int i;
-  int t = SDL_GetTicks();
-
-  if (basetime == 0)
-    basetime = t;
-
-  t -= basetime;
-
-  i = t * TICRATE * realtic_clock_rate / 100000;
+  int64_t t = I_GetTime_MS();
+  int64_t i = t * TICRATE * realtic_clock_rate / 100000;
 
   ms_to_next_tick = (i + 1) * 100000 / realtic_clock_rate / TICRATE - t;
   ms_to_next_tick = BETWEEN(0, 100000 / realtic_clock_rate / TICRATE, ms_to_next_tick);
 
   return i;
 }
-
-
 
 static int  I_GetTime_FastDemo(void)
 {
@@ -148,15 +131,11 @@ static int  I_GetTime_FastDemo(void)
   return fasttic++;
 }
 
-
-
 static int I_GetTime_Error(void)
 {
   I_Error("I_GetTime_Error: GetTime() used before initialization");
   return 0;
 }
-
-
 
 int (*I_GetTime)(void) = I_GetTime_Error;
 
@@ -168,14 +147,12 @@ static int I_TickElapsedTime_FastDemo(void)
 
 static int I_TickElapsedTime_RealTime(void)
 {
-  return I_GetTime_MS() - I_GetTime() * 1000 / TICRATE;
+  return (int64_t)I_GetTime_MS() * TICRATE % 1000 * FRACUNIT / 1000;
 }
 
 static int I_TickElapsedTime_Scaled(void)
 {
-  int scaled_time = I_GetTime_MS() * realtic_clock_rate / 100;
-
-  return scaled_time - I_GetTime() * 1000 / TICRATE;
+  return (int64_t)I_GetTime_MS() * realtic_clock_rate * TICRATE / 100 % 1000 * FRACUNIT / 1000;
 }
 
 int (*I_TickElapsedTime)(void) = I_TickElapsedTime_RealTime;

@@ -87,9 +87,7 @@
 #include "d_deh.h"
 #include "e6y.h"
 
-#ifdef _WIN32
-#include "WIN/win_fopen.h"
-#endif
+#include "m_io.h"
 
 dboolean wasWiped = false;
 
@@ -107,7 +105,8 @@ const char *avi_shot_fname;
 dboolean doSkip;
 dboolean demo_stoponnext;
 dboolean demo_stoponend;
-dboolean demo_warp;
+static dboolean demo_warp;
+extern int warpepisode, warpmap;
 
 int key_speed_up;
 int key_speed_down;
@@ -219,7 +218,7 @@ void e6y_assert(const char *format, ...)
   va_list argptr;
   va_start(argptr,format);
   //if (!f)
-    f = fopen("d:\\a.txt", "ab+");
+    f = M_fopen("d:\\a.txt", "ab+");
   vfprintf(f, format, argptr);
   fclose(f);
   va_end(argptr);
@@ -287,7 +286,7 @@ void e6y_InitCommandLine(void)
       demo_skiptics = (int) (sec * TICRATE);
   }
 
-  if ((IsDemoPlayback() || IsDemoContinue()) && (startmap > 1 || demo_skiptics))
+  if ((IsDemoPlayback() || IsDemoContinue()) && (warpmap != -1 || demo_skiptics))
     G_SkipDemoStart();
   if ((p = M_CheckParm("-avidemo")) && (p < myargc-1))
     avi_shot_fname = myargv[p + 1];
@@ -345,6 +344,8 @@ void G_SkipDemoStop(void)
   doSkip = false;
   demo_skiptics = 0;
   startmap = 0;
+  warpmap = -1;
+  warpepisode = -1;
 
   I_Init2();
   if (!sound_inited_once && !(nomusicparm && nosfxparm))
@@ -362,11 +363,17 @@ void G_SkipDemoStop(void)
 #endif
 }
 
+void G_SkipDemoStartCheck(void)
+{
+  if (doSkip && (gamemode == commercial ? (warpmap == gamemap) : (warpepisode == gameepisode && warpmap == gamemap)))
+    demo_warp = true;
+}
+
 void G_SkipDemoCheck(void)
 {
   if (doSkip && gametic > 0)
   {
-    if (((startmap <= 1) && 
+    if (((warpmap == -1) &&
          (gametic > demo_skiptics + (demo_skiptics > 0 ? 0 : demo_tics_count))) ||
         (demo_warp && gametic - levelstarttic > demo_skiptics))
      {
@@ -958,7 +965,7 @@ void e6y_WriteStats(void)
   tmpdata_t *all;
   size_t allkills_len=0, allitems_len=0, allsecrets_len=0;
 
-  f = fopen("levelstat.txt", "wb");
+  f = M_fopen("levelstat.txt", "wb");
   
   all = malloc(sizeof(*all) * numlevels);
   memset(&max, 0, sizeof(timetable_t));
@@ -1046,29 +1053,9 @@ void e6y_G_DoWorldDone(void)
   if (doSkip)
   {
     static int firstmap = 1;
-    int episode = 0;
-    int map = 0;
-    int p;
-
-    if ((p = M_CheckParm ("-warp")))
-    {
-      if (gamemode == commercial)
-      {
-        if (p < myargc - 1)
-          map = atoi(myargv[p + 1]);
-      }
-      else
-      {
-        if (p < myargc - 2)
-        {
-          episode = atoi(myargv[++p]);
-          map = atoi(myargv[p + 1]);
-        }
-      }
-    }
 
     demo_warp = demo_stoponnext ||
-      (gamemode == commercial ? (map == gamemap) : (episode == gameepisode && map == gamemap));
+      (gamemode == commercial ? (warpmap == gamemap) : (warpepisode == gameepisode && warpmap == gamemap));
     
     if (demo_warp && demo_skiptics == 0 && !firstmap)
       G_SkipDemoStop();
@@ -1320,12 +1307,12 @@ int GetFullPath(const char* FileName, const char* ext, char *Buffer, size_t Buff
     switch(i)
     {
     case 0:
-      getcwd(dir, sizeof(dir));
+      M_getcwd(dir, sizeof(dir));
       break;
     case 1:
-      if (!getenv("DOOMWADDIR"))
+      if (!M_getenv("DOOMWADDIR"))
         continue;
-      strcpy(dir, getenv("DOOMWADDIR"));
+      strcpy(dir, M_getenv("DOOMWADDIR"));
       break;
     case 2:
       strcpy(dir, I_DoomExeDir());
@@ -1338,49 +1325,6 @@ int GetFullPath(const char* FileName, const char* ext, char *Buffer, size_t Buff
   }
 
   return false;
-}
-#endif
-
-#ifdef _WIN32
-#include <Mmsystem.h>
-#ifndef __GNUC__
-#pragma comment( lib, "winmm.lib" )
-#endif
-int mus_extend_volume;
-void I_midiOutSetVolumes(int volume)
-{
-  // NSM changed to work on the 0-15 volume scale,
-  // and to check mus_extend_volume itself.
-  
-  MMRESULT result;
-  int calcVolume;
-  MIDIOUTCAPS capabilities;
-  unsigned int i;
-
-  if (volume > 15)
-    volume = 15;
-  if (volume < 0)
-    volume = 0;
-  calcVolume = (65535 * volume / 15);
-
-  //SDL_LockAudio(); // this function doesn't touch anything the audio callback touches
-
-  //Device loop
-  for (i = 0; i < midiOutGetNumDevs(); i++)
-  {
-    //Get device capabilities
-    result = midiOutGetDevCaps(i, &capabilities, sizeof(capabilities));
-    if (result == MMSYSERR_NOERROR)
-    {
-      //Adjust volume on this candidate
-      if ((capabilities.dwSupport & MIDICAPS_VOLUME))
-      {
-        midiOutSetVolume((HMIDIOUT)i, MAKELONG(calcVolume, calcVolume));
-      }
-    }
-  }
-
-  //SDL_UnlockAudio();
 }
 #endif
 

@@ -109,6 +109,21 @@ static rpatch_t *texture_composites = 0;
 // indices of two duplicate PLAYPAL entries, second is -1 if none found
 static int playpal_transparent, playpal_duplicate;
 
+static dboolean DuplicatePaletteEntry(const char *playpal, int i, int j) {
+  int colormap_i;
+
+  if (playpal[3 * i + 0] != playpal[3 * j + 0] ||
+      playpal[3 * i + 1] != playpal[3 * j + 1] ||
+      playpal[3 * i + 2] != playpal[3 * j + 2])
+    return false;
+
+  for (colormap_i = 0; colormap_i < NUMCOLORMAPS; ++colormap_i)
+    if (colormaps[0][colormap_i * 256 + i] != colormaps[0][colormap_i * 256 + j])
+      return false;
+
+  return true;
+}
+
 //---------------------------------------------------------------------------
 void R_InitPatches(void) {
   if (!patches)
@@ -138,9 +153,7 @@ void R_InitPatches(void) {
     {
       for (j = i+1; j < 256; j++)
       {
-        if (playpal[3*i+0] == playpal[3*j+0] &&
-            playpal[3*i+1] == playpal[3*j+1] &&
-            playpal[3*i+2] == playpal[3*j+2])
+        if (DuplicatePaletteEntry(playpal, i, j))
         {
           found = 1;
           break;

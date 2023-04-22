@@ -94,9 +94,6 @@ int detect_voices = 0; // God knows
 static dboolean sound_inited = false;
 static dboolean first_sound_init = true;
 
-// Needed for calling the actual sound output.
-#define MAX_CHANNELS    32
-
 // MWM 2000-01-08: Sample rate in samples/second
 int snd_samplerate = 11025;
 int snd_samplecount = 512;
@@ -225,6 +222,32 @@ static int addsfx(int sfxid, int channel, const unsigned char *data, size_t len)
   ci->id = sfxid;
 
   return channel;
+}
+
+static int getSliceSize(void)
+{
+  int limit, n;
+
+  if (snd_samplecount >= 32)
+    return snd_samplecount * snd_samplerate / 11025;
+
+  limit = snd_samplerate / TICRATE;
+
+  // Try all powers of two, not exceeding the limit.
+
+  for (n=0;; ++n)
+  {
+    // 2^n <= limit < 2^n+1 ?
+
+    if ((1 << (n + 1)) > limit)
+    {
+      return (1 << n);
+    }
+  }
+
+  // Should never happen?
+
+  return 1024;
 }
 
 static void updateSoundParams(int handle, int volume, int seperation, int pitch)
@@ -679,15 +702,18 @@ void I_InitSound(void)
     /* Initialize variables */
     audio_rate = snd_samplerate;
     audio_channels = 2;
-    audio_buffers = snd_samplecount * snd_samplerate / 11025;
+    audio_buffers = getSliceSize();
 
-    if (Mix_OpenAudio(audio_rate, MIX_DEFAULT_FORMAT, audio_channels, audio_buffers) < 0)
+    if (Mix_OpenAudioDevice(audio_rate, MIX_DEFAULT_FORMAT, audio_channels, audio_buffers,
+                            NULL, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE) < 0)
     {
       lprintf(LO_INFO,"couldn't open audio with desired format (%s)\n", SDL_GetError());
       nosfxparm = true;
       nomusicparm = true;
       return;
     }
+    // [FG] feed actual sample frequency back into config variable
+    Mix_QuerySpec(&snd_samplerate, NULL, NULL);
     sound_inited_once = true;//e6y
     sound_inited = true;
     Mix_SetPostMix(I_UpdateSound, NULL);
@@ -706,7 +732,7 @@ void I_InitSound(void)
     audio.format = AUDIO_S16LSB;
 #endif
     audio.channels = 2;
-    audio.samples = snd_samplecount * snd_samplerate / 11025;
+    audio.samples = getSliceSize();
     audio.callback = I_UpdateSound;
     if ( SDL_OpenAudio(&audio, NULL) < 0 )
     {
@@ -1230,12 +1256,6 @@ void I_SetMusicVolume(int volume)
 #ifdef HAVE_MIXER
   Mix_VolumeMusic(volume*8);
 
-#ifdef _WIN32
-  // e6y: workaround
-  if (mus_extend_volume && Mix_GetMusicType(NULL) == MUS_MID)
-    I_midiOutSetVolumes(volume  /* *8  */);
-#endif
-
 #endif
 }
 
@@ -1327,6 +1347,11 @@ int mus_fluidsynth_chorus;
 int mus_fluidsynth_reverb;
 int mus_fluidsynth_gain; // NSM  fine tune fluidsynth output level
 int mus_opl_gain; // NSM  fine tune OPL output level
+const char *mus_portmidi_reset_type; // portmidi reset type
+int mus_portmidi_reset_delay; // portmidi delay after reset
+int mus_portmidi_filter_sysex; // portmidi block sysex from midi files
+int mus_portmidi_reverb_level; // portmidi reverb send level
+int mus_portmidi_chorus_level; // portmidi chorus send level
 
 
 static void Exp_ShutdownMusic(void)

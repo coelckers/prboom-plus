@@ -44,6 +44,7 @@
 #endif // _WIN32
 
 #include <stdlib.h>
+#include <assert.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -116,6 +117,7 @@ int exclusive_fullscreen;
 int render_vsync;
 int render_screen_multiply;
 int integer_scaling;
+int vanilla_keymap;
 SDL_Surface *screen;
 static SDL_Surface *buffer;
 SDL_Window *sdl_window;
@@ -140,6 +142,58 @@ video_mode_t I_GetModeFromString(const char *modestr);
 /////////////////////////////////////////////////////////////////////////////////
 // Keyboard handling
 
+// Vanilla keymap taken from chocolate-doom and adjusted for prboom-plus
+#define SCANCODE_TO_KEYS_ARRAY {                                          \
+  0,   0,   0,   0,   'a',                                  /* 0-9 */     \
+  'b', 'c', 'd', 'e', 'f',                                                \
+  'g', 'h', 'i', 'j', 'k',                                  /* 10-19 */   \
+  'l', 'm', 'n', 'o', 'p',                                                \
+  'q', 'r', 's', 't', 'u',                                  /* 20-29 */   \
+  'v', 'w', 'x', 'y', 'z',                                                \
+  '1', '2', '3', '4', '5',                                  /* 30-39 */   \
+  '6', '7', '8', '9', '0',                                                \
+  KEYD_ENTER, KEYD_ESCAPE, KEYD_BACKSPACE, KEYD_TAB, ' ',   /* 40-49 */   \
+  KEYD_MINUS, KEYD_EQUALS, '[', ']', '\\',                                \
+  '\\', ';', '\'', '`', ',',                                /* 50-59 */   \
+  '.', '/', KEYD_CAPSLOCK, KEYD_F1, KEYD_F2,                              \
+  KEYD_F3, KEYD_F4, KEYD_F5, KEYD_F6, KEYD_F7,              /* 60-69 */   \
+  KEYD_F8, KEYD_F9, KEYD_F10, KEYD_F11, KEYD_F12, KEYD_PRINTSC,           \
+  KEYD_SCROLLLOCK, KEYD_PAUSE, KEYD_INSERT, KEYD_HOME,      /* 70-79 */   \
+  KEYD_PAGEUP, KEYD_DEL, KEYD_END, KEYD_PAGEDOWN, KEYD_RIGHTARROW,        \
+  KEYD_LEFTARROW, KEYD_DOWNARROW, KEYD_UPARROW,             /* 80-89 */   \
+  KEYD_NUMLOCK, KEYD_KEYPADDIVIDE,                                        \
+  KEYD_KEYPADMULTIPLY, KEYD_KEYPADMINUS, KEYD_KEYPADPLUS,                 \
+  KEYD_KEYPADENTER, KEYD_KEYPAD1, KEYD_KEYPAD2, KEYD_KEYPAD3,             \
+  KEYD_KEYPAD4, KEYD_KEYPAD5, KEYD_KEYPAD6,                 /* 90-99 */   \
+  KEYD_KEYPAD7, KEYD_KEYPAD8, KEYD_KEYPAD9, KEYD_KEYPAD0,                 \
+  KEYD_KEYPADPERIOD, 0, 0, 0, KEYD_EQUALS                   /* 100-103 */ \
+}
+// Map keys like vanilla doom
+static int VanillaTranslateKey(SDL_Keysym* key)
+{
+  static const int scancode_map[] = SCANCODE_TO_KEYS_ARRAY ;
+  int rc = 0, sc = key->scancode;
+
+  if (sc > 3 && sc < sizeof(scancode_map)/sizeof(scancode_map[0]))
+    rc = scancode_map[sc];
+  // Key is mapped..
+  if (rc) return rc;
+
+  switch (sc) { // Code (Ctrl/Shift/Alt) from scancode.
+  case SDL_SCANCODE_LSHIFT:
+  case SDL_SCANCODE_RSHIFT: return KEYD_RSHIFT;
+  case SDL_SCANCODE_LCTRL:
+  case SDL_SCANCODE_RCTRL:  return KEYD_RCTRL;
+  case SDL_SCANCODE_LALT:
+  case SDL_SCANCODE_RALT:
+  case SDL_SCANCODE_LGUI:
+  case SDL_SCANCODE_RGUI:  return KEYD_RALT;
+
+  // Default to the symbolic key (outside of vanilla keys)
+  default: return key->sym;
+  }
+}
+
 //
 //  Translates the key currently in key
 //
@@ -147,6 +201,9 @@ video_mode_t I_GetModeFromString(const char *modestr);
 static int I_TranslateKey(SDL_Keysym* key)
 {
   int rc = 0;
+  
+  if (vanilla_keymap)
+    return VanillaTranslateKey(key);
 
   switch (key->sym) {
   case SDLK_LEFT: rc = KEYD_LEFTARROW;  break;
@@ -204,6 +261,7 @@ static int I_TranslateKey(SDL_Keysym* key)
   case SDLK_RGUI:  rc = KEYD_RALT;   break;
   case SDLK_CAPSLOCK: rc = KEYD_CAPSLOCK; break;
   case SDLK_PRINTSCREEN: rc = KEYD_PRINTSC; break;
+  case SDLK_SCROLLLOCK: rc = KEYD_SCROLLLOCK; break;
   default:    rc = key->sym;    break;
   }
 
@@ -681,6 +739,20 @@ static const struct {
 };
 static const int num_canonicals = sizeof(canonicals)/sizeof(*canonicals);
 
+// [FG] sort resolutions by width first and height second
+static int cmp_resolutions (const void *a, const void *b)
+{
+    const char *const *sa = (const char *const *) a;
+    const char *const *sb = (const char *const *) b;
+
+    int wa, wb, ha, hb;
+
+    if (sscanf(*sa, "%dx%d", &wa, &ha) != 2) wa = ha = 0;
+    if (sscanf(*sb, "%dx%d", &wb, &hb) != 2) wb = hb = 0;
+
+    return (wa == wb) ? ha - hb : wa - wb;
+}
+
 //
 // I_FillScreenResolutionsList
 // Get all the supported screen resolutions
@@ -766,28 +838,31 @@ static void I_FillScreenResolutionsList(void)
     }
     screen_resolutions_list[list_size] = NULL;
   }
-  
-  if (list_size == 0)
-  {
-    doom_snprintf(mode_name, sizeof(mode_name), "%dx%d", desired_screenwidth, desired_screenheight);
-    screen_resolutions_list[0] = strdup(mode_name);
-    current_resolution_index = 0;
-    list_size = 1;
-  }
+
+  // [FG] if the desired resolution not in the list, append it
+  doom_snprintf(mode_name, sizeof(mode_name), "%dx%d", desired_screenwidth, desired_screenheight);
 
   if (current_resolution_index == -1)
   {
-    doom_snprintf(mode_name, sizeof(mode_name), "%dx%d", desired_screenwidth, desired_screenheight);
-
-    // make it first
+    screen_resolutions_list[list_size] = strdup(mode_name);
     list_size++;
-    for(i = list_size - 1; i > 0; i--)
-    {
-      screen_resolutions_list[i] = screen_resolutions_list[i - 1];
-    }
-    screen_resolutions_list[0] = strdup(mode_name);
-    current_resolution_index = 0;
   }
+
+  // [FG] sort the list
+  SDL_qsort(screen_resolutions_list, list_size, sizeof(*screen_resolutions_list), cmp_resolutions);
+
+  // [FG] find the desired resolution again
+  for (i = 0; i < list_size; i++)
+  {
+    if (!strcmp(mode_name, screen_resolutions_list[i]))
+    {
+      current_resolution_index = i;
+      break;
+    }
+  }
+
+  assert(list_size > 0);
+  assert(current_resolution_index > -1);
 
   screen_resolutions_list[list_size] = NULL;
   screen_resolution = screen_resolutions_list[current_resolution_index];
@@ -1318,7 +1393,7 @@ void I_UpdateVideoMode(void)
 {
    SDL_version ver;
    SDL_GetVersion(&ver);
-   if (ver.major == 2 && ver.minor == 0 && ver.patch >= 14)
+   if (ver.major == 2 && ver.minor == 0 && (ver.patch == 14 || ver.patch == 16))
    {
       SDL_SetHintWithPriority(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "1", SDL_HINT_OVERRIDE);
    }
@@ -1436,6 +1511,31 @@ static void DeactivateMouse(void)
 //
 // This is to combine all mouse movement for a tic into one mouse
 // motion event.
+
+static void SmoothMouse(int* x, int* y)
+{
+    static int x_remainder_old = 0;
+    static int y_remainder_old = 0;
+
+    int x_remainder, y_remainder;
+    fixed_t correction_factor;
+
+    const fixed_t fractic = I_TickElapsedTime();
+
+    *x += x_remainder_old;
+    *y += y_remainder_old;
+
+    correction_factor = FixedDiv(fractic, FRACUNIT + fractic);
+
+    x_remainder = FixedMul(*x, correction_factor);
+    *x -= x_remainder;
+    x_remainder_old = x_remainder;
+
+    y_remainder = FixedMul(*y, correction_factor);
+    *y -= y_remainder;
+    y_remainder_old = y_remainder;
+}
+
 static void I_ReadMouse(void)
 {
   if (mouse_enabled && window_focused)
@@ -1443,6 +1543,7 @@ static void I_ReadMouse(void)
     int x, y;
 
     SDL_GetRelativeMouseState(&x, &y);
+    SmoothMouse(&x, &y);
 
     if (x != 0 || y != 0)
     {

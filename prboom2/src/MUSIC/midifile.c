@@ -1236,7 +1236,7 @@ int main(int argc, char *argv[])
         printf("Usage: %s <filename>\n", argv[0]);
         exit(1);
     }
-    f = fopen (argv[1], "rb");
+    f = M_fopen (argv[1], "rb");
     if (!f)
     {
         fprintf(stderr, "Failed to open %s\n", argv[1]);

@@ -54,9 +54,7 @@
 // CPhipps - modify to use logical output routine
 #include "lprintf.h"
 
-#ifdef _WIN32
-#include "WIN/win_fopen.h"
-#endif
+#include "m_io.h"
 
 #define TRUE 1
 #define FALSE 0
@@ -1550,6 +1548,40 @@ void deh_applyCompatibility(void)
       mobjinfo[MT_SKULL].flags &= ~(MF_COUNTKILL);
   }
 
+  if (compatibility_level == doom_12_compatibility)
+  {
+      // Spiderdemon is not fullbright when attacking in versions before v1.4
+      states[S_SPID_ATK1].frame &= ~FF_FULLBRIGHT;
+      states[S_SPID_ATK2].frame &= ~FF_FULLBRIGHT;
+      states[S_SPID_ATK3].frame &= ~FF_FULLBRIGHT;
+      states[S_SPID_ATK4].frame &= ~FF_FULLBRIGHT;
+
+      // Powerups are not fullbright in v1.2
+      // Soulsphere fullbright since v1.25s, the rest since v1.4
+      states[S_SOUL].frame &= ~FF_FULLBRIGHT;
+      states[S_SOUL2].frame &= ~FF_FULLBRIGHT;
+      states[S_SOUL3].frame &= ~FF_FULLBRIGHT;
+      states[S_SOUL4].frame &= ~FF_FULLBRIGHT;
+      states[S_SOUL5].frame &= ~FF_FULLBRIGHT;
+      states[S_SOUL6].frame &= ~FF_FULLBRIGHT;
+      states[S_PINV].frame &= ~FF_FULLBRIGHT;
+      states[S_PINV2].frame &= ~FF_FULLBRIGHT;
+      states[S_PINV3].frame &= ~FF_FULLBRIGHT;
+      states[S_PINV4].frame &= ~FF_FULLBRIGHT;
+      states[S_PSTR].frame &= ~FF_FULLBRIGHT;
+      states[S_PINS].frame &= ~FF_FULLBRIGHT;
+      states[S_PINS2].frame &= ~FF_FULLBRIGHT;
+      states[S_PINS3].frame &= ~FF_FULLBRIGHT;
+      states[S_PINS4].frame &= ~FF_FULLBRIGHT;
+      states[S_SUIT].frame &= ~FF_FULLBRIGHT;
+      states[S_PMAP].frame &= ~FF_FULLBRIGHT;
+      states[S_PMAP2].frame &= ~FF_FULLBRIGHT;
+      states[S_PMAP3].frame &= ~FF_FULLBRIGHT;
+      states[S_PMAP4].frame &= ~FF_FULLBRIGHT;
+      states[S_PMAP5].frame &= ~FF_FULLBRIGHT;
+      states[S_PMAP6].frame &= ~FF_FULLBRIGHT;
+  }
+
   deh_changeCompTranslucency();
 }
 
@@ -1579,7 +1611,7 @@ void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum)
       if (!strcmp(outfilename, "-"))
         fileout = stdout;
       else
-        if (!(fileout=fopen(outfilename, firstfile ? "wt" : "at")))
+        if (!(fileout=M_fopen(outfilename, firstfile ? "wt" : "at")))
           {
             lprintf(LO_WARN, "Could not open -dehout file %s\n... using stdout.\n",
                    outfilename);
@@ -1592,7 +1624,7 @@ void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum)
 
   if (filename)
     {
-      if (!(infile.f = fopen(filename,"rt")))
+      if (!(infile.f = M_fopen(filename,"rt")))
         {
           lprintf(LO_WARN, "-deh file %s not found\n",filename);
           return;  // should be checked up front anyway

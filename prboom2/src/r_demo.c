@@ -65,9 +65,7 @@
 #include "g_overflow.h"
 #include "e6y.h"
 
-#ifdef _WIN32
-#include "WIN/win_fopen.h"
-#endif
+#include "m_io.h"
 
 int IsDemoPlayback(void)
 {
@@ -885,7 +883,7 @@ byte* G_GetDemoFooter(const char *filename, const byte **footer, size_t *size)
   const byte* p;
   size_t file_size;
 
-  hfile = fopen(filename, "rb");
+  hfile = M_fopen(filename, "rb");
 
   if (!hfile)
     return result;
@@ -962,7 +960,7 @@ void G_SetDemoFooter(const char *filename, wadtbl_t *wadtbl)
     newfilename[sizeof(newfilename) - 5] = 0;
     strcat(newfilename, ".out");
 
-    hfile = fopen(newfilename, "wb");
+    hfile = M_fopen(newfilename, "wb");
     if (hfile)
     {
       int demosize = (demoex_p - buffer);
@@ -1034,7 +1032,7 @@ int CheckWadFileIntegrity(const char *filename)
   filelump_t *fileinfo, *fileinfo2free = NULL;
   int result = false;
   
-  hfile = fopen(filename, "rb");
+  hfile = M_fopen(filename, "rb");
   if (hfile)
   {
     if (fread(&header, sizeof(header), 1, hfile) == 1 &&
@@ -1242,6 +1240,8 @@ void G_WriteDemoFooter(FILE *file)
   {
     I_Error("G_WriteDemoFooter: error writing");
   }
+
+  W_FreePWADTable(&demoex);
 }
 
 int WadDataInit(waddata_t *waddata)

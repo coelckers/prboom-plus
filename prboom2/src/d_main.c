@@ -99,9 +99,7 @@
 
 #include "i_glob.h"
 
-#ifdef _WIN32
-#include "WIN/win_fopen.h"
-#endif
+#include "m_io.h"
 
 void GetFirstMap(int *ep, int *map); // Ty 08/29/98 - add "-warp x" functionality
 static void D_PageDrawer(void);
@@ -246,6 +244,10 @@ static void D_Wipe(void)
       I_UpdateNoBlit();
       M_Drawer();                   // menu is drawn even on top of wipes
       I_FinishUpdate();             // page flip or blit buffer
+      if (capturing_video && !doSkip && cap_wipescreen)
+      {
+        I_CaptureFrame();
+      }
     }
   while (!done);
 }
@@ -731,6 +733,16 @@ void D_AddFile (const char *file, wad_source_t source)
   char *gwa_filename=NULL;
   int len;
 
+  // There can only be one iwad source!
+  if (source == source_iwad)
+  {
+    int i;
+
+    for (i = 0; i < numwadfiles; ++i)
+      if (wadfiles[i].src == source_iwad)
+        wadfiles[i].src = source_skip;
+  }
+
   wadfiles = realloc(wadfiles, sizeof(*wadfiles)*(numwadfiles+1));
   wadfiles[numwadfiles].name =
     AddDefaultExtension(strcpy(malloc(strlen(file)+5), file), ".wad");
@@ -787,13 +799,13 @@ const char *D_dehout(void)
 //e6y static 
 void CheckIWAD(const char *iwadname,GameMode_t *gmode,dboolean *hassec)
 {
-  if ( !access (iwadname,R_OK) )
+  if ( !M_access (iwadname,R_OK) )
   {
     int ud=0,rg=0,sw=0,cm=0,sc=0,hx=0;
     FILE* fp;
 
     // Identify IWAD correctly
-    if ((fp = fopen(iwadname, "rb")))
+    if ((fp = M_fopen(iwadname, "rb")))
     {
       wadinfo_t header;
 
@@ -814,9 +826,11 @@ void CheckIWAD(const char *iwadname,GameMode_t *gmode,dboolean *hassec)
         length = header.numlumps;
         fileinfo = malloc(length*sizeof(filelump_t));
         if (fseek (fp, header.infotableofs, SEEK_SET) ||
-            fread (fileinfo, sizeof(filelump_t), length, fp) != length ||
-            fclose(fp))
+            fread (fileinfo, sizeof(filelump_t), length, fp) != length)
+        {
+          fclose(fp);
           I_Error("CheckIWAD: failed to read directory %s",iwadname);
+        }
 
         // scan directory for levelname lumps
         while (length--)
@@ -854,6 +868,8 @@ void CheckIWAD(const char *iwadname,GameMode_t *gmode,dboolean *hassec)
         free(fileinfo);
 
       }
+
+      fclose(fp);
     }
     else // error from open call
       I_Error("CheckIWAD: Can't open IWAD %s", iwadname);
@@ -1006,7 +1022,7 @@ static void IdentifyVersion (void)
   //V.Aguilar (5/30/99): In LiNUX, default to $HOME/.lxdoom
   {
     // CPhipps - use DOOMSAVEDIR if defined
-    const char *p = getenv("DOOMSAVEDIR");
+    const char *p = M_getenv("DOOMSAVEDIR");
 
     if (p == NULL)
       p = I_DoomExeDir();
@@ -1016,7 +1032,7 @@ static void IdentifyVersion (void)
   }
   if ((i=M_CheckParm("-save")) && i<myargc-1) //jff 3/24/98 if -save present
   {
-    if (!stat(myargv[i+1],&sbuf) && S_ISDIR(sbuf.st_mode)) // and is a dir
+    if (!M_stat(myargv[i+1],&sbuf) && S_ISDIR(sbuf.st_mode)) // and is a dir
     {
       free(basesavegame);
       basesavegame = strdup(myargv[i+1]);//jff 3/24/98 use that for savegame
@@ -1034,7 +1050,7 @@ static void IdentifyVersion (void)
   // proff 11/99: used for debugging
   {
     FILE *f;
-    f=fopen("levelinfo.txt","w");
+    f=M_fopen("levelinfo.txt","w");
     if (f)
     {
       fprintf(f,"%s\n",iwad);
@@ -1397,11 +1413,7 @@ static char *GetAutoloadBaseDir(unsigned int iter)
         doom_snprintf(autoload_path, len+1, "%s/autoload", exedir);
     }
 
-#ifdef _WIN32
-    mkdir(autoload_path);
-#else
-    mkdir(autoload_path, 0755);
-#endif
+    M_mkdir(autoload_path);
 
     switch (iter)
     {
@@ -1425,17 +1437,13 @@ static char *GetAutoloadDir(const char *base, const char *iwadname, dboolean cre
 
     if (createdir)
     {
-#ifdef _WIN32
-    mkdir(result);
-#else
-    mkdir(result, 0755);
-#endif
+      M_mkdir(result);
     }
 
     return result;
 }
 
-static const char *BaseName(const char *filename)
+const char *BaseName(const char *filename)
 {
   char *basename;
 
@@ -1599,6 +1607,8 @@ static void D_AutoloadDehPWadDir()
 // CPhipps - the old contents of D_DoomMain, but moved out of the main
 //  line of execution so its stack space can be freed
 const char* doomverstr = NULL;
+
+int warpepisode = -1, warpmap = -1;
 
 static void D_DoomMainSetup(void)
 {
@@ -1778,12 +1788,19 @@ static void D_DoomMainSetup(void)
        (p = M_CheckParm ("-wart")))
        // Ty 08/29/98 - moved this check later so we can have -warp alone: && p < myargc-1)
   {
-    startmap = 0; // Ty 08/29/98 - allow "-warp x" to go to first map in wad(s)
+    startmap = -1; // Ty 08/29/98 - allow "-warp x" to go to first map in wad(s)
     autostart = true; // Ty 08/29/98 - move outside the decision tree
     if (gamemode == commercial)
     {
       if (p < myargc-1)
-        startmap = atoi(myargv[p+1]);   // Ty 08/29/98 - add test if last parm
+      {
+        int map;
+        if (sscanf(myargv[p+1], "%d", &map) == 1)
+        {
+          startmap = map;
+        }
+        warpmap = startmap;
+      }
     }
     else    // 1/25/98 killough: fix -warp xxx from crashing Doom 1 / UD
     {
@@ -1798,11 +1815,13 @@ static void D_DoomMainSetup(void)
           {
             startmap = map;
           }
+          warpepisode = startepisode;
+          warpmap = startmap;
         }
       }
     }
   }
-  // Ty 08/29/98 - later we'll check for startmap=0 and autostart=true
+  // Ty 08/29/98 - later we'll check for startmap=-1 and autostart=true
   // as a special case that -warp * was used.  Actually -warp with any
   // non-numeric will do that but we'll only document "*"
 
@@ -2269,7 +2288,7 @@ void GetFirstMap(int *ep, int *map)
   int ix;  // index for lookup
 
   strcpy(name,""); // initialize
-  if (*map == 0) // unknown so go search for first changed one
+  if (*map == -1) // unknown so go search for first changed one
   {
     *ep = 1;
     *map = 1; // default E1M1 or MAP01

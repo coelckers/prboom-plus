@@ -1614,6 +1614,7 @@ void gld_AddWall(seg_t *seg)
   float lineheight, linelength;
   int rellight = 0;
   int backseg;
+  dboolean fix_sky_bleed = false;
 
   int side = (seg->sidedef == &sides[seg->linedef->sidenum[0]] ? 0 : 1);
   if (linerendered[side][seg->linedef->iLineID] == rendermarker)
@@ -1752,6 +1753,10 @@ void gld_AddWall(seg_t *seg)
           toptexture == NO_TEXTURE && midtexture == NO_TEXTURE)
         {
           wall.ybottom=(float)min_ceiling/MAP_SCALE;
+          if (bs->ceilingheight < fs->floorheight)
+          {
+              fix_sky_bleed = true;
+          }
           gld_AddSkyTexture(&wall, frontsector->sky, backsector->sky, SKY_CEILING);
         }
         else
@@ -1760,7 +1765,15 @@ void gld_AddWall(seg_t *seg)
             backsector->ceilingpic != skyflatnum ||
             backsector->ceilingheight <= frontsector->floorheight)
           {
-            wall.ybottom=(float)max_ceiling/MAP_SCALE;
+            if (frontsector->ceilingpic == skyflatnum && frontsector->ceilingheight < backsector->floorheight)
+            {
+                wall.ybottom=(float)min_ceiling/MAP_SCALE;
+                fix_sky_bleed = true;
+            }
+            else
+            {
+                wall.ybottom=(float)max_ceiling/MAP_SCALE;
+            }
             gld_AddSkyTexture(&wall, frontsector->sky, backsector->sky, SKY_CEILING);
           }
         }
@@ -1893,8 +1906,12 @@ void gld_AddWall(seg_t *seg)
       wall.flag = GLDWF_M2S;
       URUL(wall, seg, backseg, linelength);
 
-      wall.vt = (float)((-top + ceiling_height) >> FRACBITS)/(float)wall.gltexture->realtexheight;
-      wall.vb = (float)((-bottom + ceiling_height) >> FRACBITS)/(float)wall.gltexture->realtexheight;
+      wall.vt = (float)((-top + ceiling_height))/(float)wall.gltexture->realtexheight;
+      wall.vb = (float)((-bottom + ceiling_height))/(float)wall.gltexture->realtexheight;
+
+      /* Adjust the final float value accounting for the fixed point conversion */
+      wall.vt /= FRACUNIT;
+      wall.vb /= FRACUNIT;
 
       if (seg->linedef->tranlump >= 0 && general_translucency)
         wall.alpha=(float)tran_filter_pct/100.0f;
@@ -1960,6 +1977,12 @@ bottomtexture:
       if (temptex)
       {
         wall.gltexture=temptex;
+        fixed_t rowoffset = seg->sidedef->rowoffset;
+        if (fix_sky_bleed)
+        {
+            ceiling_height = MIN(frontsector->ceilingheight, backsector->ceilingheight);
+            seg->sidedef->rowoffset += (MAX(frontsector->floorheight, backsector->floorheight) - min_ceiling);
+        }
         CALC_Y_VALUES(wall, lineheight, floor_height, ceiling_height);
         CALC_TEX_VALUES_BOTTOM(
           wall, seg, backseg, (LINE->flags & ML_DONTPEGBOTTOM)>0,
@@ -1967,6 +1990,7 @@ bottomtexture:
           floor_height-frontsector->ceilingheight
         );
         gld_AddDrawWallItem(GLDIT_WALL, &wall);
+        seg->sidedef->rowoffset = rowoffset;
       }
     }
   }

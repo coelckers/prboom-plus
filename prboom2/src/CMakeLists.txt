@@ -77,6 +77,8 @@ set(COMMON_SRC
     m_menu.h
     m_misc.c
     m_misc.h
+    m_io.c
+    m_io.h
     m_random.c
     m_random.h
     m_swap.h
@@ -301,8 +303,6 @@ function(AddGameExecutable TARGET SOURCES)
             e6y_launcher.c
             e6y_launcher.h
             SDL/SDL_windows_main.c
-            WIN/win_fopen.c
-            WIN/win_fopen.h
         )
         if(MSVC)
             set(SOURCES
@@ -417,14 +417,6 @@ if(BUILD_SERVER AND SDL2_NET_FOUND)
         protocol.h
         SDL/i_network.c
     )
-
-    if(WIN32)
-        set(PRBOOM_PLUS_GAME_SERVER_SOURCES
-            ${PRBOOM_PLUS_GAME_SERVER_SOURCES}
-            WIN/win_fopen.c
-            WIN/win_fopen.h
-        )
-    endif()
     if(MSVC)
         set(PRBOOM_PLUS_GAME_SERVER_SOURCES
             ${PRBOOM_PLUS_GAME_SERVER_SOURCES}

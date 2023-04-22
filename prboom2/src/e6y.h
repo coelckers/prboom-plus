@@ -91,7 +91,6 @@ extern const char *avi_shot_fname;
 extern dboolean doSkip;
 extern dboolean demo_stoponnext;
 extern dboolean demo_stoponend;
-extern dboolean demo_warp;
 
 extern int key_speed_up;
 extern int key_speed_down;
@@ -185,6 +184,7 @@ extern dboolean sound_inited_once;
 void e6y_I_uSleep(unsigned long usecs);
 void G_SkipDemoStart(void);
 void G_SkipDemoStop(void);
+void G_SkipDemoStartCheck(void);
 void G_SkipDemoCheck(void);
 int G_ReloadLevel(void);
 int G_GotoNextLevel(int *e, int *m);
@@ -355,10 +355,5 @@ void I_Warning(const char *message, ...);
 int I_MessageBox(const char* text, unsigned int type);
 
 dboolean SmoothEdges(unsigned char * buffer,int w, int h);
-
-#ifdef _WIN32
-extern int mus_extend_volume;
-void I_midiOutSetVolumes(int volume);
-#endif
 
 #endif

@@ -139,6 +139,11 @@ extern int mus_fluidsynth_chorus;
 extern int mus_fluidsynth_reverb;
 extern int mus_fluidsynth_gain; // NSM  fine tune fluidsynth output level
 extern int mus_opl_gain; // NSM  fine tune OPL output level
+extern const char *mus_portmidi_reset_type; // portmidi reset type
+extern int mus_portmidi_reset_delay; // portmidi delay after reset
+extern int mus_portmidi_filter_sysex; // portmidi block sysex from midi files
+extern int mus_portmidi_reverb_level; // portmidi reverb send level
+extern int mus_portmidi_chorus_level; // portmidi chorus send level
 
 // prefered MIDI player
 typedef enum

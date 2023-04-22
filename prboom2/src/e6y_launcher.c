@@ -54,7 +54,7 @@
 #include "e6y.h"
 #include "e6y_launcher.h"
 
-#include "WIN/win_fopen.h"
+#include "m_io.h"
 
 #pragma comment( lib, "comctl32.lib" )
 #pragma comment( lib, "advapi32.lib" )
@@ -339,7 +339,7 @@ static void L_CommandOnChange(void)
   switch (index)
   {
   case 0:
-    remove(launchercachefile);
+    M_remove(launchercachefile);
     
     SendMessage(launcher.listPWAD, LB_RESETCONTENT, 0, 0);
     SendMessage(launcher.listHistory, CB_SETCURSEL, -1, 0);
@@ -490,7 +490,7 @@ static dboolean L_GetFileType(const char *filename, fileitem_t *item)
     }
   }
 
-  if ( (f = fopen (filename, "rb")) )
+  if ( (f = M_fopen (filename, "rb")) )
   {
     fread (&header, sizeof(header), 1, f);
     if (!strncmp(header.identification, "IWAD", 4) ||
@@ -760,7 +760,7 @@ static void L_AddItemToCache(fileitem_t *item)
 {
   FILE *fcache;
 
-  if ( (fcache = fopen(launchercachefile, "at")) )
+  if ( (fcache = M_fopen(launchercachefile, "at")) )
   {
     fprintf(fcache, "%s = %d, %d, %d\n",item->name, item->source, item->doom1, item->doom2);
     fclose(fcache);
@@ -771,7 +771,7 @@ static void L_ReadCacheData(void)
 {
   FILE *fcache;
 
-  if ( (fcache = fopen(launchercachefile, "rt")) )
+  if ( (fcache = M_fopen(launchercachefile, "rt")) )
   {
     fileitem_t item;
     char name[PATH_MAX];
@@ -965,12 +965,12 @@ char* e6y_I_FindFile(const char* ext)
     strcpy(d, "");
     switch(i) {
     case 0:
-      getcwd(d, sizeof(d));
+      M_getcwd(d, sizeof(d));
       break;
     case 1:
-      if (!getenv("DOOMWADDIR"))
+      if (!M_getenv("DOOMWADDIR"))
         continue;
-      strcpy(d, getenv("DOOMWADDIR"));
+      strcpy(d, M_getenv("DOOMWADDIR"));
       break;
     case 2:
       strcpy(d, I_DoomExeDir());
