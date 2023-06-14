@@ -503,6 +503,12 @@ void WI_drawLF(void)
 	  // The level defines a new name but no texture for the name.
 	  WI_DrawString(160, y, wbs->lastmapinfo->levelname);
 	  y += (5 * hu_font['A' - HU_FONTSTART].height / 4);
+
+	  if (wbs->lastmapinfo->author)
+	  {
+		  WI_DrawString(160, y, wbs->lastmapinfo->author);
+		  y += (5 * hu_font['A' - HU_FONTSTART].height / 4);
+	  }
   }
   else
   {
@@ -553,6 +559,13 @@ void WI_drawEL(void)
 		// The level defines a new name but no texture for the name.
 		WI_DrawString(160, y, wbs->nextmapinfo->levelname);
 
+		if (wbs->nextmapinfo->author)
+		{
+			y += (5 * hu_font['A' - HU_FONTSTART].height / 4);
+
+			WI_DrawString(160, y, wbs->nextmapinfo->author);
+		}
+
 		y += (5 * hu_font['A' - HU_FONTSTART].height / 4);
 	}
 	else
@@ -572,11 +585,6 @@ void WI_drawEL(void)
 			lname, CR_DEFAULT, VPT_STRETCH);
 
 		y += (5 * V_NamePatchHeight(lname)) / 4;
-	}
-
-	if (wbs->nextmapinfo && wbs->nextmapinfo->author)
-	{
-		WI_DrawString(160, y, wbs->nextmapinfo->author);
 	}
 }
 
