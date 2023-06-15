@@ -313,6 +313,7 @@ static void FreeMap(MapEntry *mape)
 	if (mape->mapname) free(mape->mapname);
 	if (mape->levelname) free(mape->levelname);
 	if (mape->label) free(mape->label);
+	if (mape->author) free(mape->author);
 	if (mape->intertext) free(mape->intertext);
 	if (mape->intertextsecret) free(mape->intertextsecret);
 	if (mape->properties) free(mape->properties);
@@ -456,6 +457,11 @@ static int ParseStandardProperty(Scanner &scanner, MapEntry *mape)
 			scanner.ErrorF("Invalid map name %s", mape->nextsecret);
 			return 0;
 		}
+	}
+	else if (!stricmp(pname, "author"))
+	{
+		scanner.MustGetToken(TK_StringConst);
+		ReplaceString(&mape->author, scanner.string);
 	}
 	else if (!stricmp(pname, "levelpic"))
 	{
