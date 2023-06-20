@@ -1,3 +1,50 @@
+PrBoom-Plus 2.6.66 @ 20 Jun 2023
+* Move default data directory to XDG_DATA_HOME on Linux by @facespkz in https://github.com/coelckers/prboom-plus/pull/470
+* sort resolutions by width first and height second by @fabiangreffrath in https://github.com/coelckers/prboom-plus/pull/472
+* check return status when checking for old prboom_dir by @facespkz in https://github.com/coelckers/prboom-plus/pull/473
+* Fix integer overflow during multiplication with realtic_clock_rate by @jengelh in https://github.com/coelckers/prboom-plus/pull/476
+* Fix UMAPINFO par times not loading for finale levels. by @JadingTsunami in https://github.com/coelckers/prboom-plus/pull/479
+* Don't overwrite user-configured custom docdir by @vilhelmgray in https://github.com/coelckers/prboom-plus/pull/480
+* Generate mixer buffer size from sample rate by @facespkz in https://github.com/coelckers/prboom-plus/pull/483
+* Allow uppercase episode shortcuts in UMAPINFO by @facespkz in https://github.com/coelckers/prboom-plus/pull/486
+* Add complevel hints for Default compatibility level by @facespkz in https://github.com/coelckers/prboom-plus/pull/488
+* UMAPINFO: Fix nextsecret inconsistencies by @rfomin in https://github.com/coelckers/prboom-plus/pull/497
+* Fix mid-texture judder when upper and middle textures overlap. by @JadingTsunami in https://github.com/coelckers/prboom-plus/pull/507
+* include wipe effect into video capture by @vadosnaprimer in https://github.com/coelckers/prboom-plus/pull/506
+* allow to -warp to MAP00 by @fabiangreffrath in https://github.com/coelckers/prboom-plus/pull/509
+* Workaround for optimization bug in clang by @rfomin in https://github.com/coelckers/prboom-plus/pull/512
+* Show a message when demo recording starts. by @JadingTsunami in https://github.com/coelckers/prboom-plus/pull/517
+* Remove shift when initializing translation tables vs. colormap. by @JadingTsunami in https://github.com/coelckers/prboom-plus/pull/519
+* Fix PortMidi level transitions by @ceski-1 in https://github.com/coelckers/prboom-plus/pull/523
+* replace doomedsda.us links with dsdarchive.com by @andrey-budko in https://github.com/coelckers/prboom-plus/pull/525
+* Add proper SysEx support to PortMidi by @ceski-1 in https://github.com/coelckers/prboom-plus/pull/526
+* Fix color translation tables to not rely on player map arrow colors. by @JadingTsunami in https://github.com/coelckers/prboom-plus/pull/527
+* Fix pitch bend typo for PortMidi by @ceski-1 in https://github.com/coelckers/prboom-plus/pull/529
+* Add configurable reverb and chorus for PortMidi by @ceski-1 in https://github.com/coelckers/prboom-plus/pull/530
+* Adjust music volume slider to match vanilla Doom by @ceski-1 in https://github.com/coelckers/prboom-plus/pull/531
+* Use non-linear scaling for high volume levels by @ceski-1 in https://github.com/coelckers/prboom-plus/pull/532
+* Adjust PortMidi volume slider to match midiOutSetVolume by @ceski-1 in https://github.com/coelckers/prboom-plus/pull/533
+* Remove alpha channel from FBO scene texture. by @JadingTsunami in https://github.com/coelckers/prboom-plus/pull/534
+* UMAPINFO: bring par times fix in line with Woof by @fabiangreffrath in https://github.com/coelckers/prboom-plus/pull/537
+* Fixing wall texture bleed when a sector is inside the sky by @JadingTsunami in https://github.com/coelckers/prboom-plus/pull/542
+* Send all notes/sound off prior to SysEx reset by @ceski-1 in https://github.com/coelckers/prboom-plus/pull/543
+* Fix MIDI looping when using reset delay by @ceski-1 in https://github.com/coelckers/prboom-plus/pull/544
+* Clean up and fixes for PortMidi by @ceski-1 in https://github.com/coelckers/prboom-plus/pull/548
+* Fix FluidSynth mode and polyphony by @ceski-1 in https://github.com/coelckers/prboom-plus/pull/550
+* PortMidi: Use channel volume control, remove extra delay after reset by @ceski-1 in https://github.com/coelckers/prboom-plus/pull/552
+* Replace win_fopen.c with wrappers used in Chocolate Doom by @rfomin in https://github.com/coelckers/prboom-plus/pull/554
+* PortMidi: Preserve timing when filtering SysEx; default to GM mode by @ceski-1 in https://github.com/coelckers/prboom-plus/pull/555
+* PortMidi: Add fix for MS GS Synth bug by @ceski-1 in https://github.com/coelckers/prboom-plus/pull/557
+* PortMidi: Fix songs with missing "hold pedal off" events by @ceski-1 in https://github.com/coelckers/prboom-plus/pull/560
+* PortMidi: Send "reset all controllers" when song loops by @ceski-1 in https://github.com/coelckers/prboom-plus/pull/562
+* Fix M_getcwd() in MinGW build by @rfomin in https://github.com/coelckers/prboom-plus/pull/563
+* Fix string overflow with large map numbers. by @JadingTsunami in https://github.com/coelckers/prboom-plus/pull/569
+* Supply correct texture format for GL wipe. by @JadingTsunami in https://github.com/coelckers/prboom-plus/pull/570
+* PortMidi: Update volume after "reset all controllers" event by @ceski-1 in https://github.com/coelckers/prboom-plus/pull/571
+* PortMidi: Optimize reset messages by @ceski-1 in https://github.com/coelckers/prboom-plus/pull/572
+* PortMidi Updates by @ceski-1 in https://github.com/coelckers/prboom-plus/pull/576
+* UMAPINFO: Introduce the new author field. by @rfomin in https://github.com/coelckers/prboom-plus/pull/436
+
 PrBoom-Plus 2.6.2 @ 11 Feb 2022
 - added a prospective fix for OpenGL rendering: don't bleed walls through sky floors
 - account for proper crosshair offsets when locked on to monsters
